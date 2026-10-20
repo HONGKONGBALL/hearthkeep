@@ -1,0 +1,82 @@
+Chunk 1 verification
+Baseline code commit before this file: 1506a05aaa980efddda91b7f39bbf201ebde1c8e
+Node v20.19.2, npm 11.21.0, repo root /workspace/amazon-app
+No .env file was present for the zero-key run. Servers were stopped afterwards. Ports 8787 and 5173 were free at the end.
+
+Commands and results
+--------------------
+
+1. rm -rf node_modules && npm ci
+   Exit 0.
+   added 186 packages, and audited 190 packages in 2s
+   found 0 vulnerabilities
+   Warning only: esbuild@0.28.2 postinstall is not in allowScripts. Vite still started (see demo below).
+
+2. npm test
+   Exit 0.
+   Vitest v4.1.12
+   tests/healthz.test.ts (2 tests) passed
+   Test Files  1 passed (1)
+   Tests  2 passed (2)
+
+3. npm run typecheck
+   Exit 0.
+   tsc --noEmit for packages/core, apps/mcp-server, apps/simulator, and the root test project.
+
+4. npm run demo   (no .env; script logged "env file: .env.example")
+   curl -sS -o /tmp/hk-health.json -w "%{http_code}" http://127.0.0.1:8787/healthz
+   Result HTTP 200
+   Body: {"status":"ok","protocolVersion":"2025-11-25","storage":"sqlite","payment":"mock","simMode":true,"simNow":"2026-10-21T09:00:00-07:00"}
+   curl -sS -o /tmp/hk-index.html -w "%{http_code}" http://127.0.0.1:5173/
+   Result HTTP 200
+   Listeners were 127.0.0.1:8787 and 127.0.0.1:5173.
+   SIGTERM stopped the demo process group. Ports were free afterwards.
+   Demo log:
+     Hearthkeep demo
+     env file: .env.example
+     MCP server  http://127.0.0.1:8787
+     simulator   http://127.0.0.1:5173
+     VITE v7.3.7  ready in 191 ms
+     Local:   http://127.0.0.1:5173/
+     Hearthkeep MCP server listening on http://127.0.0.1:8787
+   Node printed "The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set."
+   That comes from both variables being set in this shell, not from application code.
+
+5. Headless Chrome (google-chrome --headless=new --no-sandbox), virtual-time-budget 8000
+   Desktop 1280x800 and mobile 390x844 both rendered:
+   "Fictional data", "Hearthkeep", and the simulation-host sentence inside #root.
+   No console ERROR lines remained after filtering GPU and sandbox noise.
+   Layout: one column, chip and heading visible, text wraps on the narrow viewport, no overlap.
+
+6. Env file selection
+   Wrote git-ignored .env with HK_SIM_START=2030-05-05T05:05:05-07:00 and HK_SIM_MODE=1, then npm run demo.
+   Log: env file: .env
+   GET /healthz HTTP 200
+   simNow 2030-05-05T05:05:05-07:00, simMode true
+   Deleted .env. git status stayed clean.
+
+7. Process environment wins over the env file
+   HK_SIM_MODE=0 npm run demo (no .env, so .env.example would have set HK_SIM_MODE=1)
+   GET /healthz HTTP 200
+   {"status":"ok","protocolVersion":"2025-11-25","storage":"sqlite","payment":"mock","simMode":false,"simNow":"2026-10-21T09:00:00-07:00"}
+
+8. Repo checks
+   LICENSE line 3: Copyright (c) 2026 Zhenhua Liu
+   git check-ignore: .env, data/*.db, and node_modules/ are ignored. .env.example is not ignored.
+   README headings: Simulation disclosure, Prerequisites, Install, Run, Test, E2E, Env table, Demo script, Data notice, Architecture, Troubleshooting, License.
+
+Notes for later chunks
+----------------------
+GET /healthz reports storage "sqlite" and payment "mock" as the configured adapters. This skeleton does not open a SQLite file yet.
+npm run test:e2e is not wired. Playwright lands later.
+The ordered quick-chip demo script is a README placeholder.
+npm audit on this lockfile reports 0 vulnerabilities.
+
+git log at baseline (this file is committed after these results):
+1506a05 fix: upgrade Vitest to 4.1.12
+4e8bdd9 chore: lock npm workspace dependencies
+35611fc feat: add the demo runner and healthz test
+5b292f1 feat: add the Vite simulator shell
+8810154 feat: serve GET /healthz on the MCP server
+f7b61dd feat: add core health report
+3a0aea6 chore: scaffold hearthkeep repo metadata
