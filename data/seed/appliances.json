@@ -1,0 +1,215 @@
+{
+  "fictionalDataNotice": "Fictional data. Invented for the Hearthkeep simulation. These are not real people, households, brands, prices, or appointments. No addresses, phone numbers, emails, or payment details. Invented names in this file: Ferngate, FG-28, Calorith, CF-90, Wardlight, SA-9, Tumblewell, TD-5, Brimwell, WH-40.",
+  "seed": "v1",
+  "asOf": "2026-10-21",
+  "appliances": [
+    {
+      "id": "ap_fridge",
+      "spokenName": "fridge",
+      "maker": "Ferngate",
+      "model": "FG-28",
+      "modelDetail": null,
+      "product": "fridge",
+      "location": "Kitchen",
+      "schedule": {
+        "item": "water_filter",
+        "how": "part",
+        "everyDays": 180,
+        "trigger": "interval",
+        "lastDone": "2026-04-24",
+        "nextDue": "2026-10-21",
+        "spec": null,
+        "maxMerv": null
+      },
+      "stateOnSeedDate": "due today"
+    },
+    {
+      "id": "ap_furnace",
+      "spokenName": "furnace",
+      "maker": "Calorith",
+      "model": "CF-90",
+      "modelDetail": "16x25x1, max MERV 11",
+      "product": "furnace",
+      "location": "Hall closet",
+      "schedule": {
+        "item": "air_filter",
+        "how": "part",
+        "everyDays": 90,
+        "trigger": "interval",
+        "lastDone": "2026-08-01",
+        "nextDue": "2026-10-30",
+        "spec": "16x25x1",
+        "maxMerv": 11
+      },
+      "stateOnSeedDate": "coming up, 9 d"
+    },
+    {
+      "id": "ap_smoke_hall",
+      "spokenName": "hallway smoke alarm",
+      "maker": "Wardlight",
+      "model": "SA-9",
+      "modelDetail": null,
+      "product": "smoke alarm",
+      "location": "Hallway",
+      "schedule": {
+        "item": "battery",
+        "how": "part",
+        "everyDays": 365,
+        "trigger": "interval",
+        "lastDone": "2025-10-28",
+        "nextDue": "2026-10-28",
+        "spec": "9V",
+        "maxMerv": null
+      },
+      "stateOnSeedDate": "coming up, 7 d"
+    },
+    {
+      "id": "ap_smoke_bed",
+      "spokenName": "bedroom smoke alarm",
+      "maker": "Wardlight",
+      "model": "SA-9",
+      "modelDetail": null,
+      "product": "smoke alarm",
+      "location": "Main bedroom",
+      "schedule": {
+        "item": "battery",
+        "how": "part",
+        "everyDays": 365,
+        "trigger": "interval",
+        "lastDone": "2026-03-15",
+        "nextDue": "2027-03-15",
+        "spec": "9V",
+        "maxMerv": null
+      },
+      "stateOnSeedDate": "later"
+    },
+    {
+      "id": "ap_dryer",
+      "spokenName": "dryer",
+      "maker": "Tumblewell",
+      "model": "TD-5",
+      "modelDetail": null,
+      "product": "dryer",
+      "location": "Laundry",
+      "schedule": {
+        "item": "vent_cleaning",
+        "how": "pro",
+        "everyDays": 365,
+        "trigger": "interval",
+        "lastDone": "2025-09-30",
+        "nextDue": "2026-09-30",
+        "spec": null,
+        "maxMerv": null
+      },
+      "stateOnSeedDate": "21 d overdue"
+    },
+    {
+      "id": "ap_porch",
+      "spokenName": "porch light",
+      "maker": "generic",
+      "model": "fixture",
+      "modelDetail": "A19 LED 2700K 800 lm",
+      "product": "porch light",
+      "location": "Front porch",
+      "schedule": {
+        "item": "bulb",
+        "how": "part",
+        "everyDays": null,
+        "trigger": "on_failure",
+        "lastDone": null,
+        "nextDue": null,
+        "spec": "A19 LED 2700K 800 lm",
+        "maxMerv": null
+      },
+      "stateOnSeedDate": null
+    }
+  ],
+  "catalogModels": [
+    {
+      "maker": "Ferngate",
+      "model": "FG-28",
+      "product": "fridge",
+      "catalogOnly": false,
+      "schedule": {
+        "item": "water_filter",
+        "how": "part",
+        "everyDays": 180,
+        "trigger": "interval",
+        "spec": null,
+        "maxMerv": null
+      }
+    },
+    {
+      "maker": "Calorith",
+      "model": "CF-90",
+      "product": "furnace",
+      "catalogOnly": false,
+      "schedule": {
+        "item": "air_filter",
+        "how": "part",
+        "everyDays": 90,
+        "trigger": "interval",
+        "spec": "16x25x1",
+        "maxMerv": 11
+      }
+    },
+    {
+      "maker": "Wardlight",
+      "model": "SA-9",
+      "product": "smoke alarm",
+      "catalogOnly": false,
+      "schedule": {
+        "item": "battery",
+        "how": "part",
+        "everyDays": 365,
+        "trigger": "interval",
+        "spec": "9V",
+        "maxMerv": null
+      }
+    },
+    {
+      "maker": "Tumblewell",
+      "model": "TD-5",
+      "product": "dryer",
+      "catalogOnly": false,
+      "schedule": {
+        "item": "vent_cleaning",
+        "how": "pro",
+        "everyDays": 365,
+        "trigger": "interval",
+        "spec": null,
+        "maxMerv": null
+      }
+    },
+    {
+      "maker": "generic",
+      "model": "fixture",
+      "product": "porch light",
+      "catalogOnly": false,
+      "schedule": {
+        "item": "bulb",
+        "how": "part",
+        "everyDays": null,
+        "trigger": "on_failure",
+        "spec": "A19 LED 2700K 800 lm",
+        "maxMerv": null
+      }
+    },
+    {
+      "maker": "Brimwell",
+      "model": "WH-40",
+      "product": "water heater",
+      "catalogOnly": true,
+      "schedule": {
+        "item": "flush",
+        "how": "maintenance",
+        "everyDays": 365,
+        "trigger": "interval",
+        "spec": null,
+        "maxMerv": null
+      }
+    }
+  ],
+  "unknownModelSchedule": null,
+  "unknownModelNote": "Any model that is not listed in catalogModels registers with no schedule."
+}

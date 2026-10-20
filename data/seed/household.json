@@ -1,0 +1,25 @@
+{
+  "fictionalDataNotice": "Fictional data. Invented for the Hearthkeep simulation. These are not real people, households, brands, prices, or appointments. No addresses, phone numbers, emails, or payment details. Invented names in this file: Demo Household (fictional), Sam (fictional).",
+  "seed": "v1",
+  "household": {
+    "name": "Demo Household (fictional)",
+    "member": "Sam (fictional)",
+    "timezone": "America/Los_Angeles",
+    "currency": "USD"
+  },
+  "simClockStart": "2026-10-21T09:00:00-07:00",
+  "preferences": {
+    "spendCapUsd": "60.00",
+    "partPolicy": "oem_or_certified",
+    "partPolicyNote": "Uncertified water filters are excluded.",
+    "selection": "cheapest_then_earliest",
+    "selectionNote": "Among allowed options pick the cheapest, then the earliest arrival.",
+    "purchaseCodeRequired": true,
+    "purchaseCodeSource": "HK_PURCHASE_CODE",
+    "demoPurchaseCode": "2468",
+    "demoPurchaseCodeNote": "Mock confirmation code for the simulation only. Not a credential. The server reads the live value from the environment.",
+    "comingUpWindowDays": 14,
+    "quoteLifetimeSimMinutes": 15,
+    "codeAttemptsPerQuote": 3
+  }
+}

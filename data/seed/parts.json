@@ -1,0 +1,178 @@
+{
+  "fictionalDataNotice": "Fictional data. Invented for the Hearthkeep simulation. These are not real people, households, brands, prices, or appointments. No addresses, phone numbers, emails, or payment details. Invented names in this file: Rillstone, CX-28, Ferngate, FG-WF2, Bargo, ZX-28, Loftaire, Calorith, Voltwick, Glowmere. Prices and brands are fictional. Arrival dates assume an order placed on 2026-10-21; the catalog stores lead times so later orders shift.",
+  "seed": "v1",
+  "orderAnchorDate": "2026-10-21",
+  "shippingNote": "Orders ship the day after they are placed and arrive on the ETA date. Arrival adds the part to stock as Received, not yet installed.",
+  "options": [
+    {
+      "id": "P-CX28",
+      "fitsModel": "FG-28",
+      "fitsProduct": null,
+      "item": "water_filter",
+      "name": "Rillstone CX-28",
+      "brand": "Rillstone",
+      "kind": "compatible",
+      "certified": true,
+      "priceUsd": "24.99",
+      "leadDays": 2,
+      "packQty": 1,
+      "size": null,
+      "merv": null,
+      "spec": null,
+      "policyExample": {
+        "orderedOn": "2026-10-21",
+        "arrives": "2026-10-23",
+        "result": "recommended"
+      }
+    },
+    {
+      "id": "P-FGWF2",
+      "fitsModel": "FG-28",
+      "fitsProduct": null,
+      "item": "water_filter",
+      "name": "Ferngate FG-WF2",
+      "brand": "Ferngate",
+      "kind": "oem",
+      "certified": true,
+      "priceUsd": "49.99",
+      "leadDays": 2,
+      "packQty": 1,
+      "size": null,
+      "merv": null,
+      "spec": null,
+      "policyExample": {
+        "orderedOn": "2026-10-21",
+        "arrives": "2026-10-23",
+        "result": "allowed"
+      }
+    },
+    {
+      "id": "P-ZX28",
+      "fitsModel": "FG-28",
+      "fitsProduct": null,
+      "item": "water_filter",
+      "name": "Bargo ZX-28",
+      "brand": "Bargo",
+      "kind": "compatible",
+      "certified": false,
+      "priceUsd": "12.99",
+      "leadDays": 3,
+      "packQty": 1,
+      "size": null,
+      "merv": null,
+      "spec": null,
+      "policyExample": {
+        "orderedOn": "2026-10-21",
+        "arrives": "2026-10-24",
+        "result": "excluded",
+        "reason": "POLICY_UNCERTIFIED"
+      }
+    },
+    {
+      "id": "P-LF11",
+      "fitsModel": "CF-90",
+      "fitsProduct": null,
+      "item": "air_filter",
+      "name": "Loftaire 16x25x1 MERV 11, 3-pack",
+      "brand": "Loftaire",
+      "kind": "compatible",
+      "certified": null,
+      "priceUsd": "27.99",
+      "leadDays": 2,
+      "packQty": 3,
+      "size": "16x25x1",
+      "merv": 11,
+      "spec": "16x25x1 MERV 11",
+      "policyExample": {
+        "orderedOn": "2026-10-21",
+        "arrives": "2026-10-23",
+        "result": "recommended"
+      }
+    },
+    {
+      "id": "P-CF11",
+      "fitsModel": "CF-90",
+      "fitsProduct": null,
+      "item": "air_filter",
+      "name": "Calorith 16x25x1 MERV 11, 3-pack",
+      "brand": "Calorith",
+      "kind": "oem",
+      "certified": null,
+      "priceUsd": "38.97",
+      "leadDays": 3,
+      "packQty": 3,
+      "size": "16x25x1",
+      "merv": 11,
+      "spec": "16x25x1 MERV 11",
+      "policyExample": {
+        "orderedOn": "2026-10-21",
+        "arrives": "2026-10-24",
+        "result": "allowed"
+      }
+    },
+    {
+      "id": "P-LF13",
+      "fitsModel": "CF-90",
+      "fitsProduct": null,
+      "item": "air_filter",
+      "name": "Loftaire 16x25x1 MERV 13, 3-pack",
+      "brand": "Loftaire",
+      "kind": "compatible",
+      "certified": null,
+      "priceUsd": "34.99",
+      "leadDays": 2,
+      "packQty": 3,
+      "size": "16x25x1",
+      "merv": 13,
+      "spec": "16x25x1 MERV 13",
+      "policyExample": {
+        "orderedOn": "2026-10-21",
+        "arrives": "2026-10-23",
+        "result": "excluded",
+        "reason": "EXCEEDS_MAKER_SPEC"
+      }
+    },
+    {
+      "id": "P-VW9V",
+      "fitsModel": "SA-9",
+      "fitsProduct": null,
+      "item": "battery",
+      "name": "Voltwick 9V, 4-pack",
+      "brand": "Voltwick",
+      "kind": "generic",
+      "certified": null,
+      "priceUsd": "11.49",
+      "leadDays": 1,
+      "packQty": 4,
+      "size": null,
+      "merv": null,
+      "spec": "9V",
+      "policyExample": {
+        "orderedOn": "2026-10-21",
+        "arrives": "2026-10-22",
+        "result": "allowed"
+      }
+    },
+    {
+      "id": "P-GM19",
+      "fitsModel": null,
+      "fitsProduct": "porch light",
+      "item": "bulb",
+      "name": "Glowmere A19 LED 2700K 800 lm, 4-pack",
+      "brand": "Glowmere",
+      "kind": "generic",
+      "certified": null,
+      "priceUsd": "9.99",
+      "leadDays": 1,
+      "packQty": 4,
+      "size": null,
+      "merv": null,
+      "spec": "A19 LED 2700K 800 lm",
+      "policyExample": {
+        "orderedOn": "2026-10-21",
+        "arrives": "2026-10-22",
+        "result": "allowed"
+      }
+    }
+  ]
+}

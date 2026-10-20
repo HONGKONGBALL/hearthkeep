@@ -1,0 +1,43 @@
+{
+  "fictionalDataNotice": "Fictional data. Invented for the Hearthkeep simulation. These are not real people, households, brands, prices, or appointments. No addresses, phone numbers, emails, or payment details. Invented names in this file: Ventora Home Care, Flueline Services. Prices and providers are fictional.",
+  "seed": "v1",
+  "timezone": "America/Los_Angeles",
+  "slots": [
+    {
+      "id": "S-1027A",
+      "provider": "Ventora Home Care",
+      "service": "vent_cleaning",
+      "date": "2026-10-27",
+      "weekday": "Tue",
+      "start": "09:00",
+      "end": "11:00",
+      "windowStart": "2026-10-27T09:00:00-07:00",
+      "windowEnd": "2026-10-27T11:00:00-07:00",
+      "priceUsd": "89.00"
+    },
+    {
+      "id": "S-1028P",
+      "provider": "Flueline Services",
+      "service": "vent_cleaning",
+      "date": "2026-10-28",
+      "weekday": "Wed",
+      "start": "13:00",
+      "end": "15:00",
+      "windowStart": "2026-10-28T13:00:00-07:00",
+      "windowEnd": "2026-10-28T15:00:00-07:00",
+      "priceUsd": "109.00"
+    },
+    {
+      "id": "S-1031A",
+      "provider": "Ventora Home Care",
+      "service": "vent_cleaning",
+      "date": "2026-10-31",
+      "weekday": "Sat",
+      "start": "10:00",
+      "end": "12:00",
+      "windowStart": "2026-10-31T10:00:00-07:00",
+      "windowEnd": "2026-10-31T12:00:00-07:00",
+      "priceUsd": "99.00"
+    }
+  ]
+}

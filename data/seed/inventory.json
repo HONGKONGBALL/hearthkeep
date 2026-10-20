@@ -1,0 +1,24 @@
+{
+  "fictionalDataNotice": "Fictional data. Invented for the Hearthkeep simulation. These are not real people, households, brands, prices, or appointments. No addresses, phone numbers, emails, or payment details. Invented names in this file: none (household locations only: Garage shelf, Kitchen drawer).",
+  "seed": "v1",
+  "items": [
+    {
+      "id": "inv_9v",
+      "item": "battery",
+      "name": "9V battery",
+      "spec": "9V",
+      "qty": 2,
+      "location": "Garage shelf",
+      "receivedNotInstalled": 0
+    },
+    {
+      "id": "inv_a19",
+      "item": "bulb",
+      "name": "A19 LED bulb 2700K 800 lm",
+      "spec": "A19 LED 2700K 800 lm",
+      "qty": 1,
+      "location": "Kitchen drawer",
+      "receivedNotInstalled": 0
+    }
+  ]
+}

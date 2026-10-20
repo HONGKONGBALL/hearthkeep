@@ -1,0 +1,65 @@
+{
+  "fictionalDataNotice": "Fictional data. Invented for the Hearthkeep simulation. These are not real people, households, brands, prices, or appointments. No addresses, phone numbers, emails, or payment details. Invented names in this file: Wardlight, SA-9, Ferngate, FG-28, Tumblewell, TD-5.",
+  "seed": "v1",
+  "symptoms": [
+    {
+      "id": "sym_sa9_battery",
+      "maker": "Wardlight",
+      "model": "SA-9",
+      "product": "smoke alarm",
+      "phrases": ["chirp", "chirping", "beeps once a minute"],
+      "result": "low_battery",
+      "item": "battery",
+      "hazard": false
+    },
+    {
+      "id": "sym_fg28_filter",
+      "maker": "Ferngate",
+      "model": "FG-28",
+      "product": "fridge",
+      "phrases": ["filter light", "water tastes odd"],
+      "result": "filter_due",
+      "item": "water_filter",
+      "hazard": false
+    },
+    {
+      "id": "sym_td5_vent",
+      "maker": "Tumblewell",
+      "model": "TD-5",
+      "product": "dryer",
+      "phrases": ["takes two cycles", "clothes still damp"],
+      "result": "vent_restricted",
+      "item": "vent_cleaning",
+      "hazard": false
+    },
+    {
+      "id": "sym_porch_bulb",
+      "maker": null,
+      "model": null,
+      "product": "porch light",
+      "phrases": ["light is out"],
+      "result": "bulb_failed",
+      "item": "bulb",
+      "hazard": false
+    }
+  ],
+  "hazards": [
+    {
+      "id": "haz_any",
+      "appliesTo": "any",
+      "phrases": [
+        "smell gas",
+        "smell or see smoke",
+        "fire",
+        "sparks",
+        "burning smell",
+        "CO alarm",
+        "alarm going off",
+        "keeps sounding"
+      ],
+      "result": "hazard",
+      "hazard": true,
+      "advice": "safety advice only"
+    }
+  ]
+}

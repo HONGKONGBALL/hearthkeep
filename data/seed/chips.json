@@ -1,0 +1,18 @@
+{
+  "fictionalDataNotice": "Fictional data. Invented for the Hearthkeep simulation. These are not real people, households, brands, prices, or appointments. No addresses, phone numbers, emails, or payment details. Invented names in this file: CX-28, Brimwell, WH-40. The purchase code mentioned in two chips is the mock demo code only.",
+  "seed": "v1",
+  "chips": [
+    "What needs doing?",
+    "Order a new filter for the fridge",
+    "Yes, the CX-28",
+    "Say purchase code (demo)",
+    "The hallway smoke alarm keeps chirping",
+    "Done, I swapped it",
+    "Book someone to clean the dryer vent next week",
+    "Tuesday morning",
+    "Approve with code (demo)",
+    "I just installed a new water heater, a Brimwell WH-40, in the garage",
+    "When is the water heater due?",
+    "I smell gas in the kitchen"
+  ]
+}
