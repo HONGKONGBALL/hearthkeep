@@ -1,0 +1,51 @@
+Chunk 2b1 verification
+MCP transport commit before this file:
+  abaa525 feat: serve the MCP streamable HTTP transport
+Node v20.19.2, npm 11.21.0, repo root /workspace/amazon-app
+
+Section 7.1 is implemented in apps/mcp-server/src/mcp.ts and mounted from createApp. initialize answers protocolVersion 2025-11-25 for a current, older, or unknown client request. POST /mcp returns one SSE message event by default and application/json when HK_JSON_RESPONSE=1. GET /mcp returns 405. DELETE /mcp ends the in-memory session. packages/core was left unchanged.
+
+Commands and results
+--------------------
+
+1. npm test
+   Exit 0.
+   Vitest v4.1.12
+   tests/domain.test.ts (27 tests) passed
+   tests/storage.test.ts (9 tests) passed
+   tests/protocol/transport.test.ts (3 tests) passed
+   tests/healthz.test.ts (2 tests) passed
+   Test Files  4 passed (4)
+   Tests  41 passed (41)
+   Duration 1.78s
+   Node printed "The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set."
+   That comes from both variables being set in this shell, not from application code.
+
+2. npm run typecheck
+   Exit 0.
+   tsc --noEmit for packages/core, apps/mcp-server, apps/simulator, and the root test project.
+
+What the transport tests covered
+------------------------------
+- POST /mcp initialize with requested protocolVersion 2025-03-26 returns 200 text/event-stream, result.protocolVersion 2025-11-25, serverInfo hearthkeep 0.1.0, and a UUID v4 Mcp-Session-Id. The SSE block is a single message event and has no event id.
+- notifications/initialized on that session returns 202 with an empty body.
+- tools/list returns 200 text/event-stream and result.tools [].
+- With HK_JSON_RESPONSE=1, initialize and tools/list return application/json, and the negotiated version is still 2025-11-25. A missing MCP-Protocol-Version header is accepted.
+- OPTIONS /mcp for an origin in HK_ALLOWED_ORIGINS returns 204. CORS allows methods POST, GET, DELETE and headers Content-Type, Accept, Mcp-Session-Id, MCP-Protocol-Version, Authorization. Access-Control-Expose-Headers is Mcp-Session-Id.
+- An origin outside the allowlist returns 403 with a JSON-RPC error body and no Mcp-Session-Id.
+- An allowlisted initialize response echoes that origin and still negotiates 2025-11-25 when the client requests 2024-11-05.
+- GET /mcp returns 405.
+- A non-JSON Content-Type returns 415. Accept without both application/json and text/event-stream returns 406.
+- Unparsable JSON returns 400 with error code -32700. A JSON array returns 400 with error code -32600.
+- tools/list without Mcp-Session-Id returns 400. MCP-Protocol-Version 2025-03-26 after initialize returns 400.
+- DELETE /mcp for a live session returns 200. A later tools/list or DELETE with that id returns 404.
+
+Notes for later chunks
+----------------------
+tools/list is an empty list. Tool handlers, output schemas, and HK_AUTH_TOKEN are untouched.
+Sessions live in the process that created the app. A restart drops them.
+GET /healthz is unchanged.
+A request may include _meta.progressToken. In SSE mode the handler writes one notifications/progress message event before the result. JSON mode sends only the JSON-RPC result.
+
+git status at the end of the test run, before this file: clean
+git rev-parse HEAD at that run: abaa525f133c5080ca2e83e2fa6c5b5a487e9d7a
