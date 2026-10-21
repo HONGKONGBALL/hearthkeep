@@ -1,8 +1,70 @@
+import { DEFAULT_SIM_START } from "./clock";
+
 /** MCP protocol version this server advertises. */
 export const PROTOCOL_VERSION = "2025-11-25" as const;
 
-/** Seed clock for the simulation: Wednesday 21 October 2026, 09:00, US Pacific. */
-export const DEFAULT_SIM_START = "2026-10-21T09:00:00-07:00";
+export { DEFAULT_SIM_START, ClockError } from "./clock";
+export type { ClockErrorCode } from "./clock";
+export { SEED_VERSION } from "./types";
+export type {
+  Appliance,
+  AuditEvent,
+  Booking,
+  BookingStatus,
+  CatalogModel,
+  Chip,
+  HazardRule,
+  Household,
+  IdKind,
+  InventoryItem,
+  ItemHow,
+  JsonValue,
+  Order,
+  OrderStatus,
+  PartKind,
+  PartOption,
+  Preferences,
+  Quote,
+  QuoteKind,
+  QuoteStatus,
+  Schedule,
+  ScheduleTemplate,
+  ScheduleTrigger,
+  SeedVersion,
+  ServiceSlot,
+  SimSnapshot,
+  Symptom,
+  Task,
+  TaskStatus,
+} from "./types";
+export { SeedError, defaultSeedDir, loadSeed } from "./seed";
+export type { PolicyExample, SeedAppliance, SeedBundle, SeedPart } from "./seed";
+export type {
+  AppliancePatch,
+  BookingPatch,
+  InventoryPatch,
+  NewAppliance,
+  NewAudit,
+  NewBooking,
+  NewInventoryItem,
+  NewOrder,
+  NewQuote,
+  NewSchedule,
+  NewTask,
+  OrderPatch,
+  QuotePatch,
+  Repository,
+  SchedulePatch,
+  TaskPatch,
+} from "./repository";
+export {
+  SqliteRepository,
+  openRepository,
+  openRepositoryFromEnv,
+  resolveDbPath,
+  resolveSimStart,
+} from "./sqlite-repository";
+export type { OpenRepositoryOptions, StorageEnv } from "./sqlite-repository";
 
 export interface HealthReport {
   status: "ok";

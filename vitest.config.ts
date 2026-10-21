@@ -5,5 +5,13 @@ export default defineConfig({
     environment: "node",
     include: ["tests/**/*.test.ts"],
     fileParallelism: false,
+    server: {
+      deps: {
+        external: ["better-sqlite3"],
+      },
+    },
+  },
+  ssr: {
+    external: ["better-sqlite3"],
   },
 });
