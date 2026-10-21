@@ -1,0 +1,46 @@
+Chunk 2a1 verification
+Seed and storage commits before this file:
+  2fcae6e feat: add fictional seed v1 JSON
+  d59dcab feat: store seed v1 and the sim clock in SQLite
+Node v20.19.2, npm 11.21.0, repo root /workspace/amazon-app
+better-sqlite3 is pinned at 12.9.0. Releases after 12.9.0 do not publish Node 20 (ABI 115) prebuilds, and this machine has no make to compile a native addon.
+
+Commands and results
+--------------------
+
+1. npm test
+   Exit 0.
+   Vitest v4.1.12
+   tests/storage.test.ts (9 tests) passed
+   tests/healthz.test.ts (2 tests) passed
+   Test Files  2 passed (2)
+   Tests  11 passed (11)
+   Duration 939ms
+   Node printed "The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set."
+   That comes from both variables being set in this shell, not from application code.
+
+2. npm run typecheck
+   Exit 0.
+   tsc --noEmit for packages/core, apps/mcp-server, apps/simulator, and the root test project.
+
+What the storage tests covered
+------------------------------
+- Every data/seed/*.json file is seed v1 and its first field is fictionalDataNotice.
+- Sample rows match section 9: household and preferences, six appliances and their dates, Brimwell WH-40 catalog-only flush schedule, two inventory rows, eight part options with lead times, symptom and hazard phrases, three service slots, twelve chips in demo order.
+- An empty :memory: database loads seed v1. The snapshot clock is 2026-10-21T09:00:00-07:00. Orders, bookings, tasks, and audit start empty.
+- The documented mock code 2468 stays in the seed file. It is not written into SQLite preferences or the sim snapshot.
+- allocateId and inserts issue q_0001, ord_0001, bk_0001, t_0001, and ap_0001, then the next number. reset() returns {now: seed clock, seed: v1}, restores inventory and schedules, drops the added rows, and starts the counters over. The next audit id is 1 again.
+- advanceDays accepts 1 through 400 and rejects 0, -1, 1.5, and 401. One day stays at 09:00 -07:00. Eleven days lands on 2026-11-01T09:00:00-08:00 after the Pacific change. A 400-day advance keeps 09:00.
+- set() accepts only a later ISO time. An equal, earlier, date-only, or invalid value leaves the clock unchanged. 2026-10-21T17:00:00Z is stored as 2026-10-21T10:00:00-07:00.
+- A nested file path persists the clock, an inventory edit, and ord_0001 across close and reopen, without loading the seed a second time. reset() on that file restores seed v1.
+- HK_DB defaults to ./data/hearthkeep.db and :memory: is preserved. HK_SIM_START defaults to the seed clock. A Zulu start is stored in America/Los_Angeles. Two memory databases do not share a clock.
+- A directory with no seed files throws SeedError.
+
+Notes for later chunks
+----------------------
+Domain rules (status buckets, parts policy, checkout, tasks) are not in this chunk. The repository stores the seed facts and the rows those rules will write.
+GET /healthz still reports the configured clock from the environment. It does not open SQLite yet.
+The purchase code used at confirm time is HK_PURCHASE_CODE, not a column in the database.
+
+git status at the end of the test run, before this file: clean
+git rev-parse HEAD at that run: d59dcabf26bdebe2c8d636d80c145214009d229a
