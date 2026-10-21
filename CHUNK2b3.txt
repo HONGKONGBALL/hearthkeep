@@ -1,0 +1,52 @@
+Chunk 2b3 verification
+Write P0 tools commit before this file:
+  e3b10a6ff0cea33e434abd8c5c08ae5f8283947f feat: register the five write P0 MCP tools
+Node v20.19.2, npm 11.21.0, repo root /workspace/amazon-app
+
+Section 7.2 rows for register_appliance, prepare_checkout, confirm_purchase, create_task, and log_maintenance are registered in apps/mcp-server/src/write-tools.ts and dispatched with the five read-only tools from tools/list and tools/call. Section 7.3 domain errors stay tool results with isError true and structuredContent.error.code. attemptsRemaining is included when the domain error carries it. packages/core was left unchanged. The handlers call registerAppliance, prepareCheckout, confirmPurchase, createTask, and logMaintenance.
+
+tools/list order matches the section 7.2 table. Each tool publishes a zod input schema and an output schema. The output schema is a union of the success object and { error: { code, message, attemptsRemaining? } }. The five lookup tools keep readOnlyHint true, destructiveHint false, idempotentHint true, and openWorldHint false. confirm_purchase sets idempotentHint true, openWorldHint true, and destructiveHint true, the MCP default for a tool that spends money. register_appliance sets destructiveHint false and idempotentHint true. prepare_checkout, create_task, and log_maintenance set destructiveHint false, idempotentHint false, and openWorldHint false. Success and error results both return content as one text block of at most two sentences, plus structuredContent.
+
+Commands and results
+--------------------
+
+1. npm test
+   Exit 0.
+   Vitest v4.1.12
+   tests/protocol/tools.test.ts (10 tests) passed
+   tests/domain.test.ts (27 tests) passed
+   tests/protocol/transport.test.ts (3 tests) passed
+   tests/storage.test.ts (9 tests) passed
+   tests/healthz.test.ts (2 tests) passed
+   Test Files  5 passed (5)
+   Tests  51 passed (51)
+   Duration 2.70s
+   Node printed "The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set."
+   That comes from both variables being set in this shell, not from application code.
+
+2. npm run typecheck
+   Exit 0.
+   tsc --noEmit for packages/core, apps/mcp-server, apps/simulator, and the root test project.
+
+What the HTTP tool tests covered
+--------------------------------
+Fictional seed data only. The purchase code 2468 is the fictional demo code. Each call used HK_JSON_RESPONSE=1 and HK_DB=:memory: over POST /mcp.
+
+- tools/list returns the ten P0 names in section 7.2 order. Lookup annotations stay read-only. confirm_purchase is idempotent, open-world, and destructive. The other writes set destructiveHint false. Each inputSchema.type is object, and outputSchema.anyOf has two branches including INVALID_ARGUMENT.
+- prepare_checkout for ap_fridge P-CX28 qty 1 returns q_0001, totalUsd 24.99, eta 2026-10-23, capUsd 60.00, overCap false, expiresAt 2026-10-21T09:15:00-07:00. confirm_purchase with code 2468 returns kind order, ord_0001, status placed, mock true, createdTaskId t_0001. A second confirm returns alreadyConfirmed true and the same order.
+- Wrong code 0000 is isError INVALID_PURCHASE_CODE with attemptsRemaining 2. Code 1111 then returns attemptsRemaining 1. Code 2468 still places ord_0001.
+- prepare_checkout for slot S-1027A returns totalUsd 89.00, overCap true, overByUsd 29.00. confirm_purchase with 2468 and no approveOverCap is isError OVER_CAP_APPROVAL_REQUIRED and does not include attemptsRemaining. confirm_purchase with 2468 and approveOverCap true returns kind booking, bk_0001, status booked.
+- register_appliance for a Brimwell WH-40 in the Garage returns ap_0001, created true, scheduleSource catalog, flush next due 2027-10-21. create_task for the hallway battery returns t_0001. log_maintenance closes that task, sets nextDue 2027-10-21, and leaves qty 1 on the Garage shelf.
+
+The transport tests now expect those ten tool names from tools/list in both SSE and JSON mode. Only the five lookup tools are read-only. Session, origin, and content-type checks are unchanged.
+
+Notes for later chunks
+----------------------
+P1 tools from section 7.2 are not registered. tools/call for an unknown name returns JSON-RPC -32602. A thrown non-domain error returns -32603.
+Schema failures become INVALID_ARGUMENT tool results before the domain function runs. DomainError messages are the speakable text.
+confirm_purchase reads the fictional code inside packages/core. The tool schema does not publish the code.
+Sessions and the lazy repository live in the process that created the app. A restart drops them.
+GET /healthz is unchanged.
+
+git status at the end of the test run, before this file: the write-tool sources were modified and uncommitted, then committed as e3b10a6ff0cea33e434abd8c5c08ae5f8283947f after the tests passed. Pre-existing executable-bit changes remain on files this chunk did not edit.
+git rev-parse HEAD at that commit: e3b10a6ff0cea33e434abd8c5c08ae5f8283947f
