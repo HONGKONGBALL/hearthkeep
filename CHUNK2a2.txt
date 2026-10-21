@@ -1,0 +1,59 @@
+Chunk 2a2 verification
+Domain commit before this file:
+  2d73db643115f820d9fdeb31a4d4ad3fe66981d5 feat: add P0 domain rules for upkeep, parts, and checkout
+Node v20.19.2, npm 11.21.0, repo root /workspace/amazon-app
+Fictional household data only. No purchase code is written to SQLite or the audit log.
+
+Content hashes at that commit
+-----------------------------
+33188eb8655e5d57ffa5828c871372e13df1a907b3228d421c24c672e1305cb8  packages/core/src/domain.ts
+baab1fa9034d48bd24b5db236c933e606f3ba93e029217c5d7b8c0b6117a0869  packages/core/src/index.ts
+fd2ca3365465ec7c17dc36fc08e6934cbd44f2e1af3633a630f2196b8baeb638  tests/domain.test.ts
+
+Commands and results
+--------------------
+
+1. npm test
+   Exit 0.
+   Vitest v4.1.12
+   tests/domain.test.ts (27 tests) passed
+   tests/storage.test.ts (9 tests) passed
+   tests/healthz.test.ts (2 tests) passed
+   Test Files  3 passed (3)
+   Tests  38 passed (38)
+   Duration 1.49s
+   Node printed "The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set."
+   That comes from both variables being set in this shell, not from application code.
+
+2. npx tsc -p packages/core/tsconfig.json --noEmit
+   Exit 0.
+
+3. npx tsc -p tsconfig.json --noEmit
+   Exit 0.
+
+What the domain tests covered
+-----------------------------
+- getUpkeepStatus: dryer vent overdue by 21 days (2026-09-30), fridge water filter due today, hallway battery in 7 days, furnace filter in 9 days. Horizon outside 1..400 and an unknown appliance fail. Speech names the dryer vent and the fridge water filter.
+- resolveAppliance: "the fridge" matches ap_fridge FG-28. "smoke alarm" is ambiguous (hallway, bedroom). "garage door" is APPLIANCE_NOT_FOUND.
+- registerAppliance: Brimwell WH-40 in the Garage creates ap_0001 from the catalog, flush next due 2027-10-21. A case-different repeat returns the same id and created false. Zephyrine Q-1 has scheduleSource none. A 400-day status read lists the flush.
+- findParts: fridge water filters P-CX28 recommended at 24.99 ETA 2026-10-23, P-FGWF2 allowed, P-ZX28 excluded POLICY_UNCERTIFIED, on-hand qty 0, action buy. Furnace keeps MERV 11 options and excludes P-LF13 EXCEEDS_MAKER_SPEC. Hallway battery stock qty 2 on the Garage shelf is use_on_hand and no option is recommended. A dryer water filter is ITEM_NOT_APPLICABLE.
+- diagnoseSymptom: "keeps chirping" is low_battery / battery and writes nothing. Smoke, gas, and "the alarm is going off" are hazards. Hazard speech contains "leave" and "emergency". The snapshot is unchanged.
+- findServiceSlots: S-1027A, S-1028P, and S-1031A in that order, all over the $60 cap. A past window is INVALID_ARGUMENT.
+- prepareCheckout: P-CX28 is q_0001, $24.99, ETA 2026-10-23, cap $60.00, expires 2026-10-21T09:15:00-07:00, and creates no order. S-1027A is $89.00, over cap by $29.00. P-ZX28 is POLICY_EXCLUDED. P-FGWF2 on the furnace is PART_NOT_COMPATIBLE. Empty items and qty 0 are INVALID_ARGUMENT. Rejected quotes are not stored.
+- confirmPurchase: wrong code leaves 2 attempts and no order. Code 2468 places ord_0001, task "Install fridge water filter" due 2026-10-23, and moves the fridge filter into inProgress. Repeating the quote returns alreadyConfirmed and still one order. A clock of 09:16 returns QUOTE_EXPIRED. Three wrong codes lock the quote; 2468 then still returns QUOTE_LOCKED. Over-cap approval is required and does not spend an attempt; a wrong code on that quote does. Approval books bk_0001 and moves the dryer to inProgress. Booking the same slot again is SLOT_UNAVAILABLE and the slot leaves the open list. An unknown quote is QUOTE_NOT_FOUND.
+- createTask and logMaintenance: t_0001 closes, battery stock falls from 2 to 1 on the Garage shelf, lastDone 2026-10-21, nextDue 2027-10-21, and the hallway battery leaves the coming-up list. consumeInventory false leaves qty 2.
+- syncLifecycle: one day ships ord_0001 and status shows it shipped. The next day delivers it and adds Rillstone CX-28 x1 at "Received, not yet installed". Logging the fridge filter on 2026-10-23 sets nextDue 2027-04-21, stock 0, and closes t_0001. A second sync does not deliver again.
+- recordAudit: the flow stores quote_created, code_rejected, order_placed, booking_placed, and task_created. The audit JSON contains neither 2468 nor 0000. A detail that includes the demo code is rejected.
+
+Check order for confirmPurchase
+-------------------------------
+Quote exists, not expired, not locked, code, then over-cap approval. A wrong code spends an attempt even when the quote is over the cap. The third wrong code locks it. The expected code is HK_PURCHASE_CODE, or the fictional demo code 2468 when that variable is unset. Confirmed quotes return the same order or booking with alreadyConfirmed.
+
+Notes for later chunks
+----------------------
+These functions are the domain core. They do not speak MCP, open HTTP, or advance the clock by themselves. Call syncLifecycle after the sim clock moves so placed orders ship the next local day and arrive on the ETA date.
+cancel_order, set_preferences, and get_home_profile stay P1 and are not implemented here. ORDER_NOT_CANCELLABLE is reserved on DomainError for that later tool.
+Read tools do not append audit rows. getUpkeepStatus does not ship orders; the clock host should call syncLifecycle.
+
+git status at the end of the test run, before this file: clean
+git rev-parse HEAD at that run: 2d73db643115f820d9fdeb31a4d4ad3fe66981d5
