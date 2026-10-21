@@ -1,0 +1,52 @@
+Chunk 2b2 verification
+Read-only P0 tools commit before this file:
+  de27983503d8c49ecb2622ea79d15e3663a6e365 feat: register the five read-only P0 MCP tools
+Node v20.19.2, npm 11.21.0, repo root /workspace/amazon-app
+
+Section 7.2 rows for get_upkeep_status, resolve_appliance, find_parts, diagnose_symptom, and find_service_slots are registered in apps/mcp-server/src/tools.ts and dispatched from tools/list and tools/call in apps/mcp-server/src/mcp.ts. Section 7.3 domain errors are tool results with isError true and structuredContent.error.code. packages/core was left unchanged. The handlers call getUpkeepStatus, resolveAppliance, findParts, diagnoseSymptom, and findServiceSlots.
+
+Each tool publishes a zod input schema and an output schema. The output schema is a union of the success object and { error: { code, message, attemptsRemaining? } }, so an error result still matches outputSchema. Annotations set readOnlyHint true, destructiveHint false, idempotentHint true, and openWorldHint false. Success and error results both return content as one text block of at most two sentences, plus structuredContent. The repository is opened lazily from HK_DB and HK_SIM_START on the first tools/call. tools/list does not open it.
+
+Commands and results
+--------------------
+
+1. npm test
+   Exit 0.
+   Vitest v4.1.12
+   tests/domain.test.ts (27 tests) passed
+   tests/protocol/transport.test.ts (3 tests) passed
+   tests/storage.test.ts (9 tests) passed
+   tests/protocol/tools.test.ts (6 tests) passed
+   tests/healthz.test.ts (2 tests) passed
+   Test Files  5 passed (5)
+   Tests  47 passed (47)
+   Duration 2.29s
+   Node printed "The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set."
+   That comes from both variables being set in this shell, not from application code.
+
+2. npm run typecheck
+   Exit 0.
+   tsc --noEmit for packages/core, apps/mcp-server, apps/simulator, and the root test project.
+
+What the HTTP tool tests covered
+--------------------------------
+Fictional seed data only. Each call used HK_JSON_RESPONSE=1 and HK_DB=:memory: over POST /mcp.
+
+- tools/list returns the five names in order. Each annotation is read-only, inputSchema.type is object, and outputSchema.anyOf has two branches including INVALID_ARGUMENT.
+- get_upkeep_status with no arguments returns now 2026-10-21T09:00:00-07:00, dryer vent cleaning overdue, and fridge water filter due today. horizonDays 0 is isError INVALID_ARGUMENT.
+- resolve_appliance "the fridge" returns status match for ap_fridge. "garage door" is isError APPLIANCE_NOT_FOUND. The speech is "I don't know a garage door yet. Want to add it?"
+- find_parts for ap_fridge water_filter returns P-CX28 at 24.99 recommended, P-FGWF2 at 49.99, excludes P-ZX28 as POLICY_UNCERTIFIED, onHand qty 0, and recommendedAction buy. ap_dryer water_filter is isError ITEM_NOT_APPLICABLE.
+- diagnose_symptom for the hallway smoke alarm "keeps chirping" returns hazard false, cause low_battery, item battery. ap_missing is isError APPLIANCE_NOT_FOUND.
+- find_service_slots for dryer vent cleaning from 2026-10-26 to 2026-11-01 returns S-1027A, S-1028P, and S-1031A, each overCap. A window in the past is isError INVALID_ARGUMENT with "I need a date range in the future for that."
+
+The earlier transport tests now expect those five tool names from tools/list in both SSE and JSON mode. Session, origin, and content-type checks are unchanged.
+
+Notes for later chunks
+----------------------
+Write tools from section 7.2 are not registered. tools/call for an unknown name returns JSON-RPC -32602. A thrown non-domain error returns -32603.
+Schema failures become INVALID_ARGUMENT tool results before the domain function runs. DomainError messages are the speakable text.
+Sessions and the lazy repository live in the process that created the app. A restart drops them.
+GET /healthz is unchanged.
+
+git status at the end of the test run, before this file: the tool commit was clean aside from pre-existing executable-bit changes on files this chunk did not edit.
+git rev-parse HEAD at that run: de27983503d8c49ecb2622ea79d15e3663a6e365
