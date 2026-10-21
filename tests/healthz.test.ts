@@ -32,6 +32,7 @@ describe("GET /healthz", () => {
 
   it("returns the zero-key demo payload", async () => {
     const started = await listen({
+      HK_DB: ":memory:",
       HK_SIM_MODE: "1",
       HK_SIM_START: "2026-10-21T09:00:00-07:00",
     });
@@ -51,7 +52,7 @@ describe("GET /healthz", () => {
   });
 
   it("uses the seed clock when unset and reports simMode false when HK_SIM_MODE=0", async () => {
-    const defaults = await listen({});
+    const defaults = await listen({ HK_DB: ":memory:" });
     open.push(defaults.server);
     const defaultResponse = await fetch(`${defaults.base}/healthz`);
     expect(defaultResponse.status).toBe(200);
@@ -64,7 +65,7 @@ describe("GET /healthz", () => {
       simNow: "2026-10-21T09:00:00-07:00",
     });
 
-    const disabled = await listen({ HK_SIM_MODE: "0" });
+    const disabled = await listen({ HK_DB: ":memory:", HK_SIM_MODE: "0" });
     open.push(disabled.server);
     const disabledResponse = await fetch(`${disabled.base}/healthz`);
     expect(disabledResponse.status).toBe(200);

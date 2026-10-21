@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import express, { type Express, type Request, type Response } from "express";
-import { openRepositoryFromEnv, type Repository } from "@hearthkeep/core";
+import type { Repository } from "@hearthkeep/core";
 import { callTool, listTools } from "./tools";
 
 /** Protocol version this server always negotiates. Older or unknown requests still get this value. */
@@ -137,6 +137,16 @@ function requestId(message: Record<string, unknown>): RpcId | null {
 
 function rejectOrigin(res: Response): void {
   sendJson(res, 403, rpcError(null, -32000, "Forbidden: Origin not allowed"));
+}
+
+/** Same Origin rule as `/mcp`: absent is allowed, unknown origins are 403. */
+export function allowOrigin(req: Request, res: Response, env: McpEnv): boolean {
+  const origin = applyCors(req, res, allowedOrigins(env));
+  if (origin === "forbidden") {
+    rejectOrigin(res);
+    return false;
+  }
+  return true;
 }
 
 function handleGet(res: Response): void {
@@ -354,23 +364,10 @@ function dispatchRequest(
   sendResult(res, env, rpcError(id, -32601, "Method not found"), sessionId, params);
 }
 
-export function mountMcp(app: Express, env: McpEnv): void {
+export function mountMcp(app: Express, env: McpEnv, getRepo: () => Repository): void {
   const sessions = new Map<string, Session>();
-  const allowed = allowedOrigins(env);
-  let repository: Repository | undefined;
-  const getRepo = (): Repository => {
-    if (repository === undefined) repository = openRepositoryFromEnv(env);
-    return repository;
-  };
 
-  const guard = (req: Request, res: Response): boolean => {
-    const origin = applyCors(req, res, allowed);
-    if (origin === "forbidden") {
-      rejectOrigin(res);
-      return false;
-    }
-    return true;
-  };
+  const guard = (req: Request, res: Response): boolean => allowOrigin(req, res, env);
 
   app.options("/mcp", (req, res) => {
     if (!guard(req, res)) return;

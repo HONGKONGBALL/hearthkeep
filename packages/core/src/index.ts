@@ -127,19 +127,24 @@ export interface HealthEnv {
 /**
  * `HK_SIM_MODE` defaults to on so `npm run demo` matches the zero-key contract.
  * Only the exact value "1" enables simulation mode. "0" disables it.
- * `HK_SIM_START` is returned unchanged so the offset in the seed clock is preserved.
  */
-export function healthReport(env: HealthEnv = {}): HealthReport {
-  const simMode = env.HK_SIM_MODE === undefined ? true : env.HK_SIM_MODE === "1";
+export function simModeFromEnv(env: HealthEnv = {}): boolean {
+  return env.HK_SIM_MODE === undefined ? true : env.HK_SIM_MODE === "1";
+}
+
+/**
+ * `simNow` is the clock stored in SQLite when the caller has opened the database.
+ * Without that argument, `HK_SIM_START` is returned unchanged so the offset is preserved.
+ */
+export function healthReport(env: HealthEnv = {}, simNow?: string): HealthReport {
   const configured = env.HK_SIM_START;
-  const simNow =
-    configured === undefined || configured.trim() === "" ? DEFAULT_SIM_START : configured;
+  const fromEnv = configured === undefined || configured.trim() === "" ? DEFAULT_SIM_START : configured;
   return {
     status: "ok",
     protocolVersion: PROTOCOL_VERSION,
     storage: "sqlite",
     payment: "mock",
-    simMode,
-    simNow,
+    simMode: simModeFromEnv(env),
+    simNow: simNow === undefined || simNow.trim() === "" ? fromEnv : simNow,
   };
 }
