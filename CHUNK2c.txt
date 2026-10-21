@@ -1,0 +1,83 @@
+Chunk 2c verification
+Protocol acceptance tests for QA sections B, C, D, E, and server-side I.
+Repo root /workspace/amazon-app. Fictional seed v1. The demo purchase code is a mock label.
+
+npm test
+Exit 0.
+Vitest v4.1.12
+Test Files  11 passed (11)
+Tests  167 passed (167)
+
+Suites: tests/protocol/qa-b.test.ts, qa-c.test.ts, qa-d.test.ts, qa-e.test.ts, qa-i.test.ts.
+Each B–E case and the HTTP I cases run over real HTTP in SSE mode and JSON mode (HK_JSON_RESPONSE=1).
+I84 starts the server with startServer on 127.0.0.1:8787 and checks the listen socket.
+I86 scans seed files and the SQLite schema.
+I88 measures tool-call p95. Utterance-to-rendered-reply timing is a simulator case and is not in this chunk.
+
+Server fixes found by these cases
+- initialize advertises resources as well as tools
+- resources/list and resources/read serve the five ui://hearthkeep/*.html cards
+- the seven visual tools reference those cards in MCP Apps metadata
+- default Origin allowlist is the simulator origins
+- /sim/clock and /sim/state advance order shipment and delivery
+- startup log includes http://<host>:<port>/mcp
+- tool errors that QA calls one sentence are a single sentence
+
+Results
+-------
+B7 PASS (sse, json)
+B8 PASS (sse, json)
+B9 PASS (sse, json)
+B10 PASS (sse, json)
+B11 PASS (sse, json)
+B12 PASS (sse, json)
+B13 PASS (sse, json)
+B14 PASS (sse, json)
+B15 PASS (sse, json)
+B16 PASS (sse, json)
+B17 PASS (sse, json)
+B18 PASS (sse, json)
+B19 PASS (sse, json)
+B20 PASS (sse, json)
+B21 PASS (sse, json)
+B22 PASS (sse, json)
+B23 PASS (sse, json)
+C24 PASS (sse, json)
+C25 PASS (sse, json)
+C26 PASS (sse, json)
+C27 PASS (sse, json)
+C28 PASS (sse, json)
+C29 PASS (sse, json)
+C30 PASS (sse, json)
+C31 PASS (sse, json)
+C32 PASS (sse, json)
+C33 PASS (sse, json)
+C34 PASS (sse, json)
+C35 PASS (sse, json)
+C36 PASS (sse, json)
+C37 PASS (sse, json)
+C38 PASS (sse, json)
+D39 PASS (sse, json)
+D40 PASS (sse, json)
+D41 PASS (sse, json)
+D42 PASS (sse, json)
+D43 PASS (sse, json)
+D44 PASS (sse, json)
+D45 PASS (sse, json)
+D46 PASS (sse, json)
+D47 PASS (sse, json)
+D48 PASS (sse, json)
+D49 PASS (sse, json)
+D50 PASS (sse, json)
+D51 PASS (sse, json)
+E52 PASS (sse, json)
+E53 PASS (sse, json)
+E54 PASS (sse, json)
+E55 PASS (sse, json)
+E56 PASS (sse, json)
+E57 PASS (sse, json)
+I84 PASS
+I85 PASS (sse, json)
+I86 PASS
+I87 PASS (sse, json)
+I88 PASS (sse, json; tool-call p95 under 200 ms)
