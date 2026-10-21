@@ -1,0 +1,58 @@
+Chunk 2b4 verification
+Sim routes commit before this file:
+  90b706eb443c55c3460008047556a50e438c9126 feat: serve health and sim routes from the SQLite clock
+Node v20.19.2, npm 11.21.0, repo root /workspace/amazon-app
+
+Section 7.5 is implemented in apps/mcp-server/src/sim.ts and mounted from createApp. GET /healthz always returns 200 with status ok, protocolVersion 2025-11-25, storage sqlite, payment mock, simMode, and simNow from the SQLite clock. The app reads HK_DB and HK_SIM_MODE. HK_SIM_MODE defaults to on. The exact value 0 turns sim mode off.
+
+In sim mode, GET /sim/state returns the snapshot (clock, appliances, schedule, inventory, orders, bookings, tasks, audit). POST /sim/clock accepts {advanceDays: 1-400} or {set: ISO time later than now} and returns 200 {now}. Other bodies return 400. POST /sim/reset returns 200 {now: 2026-10-21T09:00:00-07:00, seed: v1} and reseeds state with sequential ids. /sim outside sim mode is 404. /sim uses the same Origin allowlist as /mcp. An empty database loads seed v1 on first start. Session ids stay random.
+
+scripts/smoke.mjs initializes a session, lists tools, and calls get_upkeep_status.
+
+Commands and results
+--------------------
+
+1. npm test
+   Exit 0.
+   Vitest v4.1.12
+   tests/sim.test.ts (6 tests) passed
+   tests/protocol/tools.test.ts (10 tests) passed
+   tests/protocol/transport.test.ts (3 tests) passed
+   tests/domain.test.ts (27 tests) passed
+   tests/healthz.test.ts (2 tests) passed
+   tests/storage.test.ts (9 tests) passed
+   Test Files  6 passed (6)
+   Tests  57 passed (57)
+   Duration 3.27s
+   Node printed "The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set."
+   That comes from both variables being set in this shell, not from application code.
+
+2. npm run demo, then node scripts/smoke.mjs
+   Exit 0.
+   Demo used .env.example. MCP server http://127.0.0.1:8787. Simulator http://127.0.0.1:5173.
+   smoke ok
+   protocol 2025-11-25
+   session 1a724ceb-220b-4c9a-861a-30fbfae0292d
+   tools 10
+   upkeep now 2026-10-21T09:00:00-07:00
+   The dryer vent cleaning is overdue, and the fridge water filter is due today.
+   GET /healthz on that process returned status ok, storage sqlite, payment mock, simMode true, simNow 2026-10-21T09:00:00-07:00.
+   GET /sim/state returned clock 2026-10-21T09:00:00-07:00 and keys appliances, audit, bookings, clock, inventory, orders, schedule, tasks.
+   Servers were stopped afterwards. Ports 8787 and 5173 were closed.
+
+What the sim tests covered
+--------------------------
+Fictional seed data only. No secrets.
+
+- GET /healthz and GET /sim/state read the SQLite clock. POST /sim/clock with advanceDays and set moves simNow. The clock does not drift on its own.
+- Clock bodies other than advanceDays 1-400 or a later ISO time return 400.
+- POST /sim/reset returns now 2026-10-21T09:00:00-07:00 and seed v1, restores the clock, and restarts sequential ids. Session ids stay random.
+- An empty HK_DB loads HK_SIM_START and keeps that clock in the database.
+- /sim outside sim mode and unknown sim paths return 404.
+- /sim uses the MCP Origin allowlist.
+
+Notes
+-----
+The route implementation was already on main as 90b706eb when this verification ran. This file records that run. No application source changed in this verification commit. data/hearthkeep.db stayed gitignored.
+
+git rev-parse HEAD at the feature commit: 90b706eb443c55c3460008047556a50e438c9126
