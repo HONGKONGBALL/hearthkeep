@@ -1,6 +1,7 @@
 /**
- * Read-only P0 MCP tools. Prices, brands, and household names are fictional simulation data.
+ * P0 MCP tools. Prices, brands, and household names are fictional simulation data.
  * Each tool calls packages/core and returns at most two speakable sentences plus structuredContent.
+ * Read-only tools live here. Write tools are defined in write-tools.ts.
  */
 import {
   DOMAIN_ERROR_CODES,
@@ -13,13 +14,14 @@ import {
   type Repository,
 } from "@hearthkeep/core";
 import { z } from "zod";
+import { writeToolOptions, type ToolAnnotations } from "./write-tools";
 
-const READ_ONLY_ANNOTATIONS = {
+const READ_ONLY_ANNOTATIONS: ToolAnnotations = {
   readOnlyHint: true,
   destructiveHint: false,
   idempotentHint: true,
   openWorldHint: false,
-} as const;
+};
 
 const errorBody = z
   .object({
@@ -194,7 +196,7 @@ export interface ListedTool {
   description: string;
   inputSchema: { [key: string]: unknown };
   outputSchema: { [key: string]: unknown };
-  annotations: typeof READ_ONLY_ANNOTATIONS;
+  annotations: ToolAnnotations;
 }
 
 interface RegisteredTool {
@@ -202,6 +204,7 @@ interface RegisteredTool {
   description: string;
   inputSchema: { [key: string]: unknown };
   outputSchema: { [key: string]: unknown };
+  annotations: ToolAnnotations;
   call: (repo: Repository, args: unknown) => ToolCallResult;
 }
 
@@ -244,29 +247,50 @@ function success(speech: string, structuredContent: object): ToolCallResult {
   };
 }
 
-function failure(code: (typeof DOMAIN_ERROR_CODES)[number], message: string): ToolCallResult {
+function failure(
+  code: (typeof DOMAIN_ERROR_CODES)[number],
+  message: string,
+  attemptsRemaining?: number,
+): ToolCallResult {
   const text = speakable(message);
+  const error: { code: (typeof DOMAIN_ERROR_CODES)[number]; message: string; attemptsRemaining?: number } = {
+    code,
+    message: text,
+  };
+  if (attemptsRemaining !== undefined) error.attemptsRemaining = attemptsRemaining;
   return {
     content: [{ type: "text", text }],
-    structuredContent: { error: { code, message: text } },
+    structuredContent: { error },
     isError: true,
   };
 }
 
 function schemaSpeech(error: z.ZodError): string {
-  const field = String(error.issues[0]?.path[0] ?? "");
+  const path = error.issues[0]?.path ?? [];
+  const field = String(path[0] ?? "");
+  const leaf = String(path[path.length - 1] ?? "");
+  if (leaf === "qty") return "Quantity has to be a whole number from 1 to 10.";
   if (field === "horizonDays") return "Horizon days must be a whole number from 1 to 400.";
   if (field === "from" || field === "to") return "I need a date range in the future for that.";
   if (field === "query") return "I need an appliance name to look up.";
   if (field === "symptom") return "Tell me the symptom you want checked.";
   if (field === "item") return "Tell me which item to look up.";
   if (field === "applianceId") return "Tell me which appliance you mean.";
+  if (field === "items") return "A checkout needs 1 to 3 lines, all parts or all services.";
+  if (field === "quoteId") return "I need the quote to confirm.";
+  if (field === "code") return "Say your purchase code to confirm.";
+  if (field === "title") return "A task needs a title.";
+  if (field === "type" || field === "maker" || field === "model" || field === "location") {
+    return "Tell me the type, maker, model, and location.";
+  }
+  if (field === "installedOn" || field === "dueDate" || field === "doneOn") return "That date isn't valid.";
   return "That request isn't valid.";
 }
 
 function defineTool<S extends z.ZodType>(options: {
   name: string;
   description: string;
+  annotations?: ToolAnnotations;
   input: S;
   output: z.ZodType;
   run: (repo: Repository, args: z.output<S>) => ToolCallResult;
@@ -276,13 +300,14 @@ function defineTool<S extends z.ZodType>(options: {
     description: options.description,
     inputSchema: toJsonSchema(options.input),
     outputSchema: toJsonSchema(z.union([options.output, errorEnvelope])),
+    annotations: options.annotations ?? READ_ONLY_ANNOTATIONS,
     call(repo, args) {
       const parsed = options.input.safeParse(args);
       if (!parsed.success) return failure("INVALID_ARGUMENT", schemaSpeech(parsed.error));
       try {
         return options.run(repo, parsed.data);
       } catch (error) {
-        if (error instanceof DomainError) return failure(error.code, error.message);
+        if (error instanceof DomainError) return failure(error.code, error.message, error.attemptsRemaining);
         throw error;
       }
     },
@@ -321,7 +346,23 @@ const slotsInput = z
   })
   .strict();
 
-const TOOLS: RegisteredTool[] = [
+function bindWriteTools(): RegisteredTool[] {
+  return writeToolOptions().map((spec) =>
+    defineTool({
+      name: spec.name,
+      description: spec.description,
+      annotations: spec.annotations,
+      input: spec.input,
+      output: spec.output,
+      run(repo, args) {
+        const result = spec.run(repo, args as never);
+        return success(result.speech, result.structured);
+      },
+    }),
+  );
+}
+
+const readOnlyTools: RegisteredTool[] = [
   defineTool({
     name: "get_upkeep_status",
     description:
@@ -378,17 +419,40 @@ const TOOLS: RegisteredTool[] = [
   }),
 ];
 
+const writeTools = bindWriteTools();
+const writeByName = new Map(writeTools.map((tool) => [tool.name, tool]));
+
+function writeTool(name: string): RegisteredTool {
+  const tool = writeByName.get(name);
+  if (tool === undefined) throw new Error(`missing write tool ${name}`);
+  return tool;
+}
+
+/** Section 7.2 order: lookup tools stay read-only; writes slot in beside them. */
+const TOOLS: RegisteredTool[] = [
+  readOnlyTools[0],
+  readOnlyTools[1],
+  writeTool("register_appliance"),
+  readOnlyTools[2],
+  readOnlyTools[3],
+  readOnlyTools[4],
+  writeTool("prepare_checkout"),
+  writeTool("confirm_purchase"),
+  writeTool("create_task"),
+  writeTool("log_maintenance"),
+];
+
 export function listTools(): ListedTool[] {
   return TOOLS.map((tool) => ({
     name: tool.name,
     description: tool.description,
     inputSchema: tool.inputSchema,
     outputSchema: tool.outputSchema,
-    annotations: READ_ONLY_ANNOTATIONS,
+    annotations: tool.annotations,
   }));
 }
 
-/** Returns undefined when `name` is not one of the registered read-only tools. */
+/** Returns undefined when `name` is not one of the registered P0 tools. */
 export function callTool(repo: Repository, name: string, args: unknown): ToolCallResult | undefined {
   const tool = TOOLS.find((entry) => entry.name === name);
   if (tool === undefined) return undefined;

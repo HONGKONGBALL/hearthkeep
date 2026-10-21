@@ -125,11 +125,18 @@ describe("MCP streamable HTTP /mcp", () => {
     expect(sseTools.map((tool) => tool.name)).toEqual([
       "get_upkeep_status",
       "resolve_appliance",
+      "register_appliance",
       "find_parts",
       "diagnose_symptom",
       "find_service_slots",
+      "prepare_checkout",
+      "confirm_purchase",
+      "create_task",
+      "log_maintenance",
     ]);
-    expect(sseTools.every((tool) => tool.annotations.readOnlyHint === true)).toBe(true);
+    const readOnlyNames = new Set(["get_upkeep_status", "resolve_appliance", "find_parts", "diagnose_symptom", "find_service_slots"]);
+    expect(sseTools.filter((tool) => readOnlyNames.has(tool.name)).every((tool) => tool.annotations.readOnlyHint === true)).toBe(true);
+    expect(sseTools.filter((tool) => !readOnlyNames.has(tool.name)).every((tool) => tool.annotations.readOnlyHint === false)).toBe(true);
   });
 
   it("returns application/json when HK_JSON_RESPONSE=1", async () => {
@@ -170,9 +177,14 @@ describe("MCP streamable HTTP /mcp", () => {
     expect(listedJson.result.tools.map((tool) => tool.name)).toEqual([
       "get_upkeep_status",
       "resolve_appliance",
+      "register_appliance",
       "find_parts",
       "diagnose_symptom",
       "find_service_slots",
+      "prepare_checkout",
+      "confirm_purchase",
+      "create_task",
+      "log_maintenance",
     ]);
   });
 

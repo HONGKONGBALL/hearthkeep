@@ -6,10 +6,23 @@ const ACCEPT = "application/json, text/event-stream";
 const TOOL_NAMES = [
   "get_upkeep_status",
   "resolve_appliance",
+  "register_appliance",
   "find_parts",
   "diagnose_symptom",
   "find_service_slots",
+  "prepare_checkout",
+  "confirm_purchase",
+  "create_task",
+  "log_maintenance",
 ];
+
+const READ_ONLY_NAMES = new Set([
+  "get_upkeep_status",
+  "resolve_appliance",
+  "find_parts",
+  "diagnose_symptom",
+  "find_service_slots",
+]);
 
 interface ToolContent {
   type: string;
@@ -120,18 +133,51 @@ describe("read-only P0 tools over HTTP", () => {
     return result;
   }
 
-  it("lists five read-only tools whose output schemas admit an error", async () => {
+  it("lists the ten P0 tools with section 7.2 annotations", async () => {
     const sessionId = await session();
     const body = await rpc(sessionId, 2, "tools/list", {});
-    const tools = (body.result as { tools: { name: string; annotations: { readOnlyHint: boolean; destructiveHint: boolean }; inputSchema: { type: string }; outputSchema: { anyOf: unknown[] } }[] }).tools;
+    const tools = (body.result as {
+      tools: {
+        name: string;
+        annotations: { readOnlyHint: boolean; destructiveHint: boolean; idempotentHint: boolean; openWorldHint: boolean };
+        inputSchema: { type: string };
+        outputSchema: { anyOf: unknown[] };
+      }[];
+    }).tools;
     expect(tools.map((tool) => tool.name)).toEqual(TOOL_NAMES);
     for (const tool of tools) {
-      expect(tool.annotations.readOnlyHint).toBe(true);
-      expect(tool.annotations.destructiveHint).toBe(false);
       expect(tool.inputSchema.type).toBe("object");
       expect(tool.outputSchema.anyOf).toHaveLength(2);
       expect(JSON.stringify(tool.outputSchema)).toContain("INVALID_ARGUMENT");
+      if (READ_ONLY_NAMES.has(tool.name)) {
+        expect(tool.annotations).toEqual({
+          readOnlyHint: true,
+          destructiveHint: false,
+          idempotentHint: true,
+          openWorldHint: false,
+        });
+      }
     }
+    expect(tools.find((tool) => tool.name === "confirm_purchase")?.annotations).toEqual({
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: true,
+      openWorldHint: true,
+    });
+    for (const name of ["prepare_checkout", "create_task", "log_maintenance"]) {
+      expect(tools.find((tool) => tool.name === name)?.annotations).toEqual({
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: false,
+      });
+    }
+    expect(tools.find((tool) => tool.name === "register_appliance")?.annotations).toEqual({
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: false,
+    });
   });
 
   it("get_upkeep_status returns attention and rejects a bad horizon", async () => {
@@ -245,5 +291,230 @@ describe("read-only P0 tools over HTTP", () => {
       code: "INVALID_ARGUMENT",
       message: "I need a date range in the future for that.",
     });
+  });
+});
+
+describe("write P0 tools over HTTP", () => {
+  const open: Server[] = [];
+  let base = "";
+
+  afterEach(async () => {
+    const current = open.splice(0);
+    await Promise.all(current.map((server) => close(server)));
+  });
+
+  async function session(): Promise<string> {
+    const started = await listen();
+    open.push(started.server);
+    base = started.base;
+    const init = await fetch(`${base}/mcp`, {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: ACCEPT },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "initialize",
+        params: {
+          protocolVersion: "2025-11-25",
+          capabilities: {},
+          clientInfo: { name: "hearthkeep-write-tool-test", version: "0.0.0" },
+        },
+      }),
+    });
+    expect(init.status).toBe(200);
+    const sessionId = init.headers.get("mcp-session-id") ?? "";
+    expect(sessionId).not.toBe("");
+    return sessionId;
+  }
+
+  async function rpc(sessionId: string, id: number, method: string, params: unknown): Promise<{ [key: string]: unknown }> {
+    const response = await fetch(`${base}/mcp`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: ACCEPT,
+        "mcp-session-id": sessionId,
+        "mcp-protocol-version": "2025-11-25",
+      },
+      body: JSON.stringify({ jsonrpc: "2.0", id, method, params }),
+    });
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type") ?? "").toContain("application/json");
+    return (await response.json()) as { [key: string]: unknown };
+  }
+
+  async function callTool(sessionId: string, id: number, name: string, args: unknown): Promise<ToolPayload> {
+    const body = await rpc(sessionId, id, "tools/call", { name, arguments: args });
+    expect(body.error).toBeUndefined();
+    const result = body.result as ToolPayload;
+    expect(result.content).toHaveLength(1);
+    expect(result.content[0]?.type).toBe("text");
+    expect(sentences(result.content[0]?.text ?? "").length).toBeLessThanOrEqual(2);
+    expect(sentences(result.content[0]?.text ?? "").length).toBeGreaterThan(0);
+    return result;
+  }
+
+  it("checks out a fridge filter and confirms with the fictional code 2468", async () => {
+    const sessionId = await session();
+    const quote = await callTool(sessionId, 2, "prepare_checkout", {
+      items: [{ type: "part", optionId: "P-CX28", qty: 1, forApplianceId: "ap_fridge" }],
+    });
+    expect(quote.isError).toBe(false);
+    expect(quote.structuredContent).toMatchObject({
+      quoteId: "q_0001",
+      kind: "part",
+      totalUsd: "24.99",
+      eta: "2026-10-23",
+      capUsd: "60.00",
+      overCap: false,
+      expiresAt: "2026-10-21T09:15:00-07:00",
+    });
+    expect(quote.structuredContent.overByUsd).toBeUndefined();
+    expect(quote.content[0]?.text).toBe("The total is $24.99. This price expires in 15 minutes.");
+
+    const confirmed = await callTool(sessionId, 3, "confirm_purchase", { quoteId: "q_0001", code: "2468" });
+    expect(confirmed.isError).toBe(false);
+    expect(confirmed.structuredContent).toMatchObject({
+      kind: "order",
+      id: "ord_0001",
+      orderId: "ord_0001",
+      status: "placed",
+      eta: "2026-10-23",
+      mock: true,
+      createdTaskId: "t_0001",
+    });
+    expect(confirmed.structuredContent.alreadyConfirmed).toBeUndefined();
+    expect(confirmed.content[0]?.text).toBe("Ordered. Mock order ord_0001 is placed.");
+
+    const again = await callTool(sessionId, 4, "confirm_purchase", { quoteId: "q_0001", code: "0000" });
+    expect(again.isError).toBe(false);
+    expect(again.structuredContent).toMatchObject({
+      kind: "order",
+      orderId: "ord_0001",
+      alreadyConfirmed: true,
+      mock: true,
+    });
+  });
+
+  it("counts wrong purchase codes down from two attempts", async () => {
+    const sessionId = await session();
+    await callTool(sessionId, 2, "prepare_checkout", {
+      items: [{ type: "part", optionId: "P-CX28", qty: 1, forApplianceId: "ap_fridge" }],
+    });
+    const first = await callTool(sessionId, 3, "confirm_purchase", { quoteId: "q_0001", code: "0000" });
+    expect(first.isError).toBe(true);
+    expect(first.structuredContent.error).toEqual({
+      code: "INVALID_PURCHASE_CODE",
+      message: "That code didn't match. You have 2 tries left.",
+      attemptsRemaining: 2,
+    });
+    expect(first.content[0]?.text).toBe("That code didn't match. You have 2 tries left.");
+
+    const second = await callTool(sessionId, 4, "confirm_purchase", { quoteId: "q_0001", code: "1111" });
+    expect(second.isError).toBe(true);
+    expect(second.structuredContent.error).toEqual({
+      code: "INVALID_PURCHASE_CODE",
+      message: "That code didn't match. You have 1 try left.",
+      attemptsRemaining: 1,
+    });
+
+    const placed = await callTool(sessionId, 5, "confirm_purchase", { quoteId: "q_0001", code: "2468" });
+    expect(placed.isError).toBe(false);
+    expect(placed.structuredContent.orderId).toBe("ord_0001");
+  });
+
+  it("asks for over-cap approval and then books the vent visit", async () => {
+    const sessionId = await session();
+    const quote = await callTool(sessionId, 2, "prepare_checkout", {
+      items: [{ type: "service", slotId: "S-1027A" }],
+    });
+    expect(quote.isError).toBe(false);
+    expect(quote.structuredContent).toMatchObject({
+      quoteId: "q_0001",
+      kind: "service",
+      totalUsd: "89.00",
+      capUsd: "60.00",
+      overCap: true,
+      overByUsd: "29.00",
+    });
+    expect((quote.structuredContent.slot as { slotId: string }).slotId).toBe("S-1027A");
+    expect(quote.content[0]?.text).toBe("The total is $89.00, which is over your $60.00 limit by $29.00.");
+
+    const blocked = await callTool(sessionId, 3, "confirm_purchase", { quoteId: "q_0001", code: "2468" });
+    expect(blocked.isError).toBe(true);
+    expect(blocked.structuredContent.error).toEqual({
+      code: "OVER_CAP_APPROVAL_REQUIRED",
+      message: "That's over your limit. Say 'approve' and your code.",
+    });
+    expect(blocked.structuredContent.error).not.toHaveProperty("attemptsRemaining");
+
+    const booked = await callTool(sessionId, 4, "confirm_purchase", {
+      quoteId: "q_0001",
+      code: "2468",
+      approveOverCap: true,
+    });
+    expect(booked.isError).toBe(false);
+    expect(booked.structuredContent).toMatchObject({
+      kind: "booking",
+      id: "bk_0001",
+      bookingId: "bk_0001",
+      status: "booked",
+      mock: true,
+      slot: {
+        slotId: "S-1027A",
+        provider: "Ventora Home Care",
+        start: "2026-10-27T09:00:00-07:00",
+        end: "2026-10-27T11:00:00-07:00",
+        priceUsd: "89.00",
+      },
+    });
+    expect(booked.content[0]?.text).toBe("Booked. Mock visit bk_0001 is on the calendar.");
+  });
+
+  it("registers an appliance, creates a task, and logs maintenance", async () => {
+    const sessionId = await session();
+    const registered = await callTool(sessionId, 2, "register_appliance", {
+      type: "water_heater",
+      maker: "Brimwell",
+      model: "WH-40",
+      location: "Garage",
+    });
+    expect(registered.isError).toBe(false);
+    expect(registered.structuredContent).toMatchObject({
+      applianceId: "ap_0001",
+      created: true,
+      scheduleSource: "catalog",
+    });
+    expect(registered.structuredContent.schedule).toEqual([
+      expect.objectContaining({ item: "flush", everyDays: 365, nextDue: "2027-10-21" }),
+    ]);
+
+    const task = await callTool(sessionId, 3, "create_task", {
+      title: "Replace hallway smoke alarm battery",
+      applianceId: "ap_smoke_hall",
+      item: "battery",
+      dueDate: "2026-10-21",
+      notes: "Use a 9V from the Garage shelf",
+    });
+    expect(task.isError).toBe(false);
+    expect(task.structuredContent.taskId).toBe("t_0001");
+    expect(task.structuredContent.task).toMatchObject({
+      title: "Replace hallway smoke alarm battery",
+      applianceId: "ap_smoke_hall",
+      item: "battery",
+      status: "open",
+    });
+
+    const logged = await callTool(sessionId, 4, "log_maintenance", {
+      applianceId: "ap_smoke_hall",
+      item: "battery",
+    });
+    expect(logged.isError).toBe(false);
+    expect(logged.structuredContent).toMatchObject({
+      lastDone: "2026-10-21",
+      nextDue: "2027-10-21",
+      closedTaskIds: ["t_0001"],
+    });
+    expect(logged.structuredContent.inventoryAfter).toMatchObject({ qty: 1, location: "Garage shelf" });
   });
 });
