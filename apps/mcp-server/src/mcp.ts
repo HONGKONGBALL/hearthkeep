@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 import express, { type Express, type Request, type Response } from "express";
+import { openRepositoryFromEnv, type Repository } from "@hearthkeep/core";
+import { callTool, listTools } from "./tools";
 
 /** Protocol version this server always negotiates. Older or unknown requests still get this value. */
 export const MCP_PROTOCOL_VERSION = "2025-11-25";
@@ -11,6 +13,8 @@ const ALLOW_HEADERS = "Content-Type, Accept, Mcp-Session-Id, MCP-Protocol-Versio
 export interface McpEnv {
   HK_ALLOWED_ORIGINS?: string | undefined;
   HK_JSON_RESPONSE?: string | undefined;
+  HK_DB?: string | undefined;
+  HK_SIM_START?: string | undefined;
 }
 
 interface Session {
@@ -159,7 +163,13 @@ function handleDelete(req: Request, res: Response, sessions: Map<string, Session
   res.status(200).end();
 }
 
-function handlePost(req: Request, res: Response, env: McpEnv, sessions: Map<string, Session>): void {
+function handlePost(
+  req: Request,
+  res: Response,
+  env: McpEnv,
+  sessions: Map<string, Session>,
+  getRepo: () => Repository,
+): void {
   const contentType = req.header("content-type");
   if (!isJsonContentType(contentType)) {
     sendJson(res, 415, rpcError(null, -32600, "Content-Type must be application/json"));
@@ -226,7 +236,7 @@ function handlePost(req: Request, res: Response, env: McpEnv, sessions: Map<stri
       sendJson(res, 400, rpcError(null, -32600, "Invalid Request"));
       return;
     }
-    dispatchRequest(req, res, env, sessions, parsed, method, id);
+    dispatchRequest(req, res, env, sessions, parsed, method, id, getRepo);
     return;
   }
 
@@ -274,6 +284,7 @@ function dispatchRequest(
   message: Record<string, unknown>,
   method: string,
   id: RpcId,
+  getRepo: () => Repository,
 ): void {
   const params = message.params;
   if (params !== undefined && !isPlainObject(params)) {
@@ -307,7 +318,31 @@ function dispatchRequest(
   if (sessionId === undefined) return;
 
   if (method === "tools/list") {
-    sendResult(res, env, { jsonrpc: "2.0", id, result: { tools: [] } }, sessionId, params);
+    sendResult(res, env, { jsonrpc: "2.0", id, result: { tools: listTools() } }, sessionId, params);
+    return;
+  }
+
+  if (method === "tools/call") {
+    if (!isPlainObject(params) || typeof params.name !== "string" || params.name.trim() === "") {
+      sendResult(res, env, rpcError(id, -32602, "Invalid params"), sessionId, params);
+      return;
+    }
+    const args = Object.prototype.hasOwnProperty.call(params, "arguments") ? params.arguments : {};
+    if (!isPlainObject(args)) {
+      sendResult(res, env, rpcError(id, -32602, "Invalid params"), sessionId, params);
+      return;
+    }
+    try {
+      const outcome = callTool(getRepo(), params.name, args);
+      if (outcome === undefined) {
+        sendResult(res, env, rpcError(id, -32602, "Unknown tool"), sessionId, params);
+        return;
+      }
+      sendResult(res, env, { jsonrpc: "2.0", id, result: { ...outcome } }, sessionId, params);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Tool failed";
+      sendResult(res, env, rpcError(id, -32603, message), sessionId, params);
+    }
     return;
   }
 
@@ -322,6 +357,11 @@ function dispatchRequest(
 export function mountMcp(app: Express, env: McpEnv): void {
   const sessions = new Map<string, Session>();
   const allowed = allowedOrigins(env);
+  let repository: Repository | undefined;
+  const getRepo = (): Repository => {
+    if (repository === undefined) repository = openRepositoryFromEnv(env);
+    return repository;
+  };
 
   const guard = (req: Request, res: Response): boolean => {
     const origin = applyCors(req, res, allowed);
@@ -349,6 +389,6 @@ export function mountMcp(app: Express, env: McpEnv): void {
 
   app.post("/mcp", express.raw({ type: () => true, limit: "1mb" }), (req, res) => {
     if (!guard(req, res)) return;
-    handlePost(req, res, env, sessions);
+    handlePost(req, res, env, sessions, getRepo);
   });
 }

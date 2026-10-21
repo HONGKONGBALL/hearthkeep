@@ -63,7 +63,7 @@ describe("MCP streamable HTTP /mcp", () => {
     await Promise.all(current.map((server) => close(server)));
   });
 
-  it("negotiates 2025-11-25 and lists no tools over SSE", async () => {
+  it("negotiates 2025-11-25 and lists the read-only tools over SSE", async () => {
     const started = await listen({ HK_JSON_RESPONSE: "0" });
     open.push(started.server);
 
@@ -117,9 +117,19 @@ describe("MCP streamable HTTP /mcp", () => {
     expect(listed.status).toBe(200);
     expect(listed.headers.get("content-type") ?? "").toContain("text/event-stream");
     expect(listed.headers.get("mcp-session-id")).toBe(sessionId);
-    expect(sseMessages(await listed.text())).toEqual([
-      { jsonrpc: "2.0", id: 2, result: { tools: [] } },
+    const listedMessages = sseMessages(await listed.text());
+    expect(listedMessages).toHaveLength(1);
+    expect(listedMessages[0]).toMatchObject({ jsonrpc: "2.0", id: 2 });
+    const sseTools = (listedMessages[0] as { result: { tools: { name: string; annotations: { readOnlyHint: boolean } }[] } })
+      .result.tools;
+    expect(sseTools.map((tool) => tool.name)).toEqual([
+      "get_upkeep_status",
+      "resolve_appliance",
+      "find_parts",
+      "diagnose_symptom",
+      "find_service_slots",
     ]);
+    expect(sseTools.every((tool) => tool.annotations.readOnlyHint === true)).toBe(true);
   });
 
   it("returns application/json when HK_JSON_RESPONSE=1", async () => {
@@ -151,11 +161,19 @@ describe("MCP streamable HTTP /mcp", () => {
     });
     expect(listed.status).toBe(200);
     expect(listed.headers.get("content-type") ?? "").toContain("application/json");
-    await expect(listed.json()).resolves.toEqual({
-      jsonrpc: "2.0",
-      id: "tools-1",
-      result: { tools: [] },
-    });
+    const listedJson = (await listed.json()) as {
+      jsonrpc: string;
+      id: string;
+      result: { tools: { name: string }[] };
+    };
+    expect(listedJson).toMatchObject({ jsonrpc: "2.0", id: "tools-1" });
+    expect(listedJson.result.tools.map((tool) => tool.name)).toEqual([
+      "get_upkeep_status",
+      "resolve_appliance",
+      "find_parts",
+      "diagnose_symptom",
+      "find_service_slots",
+    ]);
   });
 
   it("rejects bad content, origin, session, and version, and ends a session on DELETE", async () => {
