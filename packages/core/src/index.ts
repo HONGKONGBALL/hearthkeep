@@ -65,6 +65,50 @@ export {
   resolveSimStart,
 } from "./sqlite-repository";
 export type { OpenRepositoryOptions, StorageEnv } from "./sqlite-repository";
+export { DEMO_PURCHASE_CODE, DOMAIN_ERROR_CODES, DomainError } from "./domain";
+export {
+  confirmPurchase,
+  createTask,
+  diagnoseSymptom,
+  findParts,
+  findServiceSlots,
+  getUpkeepStatus,
+  logMaintenance,
+  prepareCheckout,
+  recordAudit,
+  registerAppliance,
+  resolveAppliance,
+  syncLifecycle,
+} from "./domain";
+export type {
+  CheckoutLine,
+  CheckoutQuote,
+  CheckoutSlot,
+  ConfirmPurchaseResult,
+  CreatedTask,
+  Diagnosis,
+  DomainErrorCode,
+  ExcludedPart,
+  FindPartsResult,
+  InventoryAfter,
+  LifecycleSync,
+  MaintenanceLog,
+  OnHand,
+  PartChoice,
+  PartLine,
+  RegisterResult,
+  RegisterSchedule,
+  ResolveResult,
+  ResolvedAppliance,
+  ServiceLine,
+  ServiceSlotChoice,
+  ServiceSlotsResult,
+  UpkeepAttention,
+  UpkeepInProgress,
+  UpkeepStatus,
+  UpkeepTask,
+  UpkeepUpcoming,
+} from "./domain";
 
 export interface HealthReport {
   status: "ok";
