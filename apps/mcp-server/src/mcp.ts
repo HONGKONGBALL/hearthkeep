@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import express, { type Express, type Request, type Response } from "express";
 import type { Repository } from "@hearthkeep/core";
+import { listCardResources, readCardResource } from "./cards";
 import { callTool, listTools } from "./tools";
 
 /** Protocol version this server always negotiates. Older or unknown requests still get this value. */
@@ -9,6 +10,7 @@ export const MCP_PROTOCOL_VERSION = "2025-11-25";
 const SERVER_INFO = { name: "hearthkeep", version: "0.1.0" } as const;
 const ALLOW_METHODS = "POST, GET, DELETE";
 const ALLOW_HEADERS = "Content-Type, Accept, Mcp-Session-Id, MCP-Protocol-Version, Authorization";
+const DEFAULT_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173";
 
 export interface McpEnv {
   HK_ALLOWED_ORIGINS?: string | undefined;
@@ -36,7 +38,7 @@ interface JsonRpcResult {
 }
 
 function allowedOrigins(env: McpEnv): Set<string> {
-  const raw = env.HK_ALLOWED_ORIGINS ?? "";
+  const raw = env.HK_ALLOWED_ORIGINS ?? DEFAULT_ORIGINS;
   const items = raw.split(",").map((part) => part.trim()).filter((part) => part !== "");
   return new Set(items);
 }
@@ -314,7 +316,10 @@ function dispatchRequest(
         id,
         result: {
           protocolVersion: MCP_PROTOCOL_VERSION,
-          capabilities: { tools: { listChanged: false } },
+          capabilities: {
+            tools: { listChanged: false },
+            resources: { listChanged: false },
+          },
           serverInfo: { ...SERVER_INFO },
         },
       },
@@ -353,6 +358,26 @@ function dispatchRequest(
       const message = error instanceof Error ? error.message : "Tool failed";
       sendResult(res, env, rpcError(id, -32603, message), sessionId, params);
     }
+    return;
+  }
+
+  if (method === "resources/list") {
+    sendResult(res, env, { jsonrpc: "2.0", id, result: { resources: listCardResources() } }, sessionId, params);
+    return;
+  }
+
+  if (method === "resources/read") {
+    const uri = isPlainObject(params) ? params.uri : undefined;
+    if (typeof uri !== "string" || uri.trim() === "") {
+      sendResult(res, env, rpcError(id, -32602, "Invalid params"), sessionId, params);
+      return;
+    }
+    const content = readCardResource(uri);
+    if (content === undefined) {
+      sendResult(res, env, rpcError(id, -32002, "Resource not found"), sessionId, params);
+      return;
+    }
+    sendResult(res, env, { jsonrpc: "2.0", id, result: { contents: [content] } }, sessionId, params);
     return;
   }
 

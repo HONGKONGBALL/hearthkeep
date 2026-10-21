@@ -1,5 +1,5 @@
 import express, { type Express, type NextFunction, type Request, type Response } from "express";
-import { ClockError, simModeFromEnv, type Repository } from "@hearthkeep/core";
+import { ClockError, simModeFromEnv, syncLifecycle, type Repository } from "@hearthkeep/core";
 import { allowOrigin, type McpEnv } from "./mcp";
 
 const CLOCK_HINT = "Expected {advanceDays: 1-400} or {set: ISO time later than now}";
@@ -69,6 +69,7 @@ export function mountSim(app: Express, env: McpEnv, getRepo: () => Repository): 
 
   app.get("/sim/state", (req, res) => {
     if (!gate(req, res)) return;
+    syncLifecycle(getRepo());
     res.status(200).json(getRepo().snapshot());
   });
 
@@ -87,6 +88,7 @@ export function mountSim(app: Express, env: McpEnv, getRepo: () => Repository): 
       try {
         const now =
           "advanceDays" in command ? getRepo().advanceDays(command.advanceDays) : getRepo().set(command.set);
+        syncLifecycle(getRepo());
         res.status(200).json({ now });
       } catch (error) {
         if (error instanceof ClockError) {

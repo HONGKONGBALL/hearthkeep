@@ -213,7 +213,7 @@ describe("read-only P0 tools over HTTP", () => {
     const missing = await callTool(sessionId, 3, "resolve_appliance", { query: "garage door" });
     expect(missing.isError).toBe(true);
     expect(missing.structuredContent.error).toMatchObject({ code: "APPLIANCE_NOT_FOUND" });
-    expect(missing.content[0]?.text).toBe("I don't know a garage door yet. Want to add it?");
+    expect(missing.content[0]?.text).toBe("I don't know a garage door yet, and I can add it if you want.");
   });
 
   it("find_parts lists fridge filters and rejects a dryer water filter", async () => {
@@ -405,16 +405,16 @@ describe("write P0 tools over HTTP", () => {
     expect(first.isError).toBe(true);
     expect(first.structuredContent.error).toEqual({
       code: "INVALID_PURCHASE_CODE",
-      message: "That code didn't match. You have 2 tries left.",
+      message: "That code didn't match, and you have 2 tries left.",
       attemptsRemaining: 2,
     });
-    expect(first.content[0]?.text).toBe("That code didn't match. You have 2 tries left.");
+    expect(first.content[0]?.text).toBe("That code didn't match, and you have 2 tries left.");
 
     const second = await callTool(sessionId, 4, "confirm_purchase", { quoteId: "q_0001", code: "1111" });
     expect(second.isError).toBe(true);
     expect(second.structuredContent.error).toEqual({
       code: "INVALID_PURCHASE_CODE",
-      message: "That code didn't match. You have 1 try left.",
+      message: "That code didn't match, and you have 1 try left.",
       attemptsRemaining: 1,
     });
 

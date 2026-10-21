@@ -14,6 +14,7 @@ import {
   type Repository,
 } from "@hearthkeep/core";
 import { z } from "zod";
+import { TOOL_UI } from "./cards";
 import { writeToolOptions, type ToolAnnotations } from "./write-tools";
 
 const READ_ONLY_ANNOTATIONS: ToolAnnotations = {
@@ -197,6 +198,7 @@ export interface ListedTool {
   inputSchema: { [key: string]: unknown };
   outputSchema: { [key: string]: unknown };
   annotations: ToolAnnotations;
+  _meta?: { ui: { resourceUri: string } };
 }
 
 interface RegisteredTool {
@@ -275,7 +277,7 @@ function schemaSpeech(error: z.ZodError): string {
   if (field === "query") return "I need an appliance name to look up.";
   if (field === "symptom") return "Tell me the symptom you want checked.";
   if (field === "item") return "Tell me which item to look up.";
-  if (field === "applianceId") return "Tell me which appliance you mean.";
+  if (field === "applianceId") return "The applianceId has to be the appliance's text id.";
   if (field === "items") return "A checkout needs 1 to 3 lines, all parts or all services.";
   if (field === "quoteId") return "I need the quote to confirm.";
   if (field === "code") return "Say your purchase code to confirm.";
@@ -443,13 +445,17 @@ const TOOLS: RegisteredTool[] = [
 ];
 
 export function listTools(): ListedTool[] {
-  return TOOLS.map((tool) => ({
-    name: tool.name,
-    description: tool.description,
-    inputSchema: tool.inputSchema,
-    outputSchema: tool.outputSchema,
-    annotations: tool.annotations,
-  }));
+  return TOOLS.map((tool) => {
+    const resourceUri = TOOL_UI[tool.name];
+    return {
+      name: tool.name,
+      description: tool.description,
+      inputSchema: tool.inputSchema,
+      outputSchema: tool.outputSchema,
+      annotations: tool.annotations,
+      ...(resourceUri === undefined ? {} : { _meta: { ui: { resourceUri } } }),
+    };
+  });
 }
 
 /** Returns undefined when `name` is not one of the registered P0 tools. */

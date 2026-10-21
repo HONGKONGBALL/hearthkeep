@@ -86,7 +86,10 @@ describe("MCP streamable HTTP /mcp", () => {
         id: 1,
         result: {
           protocolVersion: "2025-11-25",
-          capabilities: { tools: { listChanged: false } },
+          capabilities: {
+            tools: { listChanged: false },
+            resources: { listChanged: false },
+          },
           serverInfo: { name: "hearthkeep", version: "0.1.0" },
         },
       },

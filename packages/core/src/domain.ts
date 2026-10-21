@@ -361,7 +361,7 @@ function requireAppliance(repo: Repository, id: unknown): Appliance {
   const applianceId = requireText(id, "applianceId");
   const appliance = repo.getAppliance(applianceId);
   if (!appliance) {
-    throw new DomainError("APPLIANCE_NOT_FOUND", "I don't know that appliance yet. Want to add it?");
+    throw new DomainError("APPLIANCE_NOT_FOUND", "I don't know that appliance yet, and I can add it if you want.");
   }
   return appliance;
 }
@@ -615,7 +615,7 @@ export function resolveAppliance(repo: Repository, input: { query: string }): Re
     return tokens.every((token) => text.includes(token));
   });
   if (matches.length === 0) {
-    throw new DomainError("APPLIANCE_NOT_FOUND", `I don't know a ${query} yet. Want to add it?`);
+    throw new DomainError("APPLIANCE_NOT_FOUND", `I don't know a ${query} yet, and I can add it if you want.`);
   }
   if (matches.length === 1) {
     const appliance = toResolved(matches[0]);
@@ -1124,7 +1124,7 @@ function rejectCode(repo: Repository, quote: Quote, maxAttempts: number): never 
   const tries = attemptsRemaining === 1 ? "1 try" : `${attemptsRemaining} tries`;
   throw new DomainError(
     "INVALID_PURCHASE_CODE",
-    `That code didn't match. You have ${tries} left.`,
+    `That code didn't match, and you have ${tries} left.`,
     { attemptsRemaining },
     attemptsRemaining,
   );
@@ -1165,7 +1165,7 @@ export function confirmPurchase(
   }
   if (quote.status === "confirmed") return confirmedResult(repo, quote);
   if (quoteExpired(quote, repo.now())) {
-    throw new DomainError("QUOTE_EXPIRED", "That price expired. Want me to check again?");
+    throw new DomainError("QUOTE_EXPIRED", "That price expired, and I can check again if you want.");
   }
   if (quote.locked) throw new DomainError("QUOTE_LOCKED", "That quote is locked after three wrong codes.");
   if (typeof input.code !== "string") invalid("code is required.");
