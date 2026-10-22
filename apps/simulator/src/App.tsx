@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CodeLock, WelcomeOverlay } from "./chrome";
 import { HearthkeepClient, type SimSnapshot } from "./mcp-client";
 import {
@@ -89,6 +89,7 @@ export function App() {
   const [speaking, setSpeaking] = useState(false);
   const [awaitingCode, setAwaitingCode] = useState(false);
   const [rawOpen, setRawOpen] = useState<Record<string, boolean>>({});
+  const shellRef = useRef<HTMLDivElement>(null);
 
   function client(): HearthkeepClient {
     if (clientRef.current === null) {
@@ -213,6 +214,14 @@ export function App() {
     }
   }
 
+  useLayoutEffect(() => {
+    const shell = shellRef.current;
+    if (!shell) return;
+    // The welcome dialog is a sibling. inert keeps Tab off Next morning, which would advance the sim clock.
+    if (welcome) shell.setAttribute("inert", "");
+    else shell.removeAttribute("inert");
+  }, [welcome]);
+
   useEffect(() => {
     const seen = window.localStorage.getItem(WELCOME_KEY) === "1";
     setWelcome(!seen);
@@ -301,6 +310,7 @@ export function App() {
 
   return (
     <div className={pageClass}>
+      <div className="app-shell" ref={shellRef}>
       <header className="top">
         <div className="identity">
           <strong className="brand"><span className="mark" aria-hidden="true" />Hearthkeep</strong>
@@ -449,6 +459,7 @@ export function App() {
           </div>
         </div>
       ) : null}
+      </div>
 
       {welcome ? <WelcomeOverlay onStart={() => void onStart()} /> : null}
     </div>

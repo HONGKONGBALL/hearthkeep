@@ -1,32 +1,60 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { DATA_NOTICE, FICTIONAL_CHIP, WELCOME_BODY, WELCOME_TITLE } from "./ui-copy";
+
+const TABBABLE =
+  "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])";
+
+function tabbableIn(sheet: HTMLElement): HTMLElement[] {
+  return [...sheet.querySelectorAll<HTMLElement>(TABBABLE)].filter(
+    (node) => node.tabIndex >= 0 && node.getClientRects().length > 0,
+  );
+}
 
 export function WelcomeOverlay({ onStart }: { onStart: () => void }) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const startRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    startRef.current?.focus();
+  useLayoutEffect(() => {
     const sheet = sheetRef.current;
     if (!sheet) return;
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key !== "Tab") return;
-      const focusable = [...sheet.querySelectorAll<HTMLElement>("button, [href], input, select, textarea")].filter(
-        (node) => !node.hasAttribute("disabled"),
-      );
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (!first || !last) return;
-      if (event.shiftKey && document.activeElement === first) {
+    const contain = (event: KeyboardEvent): void => {
+      if (event.key !== "Tab" || event.altKey || event.ctrlKey || event.metaKey) return;
+      const items = tabbableIn(sheet);
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      const inside = active instanceof Node && sheet.contains(active);
+      if (!first || !last) {
         event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
+        sheet.focus();
+        return;
+      }
+      if (event.shiftKey) {
+        if (!inside || active === first) {
+          event.preventDefault();
+          last.focus();
+        }
+        return;
+      }
+      if (!inside || active === last) {
         event.preventDefault();
         first.focus();
       }
     };
-    sheet.addEventListener("keydown", onKeyDown);
-    return () => sheet.removeEventListener("keydown", onKeyDown);
+    // Capture on document: a listener on the dialog misses Tab once focus has left it.
+    const pullBack = (event: FocusEvent): void => {
+      const target = event.target;
+      if (target instanceof Node && sheet.contains(target)) return;
+      const items = tabbableIn(sheet);
+      (items[0] ?? sheet).focus();
+    };
+    document.addEventListener("keydown", contain, true);
+    document.addEventListener("focusin", pullBack);
+    startRef.current?.focus();
+    return () => {
+      document.removeEventListener("keydown", contain, true);
+      document.removeEventListener("focusin", pullBack);
+    };
   }, []);
 
   return (
@@ -35,6 +63,7 @@ export function WelcomeOverlay({ onStart }: { onStart: () => void }) {
         ref={sheetRef}
         className="sheet welcome-sheet"
         role="dialog"
+        tabIndex={-1}
         aria-modal="true"
         aria-labelledby="welcome-title"
         aria-describedby="welcome-copy"
