@@ -107,6 +107,8 @@ button[aria-pressed="true"] {
 .controls {
   justify-content: flex-end;
   max-width: 740px;
+  /* The focus ring is 6px. Keep a page-colored gutter outside it. */
+  gap: 14px 12px;
 }
 
 .brand {
