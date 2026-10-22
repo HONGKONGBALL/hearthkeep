@@ -418,6 +418,31 @@ describe("syncLifecycle", () => {
     expect(logged.closedTaskIds).toEqual(["t_0001"]);
     expect(syncLifecycle(repo).delivered).toEqual([]);
   });
+
+  it("P04d keeps a delivered filter in progress until the install task closes", () => {
+    const repo = memoryRepo();
+    const quote = prepareCheckout(repo, {
+      items: [{ type: "part", optionId: "P-CX28", qty: 1, forApplianceId: "ap_fridge" }],
+    });
+    confirmPurchase(repo, { quoteId: quote.quoteId, code: "2468" });
+    repo.advanceDays(2);
+    expect(syncLifecycle(repo).delivered).toEqual(["ord_0001"]);
+    const waiting = getUpkeepStatus(repo);
+    expect(waiting.attention.some((item) => item.applianceId === "ap_fridge" && item.item === "water_filter")).toBe(false);
+    expect(waiting.attention.some((item) => item.daysOverdue === 2)).toBe(false);
+    expect(waiting.inProgress).toEqual([
+      expect.objectContaining({ id: "ord_0001", status: "delivered", item: "water_filter", applianceId: "ap_fridge" }),
+    ]);
+    expect(waiting.tasks.map((task) => task.taskId)).toEqual(["t_0001"]);
+    const logged = logMaintenance(repo, { applianceId: "ap_fridge", item: "water_filter" });
+    expect(logged.closedTaskIds).toEqual(["t_0001"]);
+    expect(logged.inventoryAfter?.qty).toBe(0);
+    expect(logged.nextDue).toBe("2027-04-21");
+    const after = getUpkeepStatus(repo);
+    expect(after.inProgress.some((item) => item.id === "ord_0001")).toBe(false);
+    expect(after.tasks).toEqual([]);
+    expect(after.attention.some((item) => item.applianceId === "ap_fridge")).toBe(false);
+  });
 });
 
 describe("recordAudit", () => {

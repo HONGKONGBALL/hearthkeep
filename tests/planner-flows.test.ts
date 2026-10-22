@@ -246,4 +246,68 @@ describe("planner flows on the MCP server", () => {
     expect(weather.reply).toBe(SCOPE_REPLY);
     expect(weather.steps).toHaveLength(0);
   });
+
+  it("P04 closes the fridge filter after it arrives and not before", async () => {
+    await client.resetSim();
+    clock = { iso: SIM_EPOCH };
+    state = emptyDialogue();
+    await say("Order a new filter for the fridge");
+    await say("Yes, the CX-28");
+    await say("2468");
+    const early = await say("Done");
+    expect(early.reply).not.toContain("9-volt");
+    expect(early.reply.toLowerCase()).toContain("hasn't arrived");
+    expect(early.steps.map((step) => step.tool)).not.toContain("log_maintenance");
+    const before = await client.getSimState();
+    expect(before.schedule.find((row) => row.applianceId === "ap_fridge")?.nextDue).toBe("2026-10-21");
+    expect(before.tasks.find((row) => row.id === "t_0001")?.status).toBe("open");
+
+    clock = { iso: await client.advanceDays(2) };
+    state = emptyDialogue();
+    const morning = await say("What needs doing?");
+    expect(morning.reply.toLowerCase()).toContain("arrived");
+    expect(morning.reply.toLowerCase()).toContain("installed");
+    expect(morning.reply.toLowerCase()).not.toContain("2 days overdue");
+    const done = await say("Done");
+    expect(done.reply).not.toContain("9-volt");
+    expect(done.reply).toContain("April 2027");
+    expect(done.steps.find((step) => step.tool === "log_maintenance")?.args).toMatchObject({
+      applianceId: "ap_fridge",
+      item: "water_filter",
+    });
+    const after = await client.getSimState();
+    expect(after.tasks.find((row) => row.id === "t_0001")?.status).toBe("closed");
+    expect(after.inventory.find((row) => row.name === "Rillstone CX-28")?.qty).toBe(0);
+    expect(after.schedule.find((row) => row.applianceId === "ap_fridge" && row.item === "water_filter")?.nextDue).toBe("2027-04-21");
+  });
+
+  it("P04 closes the furnace filter from the server task", async () => {
+    await client.resetSim();
+    clock = { iso: SIM_EPOCH };
+    state = emptyDialogue();
+    await say("Reorder the furnace filter");
+    await say("Yes");
+    await say("2468");
+    const early = await say("Done");
+    expect(early.reply).not.toContain("9-volt");
+    expect(early.reply).not.toContain("ITEM_NOT_APPLICABLE");
+    expect(early.reply.toLowerCase()).toContain("hasn't arrived");
+    expect(early.steps.map((step) => step.tool)).not.toContain("log_maintenance");
+    expect(early.steps.some((step) => step.tool === "log_maintenance" && step.args.item === "water_filter")).toBe(false);
+
+    clock = { iso: await client.advanceDays(2) };
+    state = emptyDialogue();
+    const done = await say("Done");
+    expect(done.reply).not.toContain("9-volt");
+    expect(done.reply).not.toContain("ITEM_NOT_APPLICABLE");
+    expect(done.reply).toContain("January 2027");
+    expect(done.steps.find((step) => step.tool === "log_maintenance")?.args).toMatchObject({
+      applianceId: "ap_furnace",
+      item: "air_filter",
+    });
+    const after = await client.getSimState();
+    expect(after.tasks.find((row) => row.id === "t_0001")?.status).toBe("closed");
+    expect(after.schedule.find((row) => row.applianceId === "ap_furnace" && row.item === "air_filter")?.nextDue).toBe("2027-01-21");
+    expect(after.inventory.find((row) => row.name.startsWith("Loftaire"))?.qty).toBe(2);
+  });
 });

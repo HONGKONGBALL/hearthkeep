@@ -163,4 +163,23 @@ describe("card resources", () => {
     expect(task).toContain("9V battery x2, Garage shelf");
     expect(task).toContain("Mark done");
   });
+
+  it("P04b marks an arrived install task done from the status card", () => {
+    const html = render(CARD_RESOURCES[0]?.text ?? "", {
+      attention: [],
+      upcoming: [],
+      inProgress: [
+        { kind: "order", id: "ord_0001", status: "delivered", applianceId: "ap_fridge", item: "water_filter", name: "Rillstone CX-28", eta: "2026-10-23" },
+      ],
+      tasks: [
+        { taskId: "t_0001", title: "Install fridge water filter", applianceId: "ap_fridge", item: "water_filter", dueDate: "2026-10-23", notes: null, status: "open" },
+      ],
+    });
+    expect(html).toContain("Open tasks");
+    expect(html).toContain("Install fridge water filter");
+    expect(html.toLowerCase()).toContain("arrived");
+    expect(html.toLowerCase()).toContain("waiting to install");
+    expect(html).toContain("Mark done");
+    expect(html).toContain('data-intent="Done, I swapped it"');
+  });
 });
