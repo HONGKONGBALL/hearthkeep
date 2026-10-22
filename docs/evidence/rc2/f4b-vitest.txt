@@ -1,0 +1,33 @@
+
+> hearthkeep@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.12 /workspace/amazon-app
+
+(node:1484933) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ tests/protocol/qa-i.test.ts (8 tests) 333ms
+ ✓ tests/protocol/qa-e.test.ts (12 tests) 335ms
+ ✓ tests/protocol/qa-b.test.ts (34 tests) 295ms
+ ✓ tests/planner-flows.test.ts (14 tests) 295ms
+ ✓ tests/protocol/qa-d.test.ts (26 tests) 278ms
+ ✓ tests/sim.test.ts (6 tests) 251ms
+ ✓ tests/protocol/tools.test.ts (10 tests) 222ms
+ ✓ tests/protocol/qa-c.test.ts (30 tests) 205ms
+ ✓ tests/domain.test.ts (28 tests) 128ms
+ ✓ tests/protocol/transport.test.ts (3 tests) 97ms
+ ✓ tests/healthz.test.ts (3 tests) 92ms
+ ✓ tests/storage.test.ts (9 tests) 69ms
+ ✓ tests/planner.test.ts (17 tests) 45ms
+ ✓ tests/planner-briefing-followup.test.ts (4 tests) 36ms
+ ✓ tests/planner-install.test.ts (4 tests) 22ms
+ ✓ tests/cards.test.ts (5 tests) 25ms
+ ✓ tests/docs-video.test.ts (2 tests) 6ms
+ ✓ tests/simulator-chrome.test.ts (2 tests) 7ms
+
+ Test Files  18 passed (18)
+      Tests  217 passed (217)
+   Start at  15:13:33
+   Duration  8.41s (transform 533ms, setup 0ms, import 2.44s, tests 2.74s, environment 2ms)
+

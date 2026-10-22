@@ -1,0 +1,23 @@
+Chunk f4b — rc1 review fix: P-07 welcome layer isolation
+Repo root /workspace/amazon-app. Fictional household data. No secrets. No tag was created. Nothing was pushed.
+
+Started from d000b56 (docs: record the P-06 focus ring review).
+
+What changed
+- apps/simulator/src/App.tsx — While the welcome dialog is open, the rest of the page sits in `.app-shell` with the inert attribute. Next morning is not focusable and is not in the accessibility tree, so it cannot advance the sim clock or open a session.
+- apps/simulator/src/App.css — `.app-shell` is `display: contents`. It does not add a flex box, so the page layout stays on the header and the device frame.
+- apps/simulator/src/chrome.tsx — Tab and Shift+Tab are caught on the document in the capture phase. Focus that leaves the dialog is pulled back to Start.
+- tests/e2e/f4b-welcome.spec.ts — From Start, 12 Tabs and 4 Shift+Tabs stay inside the dialog. The same check runs at 390, 768, and 1280. The server clock stays `2026-10-21T09:00:00-07:00`. The page does not call `/sim/clock` or `/mcp`. Next morning is absent from the Chrome accessibility tree, and calling focus() on it does not move focus.
+
+Verification
+- npx tsc -p apps/simulator/tsconfig.json --noEmit: exit 0.
+- npm test (vitest run 4.1.12), log docs/evidence/rc2/f4b-vitest.txt: exit 0. 18 files passed, 217 tests passed, duration 8.41s.
+- npx playwright test (Playwright, Chrome), log docs/evidence/rc2/f4b-playwright.txt: exit 0. 27 passed, duration 37.3s. The P-07 test is in that run.
+- Screenshots: docs/screens/rc2/f4b-welcome-tab.png, docs/screens/rc2/f4b-welcome-tab-390.png.
+
+Commits
+- f603460 fix: keep the welcome dialog from reaching the page behind it
+- ee41912 test: keep Tab inside the welcome dialog
+- 6cff9d7 test: read the welcome isolation from the accessibility tree
+- ba7d32d test: check the welcome dialog at 390 and 768
+- e64c7d2 fix: leave the page flex layout unchanged under the welcome shell

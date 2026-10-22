@@ -55,3 +55,12 @@ These frames check the focus ring on the dark controls. They are not substitutes
 | f4a about | `f4a-focus-about.png` | About focused. |
 | f4a trace pressed | `f4a-focus-trace-pressed.png` | Trace pressed and focused. The rust fill is not the focus ring. |
 | f4a retry | `f4a-focus-retry.png` | Retry focused on the red banner. Dark ring on the white button, light ring on the banner. |
+
+## Chunk f4b review shots
+
+These frames check that Tab stays on the welcome dialog. They are not substitutes for the required shots above.
+
+| Id | File | What the frame shows |
+| --- | --- | --- |
+| f4b welcome | `f4b-welcome-tab.png` | After Tab from Start at 1280×800. Focus remains on Start. The clock still reads Wed, Oct 21, 2026 · 9:00 AM. |
+| f4b welcome 390 | `f4b-welcome-tab-390.png` | Same dialog at 390 px wide. Start stays inside the sheet. |
