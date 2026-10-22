@@ -123,7 +123,7 @@ Sections B–E above passed in both SSE and JSON response modes (the protocol fi
 88 | PASS | tests/protocol/qa-i.test.ts I88 tool call p95 (sse) and I88 tool call p95 (json). UI: three Chrome rounds of cases 64, 65, 67, and 68, 36 utterance-to-reply samples, max 106 ms, p95 102 ms.
 89 | FAIL | /workspace/demo/amazon-demo.mp4 is missing. ffprobe -hide_banner exited 1: "/workspace/demo/amazon-demo.mp4: No such file or directory". open errno 2 (ENOENT). Width, height, duration, and an aac stream were not reported.
 90 | PASS | docs/video-script.md (nine English cues, L1–L9, picture ends at 170 seconds, DashScope qwen3-tts-flash voice Cherry, no music). docs/devpost.md (draft, including the Simulation disclosure section).
-91 | FAIL | No video frames or audio to review. ffmpeg -i /workspace/demo/amazon-demo.mp4 -af volumedetect -f null - exited 254: "Error opening input: No such file or directory" (errno 2 ENOENT). mean_volume was not reported.
+91 | FAIL | /workspace/demo/amazon-demo.mp4 has no frames and no mixed audio to review. ffmpeg -i /workspace/demo/amazon-demo.mp4 -af volumedetect -f null - exited 254: "Error opening input: No such file or directory" (errno 2 ENOENT). mean_volume was not reported. A flite probe wav is on disk and was not mixed into that mp4. ls -l /tmp/hearthkeep-video/flite-test.wav: -rw-rw-r-- grok-sup grok-sup 565518 bytes, 2026-10-22 03:30. ls -l /tmp/hearthkeep-video/flite.log: -rw-rw-r-- grok-sup grok-sup 2648 bytes, 2026-10-22 03:30. ffprobe -hide_banner exit 0: wav, pcm_s16le, 48000 Hz, 2 channels, s16, duration 00:00:02.95, bitrate 1536 kb/s, encoder Lavf61.7.103. flite.log: ffmpeg lavfi flite=text='Upkeep you only notice when something beeps.':voice=slt (source pcm_s16le, 16000 Hz, mono) written to that wav (pcm_s16le, 48000 Hz, stereo, 552 KiB, time 00:00:02.94). The directory listing has no espeak, pico, say, or edge-tts file.
 92 | PASS | docs/product-feedback.md, docs/friction-log.md (FL-01 through FL-06), docs/feature-requests.md (none filed), docs/devpost.md, docs/video-script.md.
 93 | FAIL | README was not followed on a separate clean Ubuntu account. This workspace did run npm test and npm run demo.
 94 | FAIL | No Devpost submission timestamp is available.
@@ -154,7 +154,7 @@ Commands this run
     open errno 2 (ENOENT), "No such file or directory"
     sudo -n cat /etc/grok-secrets/dashscope.env: exit 1, "sudo: a password is required"
     mkdir /etc/grok-secrets: errno 13 (EACCES)
-    No synthesis request was sent. No other voice engine was used.
+    No synthesis request was sent. narrate-demo.mjs did not start another voice engine. A separate flite probe wav from 03:30 is on disk; item 91 records it. It was not mixed into amazon-demo.mp4.
   node scripts/assemble-demo.mjs
     not run. It needs narration.wav from the narrate step.
   The saved picture was not re-recorded.
@@ -184,3 +184,18 @@ Picture on disk (not re-recorded this run)
 
 Narration
   Blocked on FL-06. No readable DASHSCOPE_API_KEY assignment was found. The script reads only /etc/grok-secrets/dashscope.env and does not print a key.
+
+Flite probe (2026-10-22 13:01 CST)
+  Item 91 had said there was no audio to review, which contradicted the flite files below. Item 91 now states this evidence. The item stays FAIL: the clip was not mixed, and /workspace/demo/amazon-demo.mp4 is still absent.
+  ls -l /tmp/hearthkeep-video/flite-test.wav
+    -rw-rw-r-- 1 grok-sup grok-sup 565518 Oct 22 03:30
+  ls -l /tmp/hearthkeep-video/flite.log
+    -rw-rw-r-- 1 grok-sup grok-sup 2648 Oct 22 03:30
+  ffprobe -hide_banner /tmp/hearthkeep-video/flite-test.wav
+    exit 0
+    wav, pcm_s16le, 48000 Hz, 2 channels, s16, duration 00:00:02.95, bitrate 1536 kb/s, encoder Lavf61.7.103
+  flite.log
+    ffmpeg lavfi flite=text='Upkeep you only notice when something beeps.':voice=slt
+    source pcm_s16le, 16000 Hz, mono
+    output wav pcm_s16le, 48000 Hz, stereo, 552 KiB, time 00:00:02.94
+  /tmp/hearthkeep-video listing includes flite-test.wav and flite.log. No espeak, pico, say, or edge-tts file is in that directory.
