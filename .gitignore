@@ -7,3 +7,7 @@ data/*.db-shm
 dist/
 *.tsbuildinfo
 coverage/
+test-results/
+playwright-report/
+blob-report/
+tests/e2e/.servers.json

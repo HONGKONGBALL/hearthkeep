@@ -1,0 +1,134 @@
+Hearthkeep — chunk 5 QA record
+Date: 2026-10-22
+Household names, prices, and the purchase code below are fictional sample data.
+
+Start
+  npm run demo
+
+Ports
+  MCP server   http://127.0.0.1:8787   (GET /healthz, POST /mcp, POST /sim/reset)
+  Simulator    http://127.0.0.1:5173
+
+Env used by the demo and by npm run test:e2e
+  HK_HOST=127.0.0.1
+  HK_PORT=8787
+  HK_DB=./data/hearthkeep.db for npm run demo; tests/e2e uses data/e2e.db and deletes it
+  HK_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+  HK_SIM_MODE=1
+  HK_SIM_START=2026-10-21T09:00:00-07:00
+  HK_PURCHASE_CODE=2468
+  HK_JSON_RESPONSE=0
+  HK_AUTH_TOKEN empty
+  HK_LLM_BASE_URL empty
+  HK_LLM_API_KEY empty
+  HK_LLM_MODEL empty
+  DASHSCOPE_API_KEY empty
+  No .env file is required. .env.example holds those placeholders.
+
+Commands run in this workspace after the suite was saved
+  npm test            exit 0    15 files, 194 tests, 12:16:57, 7.69s
+  npm run test:e2e    exit 0    18 Chrome tests, 30.2s
+  npm run demo        both processes started; GET /healthz 200; GET :5173 200; then both were stopped
+  Servers were not left listening on 8787 or 5173.
+
+# | Result | Evidence
+1 | PASS | npm run demo. Health body status ok, protocolVersion 2025-11-25, storage sqlite, payment mock, simMode true, simNow 2026-10-21T09:00:00-07:00. Simulator HTTP 200. Log line: Hearthkeep MCP server listening on http://127.0.0.1:8787/mcp. tests/healthz.test.ts.
+2 | FAIL | LICENSE has the MIT text and "Copyright (c) 2026 Zhenhua Liu". This workspace has no git remote, so the GitHub About panel was not opened.
+3 | PASS | README.md sections: Simulation disclosure, Prerequisites, Install, Run, Test, E2E, Env table, Demo script, Data notice, Troubleshooting, License.
+4 | PASS | .gitignore ignores .env. No .env file is present. .env.example values for HK_AUTH_TOKEN, HK_LLM_API_KEY, and DASHSCOPE_API_KEY are empty. git log -S finds only that empty placeholder.
+5 | PASS | npm test exit 0 and npm run test:e2e exit 0, recorded above. CI workflow: .github/workflows/ci.yml. A GitHub Actions run was not executed; there is no remote.
+6 | PASS | tests/storage.test.ts fictional-data notice. docs/data-notice.md lists the invented names. Device chip and card chip "Fictional data": tests/e2e/qa-f.spec.ts case 58, and the simulator frame during the Chrome run.
+7 | PASS | tests/protocol/qa-b.test.ts B7 initialize
+8 | PASS | tests/protocol/qa-b.test.ts B8 initialized notification
+9 | PASS | tests/protocol/qa-b.test.ts B9 version negotiation
+10 | PASS | tests/protocol/qa-b.test.ts B10 missing session
+11 | PASS | tests/protocol/qa-b.test.ts B11 unknown session
+12 | PASS | tests/protocol/qa-b.test.ts B12 version header
+13 | PASS | tests/protocol/qa-b.test.ts B13 accept header
+14 | PASS | tests/protocol/qa-b.test.ts B14 content type
+15 | PASS | tests/protocol/qa-b.test.ts B15 malformed JSON
+16 | PASS | tests/protocol/qa-b.test.ts B16 no batching
+17 | PASS | tests/protocol/qa-b.test.ts B17 origin allowlist and CORS
+18 | PASS | tests/protocol/qa-b.test.ts B18 no standalone stream
+19 | PASS | tests/protocol/qa-b.test.ts B19 end session
+20 | PASS | tests/protocol/qa-b.test.ts B20 tool list
+21 | PASS | tests/protocol/qa-b.test.ts B21 card resources
+22 | PASS | tests/protocol/qa-b.test.ts B22 unknown tool
+23 | PASS | tests/protocol/qa-b.test.ts B23 invalid arguments
+24 | PASS | tests/protocol/qa-c.test.ts C24 status buckets
+25 | PASS | tests/protocol/qa-c.test.ts C25 resolve match
+26 | PASS | tests/protocol/qa-c.test.ts C26 resolve ambiguous
+27 | PASS | tests/protocol/qa-c.test.ts C27 resolve none
+28 | PASS | tests/protocol/qa-c.test.ts C28 fridge parts
+29 | PASS | tests/protocol/qa-c.test.ts C29 furnace parts
+30 | PASS | tests/protocol/qa-c.test.ts C30 stock first
+31 | PASS | tests/protocol/qa-c.test.ts C31 wrong item
+32 | PASS | tests/protocol/qa-c.test.ts C32 diagnose
+33 | PASS | tests/protocol/qa-c.test.ts C33 hazard
+34 | PASS | tests/protocol/qa-c.test.ts C34 task then log
+35 | PASS | tests/protocol/qa-c.test.ts C35 register known model
+36 | PASS | tests/protocol/qa-c.test.ts C36 register unknown model
+37 | PASS | tests/protocol/qa-c.test.ts C37 service slots
+38 | PASS | tests/protocol/qa-c.test.ts C38 past window
+39 | PASS | tests/protocol/qa-d.test.ts D39 quote only
+40 | PASS | tests/protocol/qa-d.test.ts D40 wrong code
+41 | PASS | tests/protocol/qa-d.test.ts D41 right code
+42 | PASS | tests/protocol/qa-d.test.ts D42 idempotent
+43 | PASS | tests/protocol/qa-d.test.ts D43 expiry
+44 | PASS | tests/protocol/qa-d.test.ts D44 lockout
+45 | PASS | tests/protocol/qa-d.test.ts D45 over cap
+46 | PASS | tests/protocol/qa-d.test.ts D46 policy is server-side
+47 | PASS | tests/protocol/qa-d.test.ts D47 fit is server-side
+48 | PASS | tests/protocol/qa-d.test.ts D48 bounds
+49 | PASS | tests/protocol/qa-d.test.ts D49 slot taken
+50 | PASS | tests/protocol/qa-d.test.ts D50 lifecycle
+51 | PASS | tests/protocol/qa-d.test.ts D51 audit
+52 | PASS | tests/protocol/qa-e.test.ts E52 memory across sessions
+53 | PASS | tests/protocol/qa-e.test.ts E53 survives restart
+54 | PASS | tests/protocol/qa-e.test.ts E54 new session sees work
+55 | PASS | tests/protocol/qa-e.test.ts E55 reset
+56 | PASS | tests/protocol/qa-e.test.ts E56 clock rules
+57 | PASS | tests/protocol/qa-e.test.ts E57 sim routes check origin
+Sections B–E above passed in both SSE and JSON response modes (the protocol files run each case twice; counts: B 34, C 30, D 26, E 12).
+58 | PASS | tests/e2e/qa-f.spec.ts "58 status card is sandboxed and lists attention and upcoming"
+59 | PASS | tests/e2e/qa-f.spec.ts "59 and 60 carousel keys move focus and Choose prepares checkout"
+60 | PASS | same test as 59; user turn "Choose Rillstone CX-28"; trace prepare_checkout and no confirm_purchase
+61 | PASS | tests/e2e/qa-g.spec.ts cases 65 and 68 (part C3/C4 and service C3/C4)
+62 | PASS | tests/e2e/qa-f.spec.ts "62 card frames do not request anything during F1 to F4"
+63 | PASS | tests/e2e/qa-f.spec.ts "63 text-only replies keep price, arrival, slot, and the limit"
+64 | PASS | tests/e2e/qa-g.spec.ts "64 launch shows the simulation ribbon and the morning briefing" (reply within 3s)
+65 | PASS | tests/e2e/qa-g.spec.ts "65 exact-fit purchase shows options, checkout, and a mock receipt"
+66 | PASS | tests/e2e/qa-g.spec.ts "66 a wrong code leaves two tries and no receipt"
+67 | PASS | tests/e2e/qa-g.spec.ts "67 a chirping hallway alarm uses the battery on the shelf"
+68 | PASS | tests/e2e/qa-g.spec.ts "68 booking over the cap needs approve before it is saved"
+69 | PASS | tests/e2e/qa-g.spec.ts "69 next morning ships the filter and keeps the Tuesday booking"
+70 | PASS | tests/e2e/qa-g.spec.ts "70 a new water heater is remembered in the next session"
+71 | PASS | tests/e2e/qa-g.spec.ts "71 gas smell stops before any tool call"
+72 | PASS | tests/e2e/qa-g.spec.ts "72 smoke alarms are clarified, and a continuous alarm is a hazard"
+73 | PASS | tests/e2e/qa-g.spec.ts "73 weather is out of scope and cancel drops the quote"
+74 | PASS | tests/e2e/qa-g.spec.ts "74 a stopped server shows Retry and the transcript survives"
+75 | PASS | tests/e2e/qa-g.spec.ts "75 the trace redacts the purchase code"
+76 | PASS | tests/e2e/qa-g.spec.ts "76 keyboard purchase and axe scans stay clean with reduced motion" (@axe-core/playwright, 0 serious or critical)
+77 | PASS | Shipped deterministic planner. Badge asserted in case 64. tests/e2e/support.ts fails the run if a request leaves 127.0.0.1. Section G passed.
+78 | NOT SHIPPED | HK_LLM_* are empty placeholders. No LLM planner is implemented.
+79 | NOT SHIPPED | skills/home-upkeep/README.md is a placeholder. skills/home-upkeep/SKILL.md is not in the tree.
+80 | NOT SHIPPED | apps/mcp-server/src/mcp.ts emits one progress notification. The simulator does not show "Checking providers...".
+81 | NOT SHIPPED | No bearer-token check is implemented. HK_AUTH_TOKEN is an empty placeholder.
+82 | NOT SHIPPED | tools/list is the 10 P0 tools (case 20). cancel_order, set_preferences, and get_home_profile are not registered.
+83 | PASS | Shipped Voice control. tests/e2e/qa-g.spec.ts "83 voice speaks once when it is on"
+84 | PASS | tests/protocol/qa-i.test.ts I84 localhost bind
+85 | PASS | tests/protocol/qa-i.test.ts I85 redaction (sse) and I85 redaction (json). E2E case 75. /tmp/hearthkeep-mcp.log from the e2e run had no "2468".
+86 | PASS | tests/protocol/qa-i.test.ts I86 no personal data. docs/data-notice.md.
+87 | PASS | tests/protocol/qa-i.test.ts I87 determinism (sse) and I87 determinism (json)
+88 | PASS | tests/protocol/qa-i.test.ts I88 tool call p95 (sse) and I88 tool call p95 (json). UI: three Chrome rounds of cases 64, 65, 67, and 68, 36 utterance-to-reply samples, max 106 ms, p95 102 ms.
+89 | FAIL | No video file is in the repo. ffprobe and a public logged-out link were not run.
+90 | FAIL | docs/video-script.md and docs/devpost.md are stubs. No narration or Devpost disclosure paragraph is present.
+91 | FAIL | No video frames or audio to review.
+92 | FAIL | docs/devpost.md, docs/product-feedback.md, docs/friction-log.md, and docs/feature-requests.md are stubs.
+93 | FAIL | README was not followed on a separate clean Ubuntu account. This workspace did run npm test and npm run demo.
+94 | FAIL | No Devpost submission timestamp is available.
+
+Playwright
+  playwright.config.ts uses Chrome, viewport 1280x800.
+  npm run test:e2e starts the MCP server and the simulator, then runs tests/e2e/qa-f.spec.ts and tests/e2e/qa-g.spec.ts.
+  CI definition: .github/workflows/ci.yml (not pushed).

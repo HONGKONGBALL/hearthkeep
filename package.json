@@ -14,9 +14,12 @@
   "scripts": {
     "demo": "node scripts/demo.mjs",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "typecheck": "tsc -p packages/core/tsconfig.json --noEmit && tsc -p apps/mcp-server/tsconfig.json --noEmit && tsc -p apps/simulator/tsconfig.json --noEmit && tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.64.1",
     "@types/node": "^22.15.3",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",

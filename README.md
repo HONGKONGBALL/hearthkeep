@@ -56,11 +56,13 @@ Vitest calls `GET /healthz` on a temporary server and checks the zero-key payloa
 
 ## E2E
 
-Playwright coverage of the simulator (conversation, cards, and the scripted demo) is not in this skeleton. When it lands, the command is:
+Playwright opens the simulator in Chrome at 1280×800 and runs QA sections F and G (cards and flows F1 to F8). The command starts the MCP server on `127.0.0.1:8787` and the simulator on `127.0.0.1:5173` with `HK_SIM_MODE=1` and a temporary database.
 
 ```bash
 npm run test:e2e
 ```
+
+Chrome has to be installed. The suite uses Playwright's `chrome` channel.
 
 ## Env table
 

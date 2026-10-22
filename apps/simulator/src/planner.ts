@@ -879,14 +879,15 @@ function composeCheckout(quote: PendingQuote, timeZone: string): string {
     const verb = quote.kind === "service" ? "book it anyway" : "order it anyway";
     return `That's ${speechMoney(quote.totalUsd)}, which is ${speechMoney(quote.overByUsd)} over your ${speechMoney(quote.capUsd)} limit. To ${verb}, say 'approve' and your code.`;
   }
+  const limit = `within your ${speechMoney(quote.capUsd)} limit`;
   if (quote.kind === "service" && quote.slot) {
     const start = textOf(quote.slot.start);
     const end = textOf(quote.slot.end);
     const when = start ? `${titleCase(formatWeekdayLong(ymdOfIso(start, timeZone)))}, ${windowPhrase(start, end, timeZone)}` : "that time";
-    return `That's ${speechMoney(quote.totalUsd)} for ${when}. Say your purchase code to confirm.`;
+    return `That's ${speechMoney(quote.totalUsd)} for ${when}, ${limit}. Say your purchase code to confirm.`;
   }
   const eta = quote.eta ? `${titleCase(formatWeekdayLong(quote.eta))}, ${formatMonthDay(quote.eta)}` : "soon";
-  return `That's ${speechMoney(quote.totalUsd)}, arriving ${eta}. Say your purchase code to confirm.`;
+  return `That's ${speechMoney(quote.totalUsd)}, arriving ${eta}, ${limit}. Say your purchase code to confirm.`;
 }
 
 function composeConfirmed(structured: Record<string, unknown>, quote: PendingQuote, timeZone: string): string {

@@ -3,5 +3,6 @@
   "compilerOptions": {
     "types": ["node"]
   },
-  "include": ["vitest.config.ts", "tests/**/*.ts"]
+  "include": ["vitest.config.ts", "tests/**/*.ts"],
+  "exclude": ["tests/e2e/**"]
 }

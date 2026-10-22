@@ -6,6 +6,7 @@ import {
   QUICK_CHIPS,
   emptyDialogue,
   executeTurn,
+  formatShortDate,
   formatSimHeader,
   type CardPayload,
   type DialogueState,
@@ -53,6 +54,14 @@ function cell(value: unknown): string {
   if (value === null || value === undefined || value === "") return "—";
   if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return String(value);
   return JSON.stringify(value);
+}
+
+/** Show calendar dates as "Fri, Oct 23". Other values stay as stored. */
+function when(value: unknown): string {
+  const text = cell(value);
+  const ymd = text.slice(0, 10);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(ymd) && (text.length === 10 || text[10] === "T")) return formatShortDate(ymd);
+  return text;
 }
 
 export function App() {
@@ -332,7 +341,7 @@ export function App() {
         <div className="frame-body">
           <div className="conversation">
             <h2 className="sr-only">Conversation</h2>
-            <div className="transcript" aria-live="polite">
+            <div className="transcript" aria-live="polite" tabIndex={0}>
               {connection === "connecting" && visible.length === 0 ? <p>Connecting…</p> : null}
               {visible.map((turn, index) => (
                 <article key={`${turn.assistant}-${index}`}>
@@ -546,7 +555,7 @@ function DataView({ tab, snapshot }: { tab: DataTab; snapshot: SimSnapshot | nul
           <thead><tr><th>Order</th><th>Status</th><th>Total</th><th>ETA</th></tr></thead>
           <tbody>
             {snapshot.orders.map((row) => (
-              <tr key={cell(row.id)}><td>{cell(row.id)}</td><td>{cell(row.status)}</td><td>{cell(row.totalUsd)}</td><td>{cell(row.eta)}</td></tr>
+              <tr key={cell(row.id)}><td>{cell(row.id)}</td><td>{cell(row.status)}</td><td>{cell(row.totalUsd)}</td><td>{when(row.eta)}</td></tr>
             ))}
           </tbody>
         </table>
@@ -554,7 +563,7 @@ function DataView({ tab, snapshot }: { tab: DataTab; snapshot: SimSnapshot | nul
           <thead><tr><th>Booking</th><th>Status</th><th>Provider</th><th>Window</th></tr></thead>
           <tbody>
             {snapshot.bookings.map((row) => (
-              <tr key={cell(row.id)}><td>{cell(row.id)}</td><td>{cell(row.status)}</td><td>{cell(row.provider)}</td><td>{cell(row.windowStart)}</td></tr>
+              <tr key={cell(row.id)}><td>{cell(row.id)}</td><td>{cell(row.status)}</td><td>{cell(row.provider)}</td><td>{when(row.windowStart)}</td></tr>
             ))}
           </tbody>
         </table>
@@ -567,7 +576,7 @@ function DataView({ tab, snapshot }: { tab: DataTab; snapshot: SimSnapshot | nul
         <thead><tr><th>Task</th><th>Title</th><th>Due</th><th>Status</th></tr></thead>
         <tbody>
           {snapshot.tasks.map((row) => (
-            <tr key={cell(row.id)}><td>{cell(row.id)}</td><td>{cell(row.title)}</td><td>{cell(row.dueDate)}</td><td>{cell(row.status)}</td></tr>
+            <tr key={cell(row.id)}><td>{cell(row.id)}</td><td>{cell(row.title)}</td><td>{when(row.dueDate)}</td><td>{cell(row.status)}</td></tr>
           ))}
         </tbody>
       </table>
