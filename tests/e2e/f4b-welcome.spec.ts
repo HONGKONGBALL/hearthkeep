@@ -32,7 +32,9 @@ test("P-07 Tab stays in the welcome dialog and the server clock stays put", asyn
   const sideEffects: string[] = [];
   page.on("request", (req) => {
     const url = req.url();
-    if (url.includes("/sim/clock") || url.includes("/mcp")) sideEffects.push(`${req.method()} ${url}`);
+    if (url.startsWith(`${MCP_URL}/sim/clock`) || url.startsWith(`${MCP_URL}/mcp`)) {
+      sideEffects.push(`${req.method()} ${url}`);
+    }
   });
 
   await openWelcome(page);
@@ -45,7 +47,10 @@ test("P-07 Tab stays in the welcome dialog and the server clock stays put", asyn
   await expect(shell).toHaveAttribute("inert", "");
   const next = page.locator(".app-shell button", { hasText: "Next morning" });
   await expect(next).toHaveCount(1);
-  await expect(page.getByRole("button", { name: "Next morning" })).toHaveCount(0);
+  const client = await page.context().newCDPSession(page);
+  const tree = await client.send("Accessibility.getFullAXTree");
+  const exposed = tree.nodes.filter((node) => (node.name?.value ?? "").includes("Next morning"));
+  expect(exposed, "Next morning is still in the accessibility tree").toEqual([]);
 
   const frame = await page.locator(".frame").boundingBox();
   expect(frame?.height ?? 0).toBeGreaterThan(400);
