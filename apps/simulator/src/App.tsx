@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CodeLock, WelcomeOverlay } from "./chrome";
-import { HearthkeepClient, type SimSnapshot } from "./mcp-client";
+import { HearthkeepClient, type OpenedSession, type SimSnapshot } from "./mcp-client";
 import {
   PROTOCOL_LABEL,
   QUICK_CHIPS,
@@ -32,6 +32,15 @@ interface TraceTransport {
   method: string;
   status: number;
   detail: string;
+}
+
+/** initialize 200, then notifications/initialized 202. Leading rows cover DELETE on a replaced session. */
+function sessionTransport(opened: OpenedSession, leading: TraceTransport[] = []): TraceTransport[] {
+  return [
+    ...leading,
+    { method: "initialize", status: opened.status, detail: "session" },
+    { method: "notifications/initialized", status: opened.initialized, detail: "session" },
+  ];
 }
 
 interface TraceRow {
@@ -196,7 +205,7 @@ export function App() {
     try {
       const health = await client().health();
       rememberClock(health.simNow ?? clockRef.current);
-      const status = await client().initialize();
+      const opened = await client().initialize();
       setSessionPrefix(client().sessionPrefix);
       dialogueRef.current = emptyDialogue();
       setAwaitingCode(false);
@@ -206,7 +215,7 @@ export function App() {
         setCard(null);
       }
       setConnection("connected");
-      await runUtterance("", false, [{ method: "initialize", status, detail: "session" }]);
+      await runUtterance("", false, sessionTransport(opened));
       await refreshData();
     } catch {
       setConnection("down");
@@ -268,16 +277,13 @@ export function App() {
       const deleted = client().sessionId ? await client().deleteSession() : 0;
       const health = await client().health();
       rememberClock(health.simNow ?? now);
-      const status = await client().initialize();
+      const opened = await client().initialize();
       setSessionPrefix(client().sessionPrefix);
       dialogueRef.current = emptyDialogue();
       setAwaitingCode(false);
       setTurns([]);
       setConnection("connected");
-      await runUtterance("", false, [
-        { method: "DELETE", status: deleted, detail: "session" },
-        { method: "initialize", status, detail: "session" },
-      ]);
+      await runUtterance("", false, sessionTransport(opened, [{ method: "DELETE", status: deleted, detail: "session" }]));
     } catch {
       setConnection("down");
       setBusy(false);

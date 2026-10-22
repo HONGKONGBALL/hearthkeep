@@ -49,6 +49,12 @@ function parseRpc(text: string, contentType: string): RpcMessage {
   return JSON.parse(text) as RpcMessage;
 }
 
+/** Statuses from a new MCP session: initialize, then notifications/initialized. */
+export interface OpenedSession {
+  status: number;
+  initialized: number;
+}
+
 export class HearthkeepClient {
   sessionId: string | null = null;
   private nextId = 1;
@@ -101,7 +107,7 @@ export class HearthkeepClient {
     };
   }
 
-  async initialize(): Promise<number> {
+  async initialize(): Promise<OpenedSession> {
     const opened = await this.rpc(
       "initialize",
       {
@@ -119,7 +125,7 @@ export class HearthkeepClient {
       body: JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" }),
     });
     if (noted.status !== 202) throw new Error(`initialized notification failed (${noted.status})`);
-    return opened.status;
+    return { status: opened.status, initialized: noted.status };
   }
 
   async deleteSession(): Promise<number> {
