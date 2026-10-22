@@ -1,0 +1,26 @@
+Chunk f4a — rc1 review fix: P-06 focus visibility
+Repo root /workspace/amazon-app. Fictional household data. No secrets. No tag was created. Nothing was pushed.
+
+Started from e5de215 (docs: record the P-09 and P-10 copy fix).
+
+What changed
+- apps/simulator/src/App.css — Dark buttons use a two-tone focus ring: 3px #f6f1e8 against the fill, then 3px #1c1917 against the page. Pressed controls keep the rust fill #7c2d12, so the ring is a separate shape. Retry on the red banner reverses the rings: dark against the white button, light against #7f1d1d. Chip buttons on the cream page keep a dark outline. The say field keeps #1d4ed8. The top-bar control gap is 14px by 12px so the outer ring meets the page instead of the next dark button.
+- tests/e2e/f4a-focus.spec.ts — Tab visits New session, Next morning, Reset demo, Trace, Data, Cards, Voice, and About, then Retry after the server is stopped. The test asserts the outline color rgb(246, 241, 232) and measures the rendered pixels on both sides of each ring.
+
+Contrast measured from the screenshots (WCAG relative luminance), all at or above 3:1
+- Green fill #143d2c vs light ring: 10.77. Pressed fill #7c2d12 vs light ring: 8.33. Light ring vs dark ring: 15.54. Dark ring vs page: 13.23 to 15.43.
+- Retry white button vs dark ring: 17.49. Rings vs each other: 15.54. Light ring vs banner #7f1d1d: 8.91.
+- Cards and Trace pressed show the rust fill with the same light outline.
+
+Verification
+- npx playwright test tests/e2e/f4a-focus.spec.ts: exit 0 after the gutter fix. 2 passed.
+- npm test (vitest run 4.1.12), log docs/evidence/rc2/f4a-vitest.txt: exit 0. 18 files passed, 217 tests passed, duration 8.76s.
+- npx playwright test (Playwright, Chrome), log docs/evidence/rc2/f4a-playwright.txt: exit 0. 26 passed, duration 37.1s. The two P-06 tests are in that run.
+- Contrast log: docs/evidence/rc2/f4a-focus-contrast.txt.
+- Screenshots: docs/screens/rc2/f4a-focus-new-session.png, f4a-focus-next-morning.png, f4a-focus-reset-demo.png, f4a-focus-trace.png, f4a-focus-data.png, f4a-focus-cards.png, f4a-focus-voice.png, f4a-focus-about.png, f4a-focus-trace-pressed.png, f4a-focus-retry.png.
+
+Commits
+- d1f5f59 fix: use a two-tone focus ring on dark controls
+- f79d980 test: assert the light focus ring on the top bar and Retry
+- 907476d fix: leave a page gutter around the top-bar focus ring
+- 6083fe2 test: measure the focus ring against the pixels beside it

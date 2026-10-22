@@ -38,3 +38,20 @@ These frames check the copy fixes. They are not substitutes for the required sho
 | f3 next due | `f3-task-next-due.png` | After the swap. The date label is Next due, and the date is the next battery change. |
 | f3 limit | `f3-parts-limit.png` | Fridge filter checkout reply includes Within your $60 limit. |
 | f3 one day | `f3-one-day-overdue.png` | Next morning from the seed. The fridge filter reads 1 day overdue. |
+
+## Chunk f4a review shots
+
+These frames check the focus ring on the dark controls. They are not substitutes for the required shots above.
+
+| Id | File | What the frame shows |
+| --- | --- | --- |
+| f4a new session | `f4a-focus-new-session.png` | New session focused. Light ring on the green button, dark ring on the page. |
+| f4a next morning | `f4a-focus-next-morning.png` | Next morning focused, same two-tone ring. |
+| f4a reset | `f4a-focus-reset-demo.png` | Reset demo focused. |
+| f4a trace | `f4a-focus-trace.png` | Trace focused, not pressed. |
+| f4a data | `f4a-focus-data.png` | Data focused. |
+| f4a cards | `f4a-focus-cards.png` | Cards focused while pressed. Rust fill, light ring still separate. |
+| f4a voice | `f4a-focus-voice.png` | Voice focused on the second row. The ring meets the page, not the button above. |
+| f4a about | `f4a-focus-about.png` | About focused. |
+| f4a trace pressed | `f4a-focus-trace-pressed.png` | Trace pressed and focused. The rust fill is not the focus ring. |
+| f4a retry | `f4a-focus-retry.png` | Retry focused on the red banner. Dark ring on the white button, light ring on the banner. |

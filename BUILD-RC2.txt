@@ -57,3 +57,15 @@ Screenshot list
   f3 next due: docs/screens/rc2/f3-task-next-due.png
   f3 limit: docs/screens/rc2/f3-parts-limit.png
   f3 one day: docs/screens/rc2/f3-one-day-overdue.png
+
+  Chunk f4a review shots (captured with the focus-ring fix; not the required set above):
+  f4a new session: docs/screens/rc2/f4a-focus-new-session.png
+  f4a next morning: docs/screens/rc2/f4a-focus-next-morning.png
+  f4a reset: docs/screens/rc2/f4a-focus-reset-demo.png
+  f4a trace: docs/screens/rc2/f4a-focus-trace.png
+  f4a data: docs/screens/rc2/f4a-focus-data.png
+  f4a cards: docs/screens/rc2/f4a-focus-cards.png
+  f4a voice: docs/screens/rc2/f4a-focus-voice.png
+  f4a about: docs/screens/rc2/f4a-focus-about.png
+  f4a trace pressed: docs/screens/rc2/f4a-focus-trace-pressed.png
+  f4a retry: docs/screens/rc2/f4a-focus-retry.png
