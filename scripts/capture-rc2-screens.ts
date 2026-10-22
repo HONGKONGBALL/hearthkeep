@@ -21,8 +21,9 @@ import {
 
 const OUT = "docs/screens/rc2";
 
-async function shot(page: Page, file: string): Promise<void> {
-  await page.screenshot({ path: `${OUT}/${file}`, animations: "disabled" });
+async function shot(page: Page, file: string, fullPage = false): Promise<void> {
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: `${OUT}/${file}`, animations: "disabled", fullPage });
 }
 
 async function settled(page: Page): Promise<boolean> {
@@ -133,13 +134,16 @@ async function main(): Promise<void> {
     if (raw.includes("2468") || (await trace.innerText()).includes("2468")) {
       throw new Error("trace shows the purchase code");
     }
-    await shot(page, "trace.png");
+    await shot(page, "trace.png", true);
     await page.getByRole("button", { name: "Trace", exact: true }).click();
 
+    await page.getByRole("button", { name: "Reset demo" }).click();
+    await waitBriefing(page);
     await page.getByRole("button", { name: "Data", exact: true }).click();
     const data = page.getByRole("complementary", { name: "Data" });
     await data.getByText("All data is fictional sample data").waitFor();
-    await shot(page, "data.png");
+    await data.getByRole("table").first().waitFor();
+    await shot(page, "data.png", true);
     await page.getByRole("button", { name: "Data", exact: true }).click();
 
     await page.getByRole("button", { name: "About" }).click();
@@ -168,10 +172,12 @@ async function main(): Promise<void> {
     await page.getByRole("button", { name: "Reset demo" }).click();
     await waitBriefing(page);
     await page.locator(".ribbon").waitFor();
-    await shot(page, "viewport-390.png");
+    await page.frameLocator("iframe.card-frame").getByText("Furnace filter").waitFor();
+    await shot(page, "viewport-390.png", true);
 
     await page.setViewportSize({ width: 768, height: 800 });
-    await shot(page, "viewport-768.png");
+    await page.frameLocator("iframe.card-frame").getByText("Furnace filter").waitFor();
+    await shot(page, "viewport-768.png", true);
 
     await page.setViewportSize({ width: 1280, height: 800 });
     const pids = readPids();
