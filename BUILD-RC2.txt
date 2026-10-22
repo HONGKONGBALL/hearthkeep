@@ -50,3 +50,10 @@ Screenshot list
   390 px: docs/screens/rc2/viewport-390.png
   768 px: docs/screens/rc2/viewport-768.png
   Capture notes for each id are in docs/screens/rc2/README.md. The PNG files are added when this record is filled.
+
+  Chunk f3 review shots (captured with the copy fix; not the required set above):
+  f3 task: docs/screens/rc2/f3-task-card.png
+  f3 task 390: docs/screens/rc2/f3-task-card-390.png
+  f3 next due: docs/screens/rc2/f3-task-next-due.png
+  f3 limit: docs/screens/rc2/f3-parts-limit.png
+  f3 one day: docs/screens/rc2/f3-one-day-overdue.png

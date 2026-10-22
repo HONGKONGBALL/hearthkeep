@@ -26,3 +26,15 @@ This conventions step adds the directory and this list. The PNG files are captur
 | 768 px | `viewport-768.png` | Same product UI at a 768 px wide viewport. |
 
 Desktop shots use the 1280×800 page unless the row names another width. The 390 px and 768 px rows are the narrow and tablet pair. Add a shot by adding one row here and the same row in `BUILD-RC2.txt`.
+
+## Chunk f3 review shots
+
+These frames check the copy fixes. They are not substitutes for the required shots above.
+
+| Id | File | What the frame shows |
+| --- | --- | --- |
+| f3 task | `f3-task-card.png` | Open battery task at 1280×800. Labels Due, Appliance, Supplies. Appliance reads Hallway smoke alarm. |
+| f3 task 390 | `f3-task-card-390.png` | Same task card at 390 px wide. |
+| f3 next due | `f3-task-next-due.png` | After the swap. The date label is Next due, and the date is the next battery change. |
+| f3 limit | `f3-parts-limit.png` | Fridge filter checkout reply includes Within your $60 limit. |
+| f3 one day | `f3-one-day-overdue.png` | Next morning from the seed. The fridge filter reads 1 day overdue. |

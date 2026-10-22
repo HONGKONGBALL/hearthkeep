@@ -491,6 +491,14 @@ pre {
     flex-direction: column;
   }
 
+  .card-frame {
+    min-height: 420px;
+  }
+
+  .stage {
+    overflow: auto;
+  }
+
   .controls {
     justify-content: flex-start;
     max-width: none;
