@@ -21,7 +21,7 @@ test("P04 fridge filter closes after two mornings", async ({ page }) => {
   expect(early.toLowerCase()).toContain("hasn't arrived");
   await openData(page, "Schedule");
   const earlySchedule = page.getByRole("complementary", { name: "Data" }).locator("tbody tr", { hasText: "water_filter" });
-  await expect(earlySchedule).toContainText("Wed, Oct 21");
+  await expect(earlySchedule).toContainText("2026-10-21");
 
   await nextMorning(page);
   await nextMorning(page);
@@ -43,7 +43,7 @@ test("P04 fridge filter closes after two mornings", async ({ page }) => {
   await expect(stock).toContainText("0");
   await openData(page, "Schedule");
   const schedule = page.getByRole("complementary", { name: "Data" }).locator("tbody tr", { hasText: "water_filter" });
-  await expect(schedule).toContainText("Wed, Apr 21");
+  await expect(schedule).toContainText("2027-04-21");
 });
 
 test("P04 furnace filter closes on the same path", async ({ page }) => {
@@ -72,5 +72,5 @@ test("P04 furnace filter closes on the same path", async ({ page }) => {
   await expect(stock.locator("td").nth(2)).toHaveText("2");
   await openData(page, "Schedule");
   const schedule = page.getByRole("complementary", { name: "Data" }).locator("tbody tr", { hasText: "air_filter" });
-  await expect(schedule).toContainText("Thu, Jan 21");
+  await expect(schedule).toContainText("2027-01-21");
 });
