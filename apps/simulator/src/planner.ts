@@ -67,6 +67,7 @@ export type IntentName =
   | "reorder_part"
   | "symptom"
   | "choose_option"
+  | "accept_briefing"
   | "confirm"
   | "cancel"
   | "done"
@@ -101,6 +102,13 @@ export interface ParsedUtterance {
   guard: "hazard" | "scope" | null;
 }
 
+export interface PendingChore {
+  applianceId: string;
+  spokenName: string;
+  item: string;
+  how: string;
+}
+
 export interface PendingOption {
   kind: "part" | "service";
   id: string;
@@ -128,6 +136,7 @@ export interface PendingQuote {
 }
 
 export interface DialogueState {
+  pendingChores: PendingChore[] | null;
   pendingOptions: PendingOption[] | null;
   optionsTurnsLeft: number;
   pendingQuote: PendingQuote | null;
@@ -199,6 +208,7 @@ export interface TurnResult {
 
 export function emptyDialogue(): DialogueState {
   return {
+    pendingChores: null,
     pendingOptions: null,
     optionsTurnsLeft: 0,
     pendingQuote: null,
@@ -552,6 +562,16 @@ function isChooseSlot(lower: string): boolean {
   return true;
 }
 
+function isBriefingYes(lower: string): boolean {
+  const text = lower.replace(/[.!?]+$/g, "").trim();
+  if (/^(yes|yeah|yep|yup|sure|ok|okay|please|absolutely|definitely)$/.test(text)) return true;
+  if (/^(yes|yeah|yep|yup|sure|ok|okay)[, ]+please$/.test(text)) return true;
+  if (/^(go ahead|do it|do them|please do|sounds good|sure thing|yes please)$/.test(text)) return true;
+  if (/^(please[, ]+)?handle (them|it|those|that|these)$/.test(text)) return true;
+  if (/^(yes|yeah|yep|sure|ok|okay)[, ]+(please[, ]+)?handle (them|it|those|that|these)$/.test(text)) return true;
+  return false;
+}
+
 function isChooseOption(lower: string): boolean {
   if (/^(yes|yeah|yep)\b/.test(lower)) return true;
   if (/^(choose|take|pick)\b/.test(lower)) return true;
@@ -644,6 +664,12 @@ export function parseUtterance(utterance: string, state: DialogueState = emptyDi
     return { intent: "reorder_part", slots: { query, item: inferItem(lower, query) }, codeTurn: false, guard: null };
   }
   if (isChooseSlot(lower)) return { intent: "choose_slot", slots: slotSlots(lower), codeTurn: false, guard: null };
+  if (state.pendingOptions !== null && isChooseOption(lower)) {
+    return { intent: "choose_option", slots: { option: optionName(text) }, codeTurn: false, guard: null };
+  }
+  if ((state.pendingChores?.length ?? 0) > 0 && state.pendingOptions === null && isBriefingYes(lower)) {
+    return { intent: "accept_briefing", slots: {}, codeTurn: false, guard: null };
+  }
   if (isChooseOption(lower)) return { intent: "choose_option", slots: { option: optionName(text) }, codeTurn: false, guard: null };
   if (isSymptom(lower)) {
     const query = extractQuery(text);
@@ -810,6 +836,43 @@ function storeQuote(state: DialogueState, structured: Record<string, unknown>, i
   state.pendingOptions = null;
   state.optionsTurnsLeft = 0;
   state.awaitingCode = true;
+}
+
+function rememberBriefingChores(state: DialogueState, structured: Record<string, unknown>, reply: string): void {
+  if (!/want me to handle/i.test(reply)) {
+    state.pendingChores = null;
+    return;
+  }
+  const chores = asArray(structured.attention).flatMap((row) => {
+    const item = textOf(row.item);
+    const applianceId = textOf(row.applianceId);
+    if (item === "" || applianceId === "") return [];
+    const how = textOf(row.how) || (item === "vent_cleaning" ? "pro" : "part");
+    return [{ applianceId, spokenName: textOf(row.spokenName), item, how }];
+  });
+  state.pendingChores = chores.length > 0 ? chores : null;
+}
+
+function choreLabel(chore: PendingChore): string {
+  const name = chore.spokenName.trim();
+  if (chore.item === "vent_cleaning") return `${name} vent cleaning`;
+  if (chore.item === "water_filter") return `${name} water filter`;
+  if (chore.item === "air_filter") return `${name} air filter`;
+  if (chore.item === "battery") return `${name} battery`;
+  if (chore.item === "bulb") return `${name} bulb`;
+  if (chore.item === "flush") return `${name} flush`;
+  return `${name} ${humanItem(chore.item)}`.trim();
+}
+
+function followUtterance(chore: PendingChore): string | null {
+  const name = chore.spokenName.trim();
+  if (name === "") return null;
+  if (chore.how === "pro" || chore.item === "vent_cleaning") return `Book someone to clean the ${name} vent next week`;
+  if (chore.item === "air_filter") return `Reorder the ${name} filter`;
+  if (chore.item === "water_filter") return `Order a new filter for the ${name}`;
+  if (chore.item === "bulb") return `Get a new bulb for the ${name}`;
+  if (chore.item === "battery") return `The ${name} keeps chirping`;
+  return null;
 }
 
 function composeBriefing(structured: Record<string, unknown>, today: string): string {
@@ -1033,11 +1096,15 @@ export async function executeTurn(input: {
 
   if (parsed.guard === "hazard") {
     state.clarify = null;
+    state.pendingChores = null;
     return finish(parsed, state, HAZARD_REPLY, { displayUtterance, alert: HAZARD_REPLY, guards: ["Hazard guard"], steps: [] });
   }
   if (parsed.guard === "scope") {
     decayOptions(state, false);
     return finish(parsed, state, SCOPE_REPLY, { displayUtterance, guards: ["Scope guard"], steps: [] });
+  }
+  if (parsed.intent !== "briefing" && parsed.intent !== "accept_briefing") {
+    state.pendingChores = null;
   }
 
   if (parsed.intent === "help") {
@@ -1053,6 +1120,57 @@ export async function executeTurn(input: {
     state.awaitingCode = false;
     state.clarify = null;
     return finish(parsed, state, pending ? CANCEL_REPLY : "There's nothing to cancel.", { displayUtterance, steps: [] });
+  }
+
+  if (parsed.intent === "accept_briefing") {
+    const first = state.pendingChores?.[0];
+    state.pendingChores = null;
+    if (!first) {
+      return finish(parsed, state, "Nothing from the briefing is waiting.", { displayUtterance, steps: [] });
+    }
+    const label = choreLabel(first);
+    const follow = followUtterance(first);
+    if (follow === null) {
+      const title = `Handle ${label}`;
+      const created = await callTool(ctx, "create_task", {
+        title,
+        applianceId: first.applianceId,
+        item: first.item,
+        dueDate: ctx.today,
+      });
+      if (created === null) return unreachableResult(parsed, state, ctx, displayUtterance);
+      if (created.isError) return finish(parsed, state, failureReply(created), { displayUtterance, steps: ctx.steps });
+      const task = asRecord(created.structuredContent.task);
+      state.lastTask = {
+        taskId: textOf(created.structuredContent.taskId),
+        applianceId: first.applianceId,
+        item: first.item,
+        title: textOf(task?.title) || title,
+      };
+      return finish(parsed, state, `I'll start with the ${label}. I added that to your tasks.`, {
+        displayUtterance,
+        steps: ctx.steps,
+        card: {
+          uri: CARD_URIS.task,
+          tool: "create_task",
+          structuredContent: created.structuredContent,
+          context: { applianceName: first.spokenName, done: false, title },
+        },
+      });
+    }
+    const inner = await executeTurn({
+      utterance: follow,
+      state,
+      clock: input.clock,
+      callTool: input.callTool,
+    });
+    return {
+      ...inner,
+      reply: `I'll start with the ${label}. ${inner.reply}`,
+      displayUtterance,
+      intent: "accept_briefing",
+      codeTurn: false,
+    };
   }
 
   if (parsed.intent === "confirm") {
@@ -1397,6 +1515,7 @@ export async function executeTurn(input: {
 
   const briefing = await runBriefing(ctx, 14);
   if (briefing === "stop") return unreachableResult(parsed, state, ctx, displayUtterance);
+  rememberBriefingChores(state, briefing.card.structuredContent, briefing.reply);
   return finish(parsed, state, briefing.reply, { displayUtterance, card: briefing.card, steps: ctx.steps });
 }
 
