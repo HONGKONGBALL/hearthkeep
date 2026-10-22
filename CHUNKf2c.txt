@@ -1,0 +1,30 @@
+Chunk f2c — rc1 review fix: P-04 install task loop
+Repo root /workspace/amazon-app. Fictional household data. No secrets. No tag was created. Nothing was pushed.
+
+Started from 97f15de (docs: record the P-03 shelf-first reorder fix).
+
+What changed
+- packages/core/src/domain.ts — a delivered order stays in inProgress while its install task is open. The fridge filter is not listed as overdue, and it drops out of inProgress once the task is closed.
+- apps/mcp-server/src/tools.ts — get_upkeep_status describes that waiting-to-install orders stay in inProgress.
+- apps/mcp-server/src/card-html.ts — each open task has a Mark done button. A delivered part is labeled "has arrived, waiting to install".
+- apps/simulator/src/planner.ts — Done loads open tasks from get_upkeep_status. A placed or shipped order is not logged; the reply names the part and the arrival day. After delivery, log_maintenance uses that task's appliance and item, and the reply names that item. The morning briefing says an arrived part is waiting to be installed, and Handle it does not start another purchase for it.
+- tests/planner-install.test.ts — failing unit coverage for a–d, written first.
+- tests/domain.test.ts — a delivered fridge filter stays in progress until t_0001 is closed, with nextDue 2027-04-21 and quantity 0.
+- tests/cards.test.ts — the status card shows Mark done for the arrived install task.
+- tests/planner-flows.test.ts — fridge and furnace orders against the local MCP server. The F3 battery swap now expects get_upkeep_status before log_maintenance.
+- tests/e2e/p04-install.spec.ts — F2, then Next morning twice, then Done. The furnace filter follows the same path.
+
+Verification
+- Before the fix, npx vitest run tests/planner-install.test.ts tests/domain.test.ts tests/cards.test.ts failed 6 tests, exit 1. Done used the session water_filter task, skipped a cleared session, logged before delivery, and the briefing called the filter overdue.
+- npx tsc -p packages/core/tsconfig.json --noEmit && npx tsc -p apps/mcp-server/tsconfig.json --noEmit && npx tsc -p apps/simulator/tsconfig.json --noEmit: exit 0.
+- npx vitest run tests/planner-flows.test.ts: exit 0. 14 tests passed.
+- npm test (vitest run 4.1.12), log docs/evidence/rc2/vitest.txt: exit 0. 18 files passed, 212 tests passed, duration 8.55s.
+- First npm run test:e2e: exit 1. The two P-04 browser tests reached the schedule table, which shows nextDue as 2026-10-21 and 2027-01-21. The assertions expected weekday text. 20 other tests passed.
+- After the assertions were updated, npx playwright test tests/e2e/p04-install.spec.ts: exit 0. 2 passed.
+- npm run test:e2e (Playwright 1.64.1, Chrome), log docs/evidence/rc2/playwright.txt: exit 0. 22 passed, duration 30.0s. The fridge path closes t_0001, leaves the Rillstone quantity at 0, sets nextDue to 2027-04-21, and the reply does not contain "9-volt". The furnace path closes t_0001, leaves the Loftaire 3-pack quantity at 2, sets nextDue to 2027-01-21, and the reply does not contain "9-volt".
+
+Commits
+- 3da7ec1 test: fail when an install task cannot be closed
+- 10ddbee fix: close install tasks from the server
+- b0db4a3 test: read the furnace filter name as text
+- 34254d8 test: read schedule dates as they are stored
