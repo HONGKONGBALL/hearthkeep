@@ -1,0 +1,18 @@
+Chunk f4c — rc1 review fix: P-08 card layout
+Repo root /workspace/amazon-app. Fictional household data. No secrets. No tag was created. Nothing was pushed.
+
+Started from 600dafd (docs: record the P-07 welcome isolation review).
+
+What changed
+- apps/mcp-server/src/card-html.ts — Each status or task action sits in the same bordered row as its item. The accessible name is the visible label plus the item, for example "Handle it, Dryer vent cleaning", "Replace battery, Hallway smoke alarm battery", and "Mark done, Swap hallway smoke alarm battery". Options render in one horizontal row of up to three cards. Each card shows Choose, and the exclusion footer sits under the row. Tile text wraps on words and stays inside the card.
+- tests/cards.test.ts — Asserts those accessible names, the Choose label, and flex-flow:row nowrap.
+- tests/e2e/f4c-cards.spec.ts — At 1280×800, opens the status, options, checkout, receipt, and task cards. Asserts each card document has scrollHeight <= clientHeight. Also checks that status buttons sit inside their rows, that option cards sit side by side with the Bargo ZX-28 footer visible, and that three service slots stay in one row with their text inside the cards. Writes the five screenshots.
+
+Verification
+- npm test (vitest run 4.1.12), log docs/evidence/rc2/f4c-vitest.txt: exit 0. 18 files passed, 217 tests passed, duration 8.77s.
+- npx playwright test (Playwright, Chrome, viewport 1280×800), log docs/evidence/rc2/f4c-playwright.txt: exit 0. 28 passed, duration 39.2s. The P-08 test is in that run.
+- Screenshots, each 1280×800: docs/screens/rc2/c1-status-card.png, docs/screens/rc2/c2-options-carousel.png, docs/screens/rc2/c3-checkout-card.png, docs/screens/rc2/c4-receipt-card.png, docs/screens/rc2/c5-task-card.png.
+
+Commits
+- a3df89d fix: fit upkeep cards in the display and name each action
+- adc701a test: assert each upkeep card fits in the display

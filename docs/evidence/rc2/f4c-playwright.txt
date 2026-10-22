@@ -1,0 +1,33 @@
+
+Running 28 tests using 1 worker
+
+[1/28] [chrome] › tests/e2e/briefing-yes.spec.ts:16:1 › Start then Yes gives the dryer vent next step with cards on and off
+[2/28] [chrome] › tests/e2e/f3-copy.spec.ts:7:1 › P09 and P10 visible copy
+[3/28] [chrome] › tests/e2e/f4a-focus.spec.ts:238:1 › P-06 top bar focus rings are light and clear 3:1
+[4/28] [chrome] › tests/e2e/f4a-focus.spec.ts:295:1 › P-06 Retry focus ring is light on the banner and clears 3:1
+[5/28] [chrome] › tests/e2e/f4b-welcome.spec.ts:28:1 › P-07 Tab stays in the welcome dialog and the server clock stays put
+[6/28] [chrome] › tests/e2e/f4c-cards.spec.ts:52:1 › P08 status, options, checkout, receipt, and task cards fit
+[7/28] [chrome] › tests/e2e/p03-inventory.spec.ts:7:1 › P03 ordering a hallway battery uses the shelf
+[8/28] [chrome] › tests/e2e/p04-install.spec.ts:12:1 › P04 fridge filter closes after two mornings
+[9/28] [chrome] › tests/e2e/p04-install.spec.ts:49:1 › P04 furnace filter closes on the same path
+[10/28] [chrome] › tests/e2e/p05-locked-quote.spec.ts:7:1 › P05 three wrong codes unlock a new fridge filter quote
+[11/28] [chrome] › tests/e2e/qa-f.spec.ts:6:1 › 58 status card is sandboxed and lists attention and upcoming
+[12/28] [chrome] › tests/e2e/qa-f.spec.ts:30:1 › 59 and 60 carousel keys move focus and Choose prepares checkout
+[13/28] [chrome] › tests/e2e/qa-f.spec.ts:68:1 › 62 card frames do not request anything during F1 to F4
+[14/28] [chrome] › tests/e2e/qa-f.spec.ts:80:1 › 63 text-only replies keep price, arrival, slot, and the limit
+[15/28] [chrome] › tests/e2e/qa-g.spec.ts:19:1 › 64 launch shows the simulation ribbon and the morning briefing
+[16/28] [chrome] › tests/e2e/qa-g.spec.ts:38:1 › 65 exact-fit purchase shows options, checkout, and a mock receipt
+[17/28] [chrome] › tests/e2e/qa-g.spec.ts:78:1 › 66 a wrong code leaves two tries and no receipt
+[18/28] [chrome] › tests/e2e/qa-g.spec.ts:90:1 › 67 a chirping hallway alarm uses the battery on the shelf
+[19/28] [chrome] › tests/e2e/qa-g.spec.ts:113:1 › 68 booking over the cap needs approve before it is saved
+[20/28] [chrome] › tests/e2e/qa-g.spec.ts:152:1 › 69 next morning ships the filter and keeps the Tuesday booking
+[21/28] [chrome] › tests/e2e/qa-g.spec.ts:180:1 › 70 a new water heater is remembered in the next session
+[22/28] [chrome] › tests/e2e/qa-g.spec.ts:194:1 › 71 gas smell stops before any tool call
+[23/28] [chrome] › tests/e2e/qa-g.spec.ts:207:1 › 72 smoke alarms are clarified, and a continuous alarm is a hazard
+[24/28] [chrome] › tests/e2e/qa-g.spec.ts:234:1 › 73 weather is out of scope and cancel drops the quote
+[25/28] [chrome] › tests/e2e/qa-g.spec.ts:254:1 › 74 a stopped server shows Retry and the transcript survives
+[26/28] [chrome] › tests/e2e/qa-g.spec.ts:279:1 › 75 the trace redacts the purchase code
+[27/28] [chrome] › tests/e2e/qa-g.spec.ts:300:1 › 76 keyboard purchase and axe scans stay clean with reduced motion
+[28/28] [chrome] › tests/e2e/qa-g.spec.ts:339:1 › 83 voice speaks once when it is on
+  28 passed (39.2s)
+EXIT:0

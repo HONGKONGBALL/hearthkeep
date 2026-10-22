@@ -64,3 +64,15 @@ These frames check that Tab stays on the welcome dialog. They are not substitute
 | --- | --- | --- |
 | f4b welcome | `f4b-welcome-tab.png` | After Tab from Start at 1280×800. Focus remains on Start. The clock still reads Wed, Oct 21, 2026 · 9:00 AM. |
 | f4b welcome 390 | `f4b-welcome-tab-390.png` | Same dialog at 390 px wide. Start stays inside the sheet. |
+
+## Chunk f4c review shots
+
+These are the required C1–C5 frames, captured at 1280×800 after the card layout fix. Each card document fits in the display (`scrollHeight <= clientHeight`).
+
+| Id | File | What the frame shows |
+| --- | --- | --- |
+| C1 | `c1-status-card.png` | Status card. Dryer vent, fridge filter, hallway battery, and furnace filter are all on screen. Each action sits in the same bordered row as its item. |
+| C2 | `c2-options-carousel.png` | Fridge filter options side by side. Both Choose actions and the Bargo ZX-28 exclusion footer are visible. |
+| C3 | `c3-checkout-card.png` | Checkout for Rillstone CX-28. Total, arrival, the $60 limit, and Confirm by voice are visible. |
+| C4 | `c4-receipt-card.png` | Mock receipt ord_0001, Placed, and the no-payment line. |
+| C5 | `c5-task-card.png` | Open task to swap the hallway smoke alarm battery, with Due, Appliance, Supplies, and Mark done. |
