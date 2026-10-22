@@ -1,0 +1,51 @@
+Chunk f9 — rc1 review fix P-14 release prep (local only)
+Repo root /workspace/amazon-app. Fictional household data. No secrets. No tag was created. Nothing was pushed. The repository was not made public. Devpost was not opened.
+
+Started from 4d5bd20 (docs: save the local CI run for rc2).
+Commits:
+  02cc8d0 test: show License: MIT on its own About line
+  4656c14 docs: save the fresh-clone and local CI logs
+npm test below ran at 02cc8d04c761667d556c831579f65ea65ddf150b, before the evidence commit and before this file.
+
+What changed
+- apps/simulator/src/App.tsx — the About license paragraph has id about-license and still renders License: MIT on its own line.
+- tests/e2e/f9-about-license.spec.ts — opens About after Start and checks that paragraph.
+- docs/evidence/rc2/fresh-clone.log — README commands as a new Ubuntu user.
+- docs/evidence/rc2/ci-local.txt — local run of the ci.yml steps. Replaces the earlier log, where playwright install chrome exited 1.
+- docs/evidence/rc2/f9-vitest.txt — workspace npm test.
+- docs/evidence/rc2/README.md — lists those three files.
+- BUILD-RC2.txt — P-14 results and the pending-owner list.
+
+About
+- The dialog line is License: MIT. The e2e test passed on the workspace (555 ms) and inside the fresh clone (listed in fresh-clone.log).
+
+Fresh clone
+- Container hk-f9-fresh, Ubuntu 24.04.5 LTS. Throwaway account hkfresh, uid 1001, home /home/hkfresh.
+- Node v20.20.2, npm 10.8.2, Google Chrome 156.0.8078.47.
+- git clone -b main of a bundle of this repo's main at 02cc8d04c761667d556c831579f65ea65ddf150b. No .env file.
+- sudo and the Docker socket were not available to this account, so the clone ran in that existing Ubuntu container over TCP port 2375.
+- Log: docs/evidence/rc2/fresh-clone.log
+
+Commands and exit codes
+- npm test, workspace, log docs/evidence/rc2/f9-vitest.txt: exit 0. 19 files, 224 tests. Duration 8.10s.
+- npx playwright test tests/e2e/f9-about-license.spec.ts, workspace: exit 0. 1 passed.
+- Fresh clone, user hkfresh:
+  - git clone -b main: exit 0. HEAD 02cc8d04c761667d556c831579f65ea65ddf150b.
+  - npm ci: exit 0.
+  - npm run demo, then curl -sS http://127.0.0.1:8787/healthz: exit 0. Body status ok, protocolVersion 2025-11-25, storage sqlite, payment mock, simMode true, simNow 2026-10-21T09:00:00-07:00.
+  - http://127.0.0.1:5173/ returned HTTP 200.
+  - SIGINT stopped the demo. wait status 130, which is the shell code for Ctrl+C.
+  - npm test: exit 0. 19 files, 224 tests.
+  - npm run test:e2e: exit 0. 30 passed, 38.0s. Includes About dialog shows License: MIT on its own line.
+- Local CI as hkfresh, log docs/evidence/rc2/ci-local.txt. Not a GitHub Actions run.
+  - npm ci: exit 0.
+  - npx playwright install chrome: exit 0.
+  - npm test: exit 0. 19 files, 224 tests.
+  - npm run test:e2e: exit 0. 30 passed, 37.9s.
+
+pending-owner
+- Make the repository public and show MIT in the GitHub About panel.
+- Actions run link for main. Local steps passed; there is no Actions URL until the owner pushes.
+- Logged-out repository screenshot.
+- Devpost repository link and a check of each claim.
+- Submit before 2026-10-23 09:00 PT. The video link is outside this round. No submission timestamp.

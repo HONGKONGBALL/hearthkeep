@@ -86,3 +86,32 @@ Screenshot list
   f5 session: docs/screens/rc2/f5-session-initialized.png
   f5 session 390: docs/screens/rc2/f5-session-initialized-390.png
   Raw logs: docs/evidence/rc2/f5-vitest.txt, docs/evidence/rc2/f5-playwright.txt.
+
+P-14 release prep (local only)
+  Product About dialog shows the line License: MIT. Screenshot: docs/screens/rc2/about.png. Narrow shot: docs/screens/rc2/f9-about-390.png.
+  Fresh clone log: docs/evidence/rc2/fresh-clone.log
+    account: hkfresh (uid 1001) on Ubuntu 24.04.5 LTS, container hk-f9-fresh
+    clone: git clone -b main of a bundle of refs/heads/main at 02cc8d04c761667d556c831579f65ea65ddf150b
+    no .env file
+    npm ci exit 0
+    npm run demo, then curl -sS http://127.0.0.1:8787/healthz exit 0
+    health body: {"status":"ok","protocolVersion":"2025-11-25","storage":"sqlite","payment":"mock","simMode":true,"simNow":"2026-10-21T09:00:00-07:00"}
+    simulator page http://127.0.0.1:5173/ returned HTTP 200
+    demo stopped with SIGINT (Ctrl+C), wait status 130
+    npm test exit 0 (19 files, 224 tests)
+    npm run test:e2e exit 0 (30 passed)
+  Local CI: docs/evidence/rc2/ci-local.txt
+    commands from .github/workflows/ci.yml, run as hkfresh, not a GitHub Actions run
+    npm ci exit 0
+    npx playwright install chrome exit 0
+    npm test exit 0 (19 files, 224 tests)
+    npm run test:e2e exit 0 (30 passed)
+  Workspace npm test: docs/evidence/rc2/f9-vitest.txt, exit 0, 19 files, 224 tests, at 02cc8d04c761667d556c831579f65ea65ddf150b
+
+pending-owner
+  These items were not done in this chunk. Nothing was pushed. The repository was not made public. Devpost was not opened.
+  - Publish the repository and set the GitHub About license to MIT. The in-app About line is already License: MIT. LICENSE, package.json, and README already say MIT.
+  - GitHub Actions run link for main. The same workflow steps were run locally; see docs/evidence/rc2/ci-local.txt. There is no Actions URL until the owner pushes.
+  - Screenshot of the repository while logged out. That needs the public repository.
+  - Devpost: paste the repository link and check each claim.
+  - Submit before 2026-10-23 09:00 PT. The video link is outside this round. There is no submission timestamp until the owner submits.
