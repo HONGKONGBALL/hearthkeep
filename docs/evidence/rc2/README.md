@@ -17,6 +17,8 @@ Household names, prices, and the purchase code in those runs are fictional sampl
 | `f8-measure.txt` | Stdout and stderr of the command that wrote `perf.txt`. |
 | `f8-vitest.txt` | Raw stdout and stderr of `npm test` after the P-13 timings were recorded. |
 | `ci-local.txt` | Local run of the `.github/workflows/ci.yml` steps: `npm ci`, `npx playwright install chrome`, `npm test`, `npm run test:e2e`. |
+| `fresh-clone.log` | README commands from a fresh clone as user `hkfresh` on Ubuntu 24.04. |
+| `f9-vitest.txt` | Raw stdout and stderr of `npm test` in the workspace after the About license line. |
 
 `BUILD-RC2.txt` stores the `git rev-parse HEAD` value, each command, and each exit code, and points at these paths. On the delivery commit that hash equals `HEAD`. After the `rc2` tag exists, `git rev-parse rc2^{commit}` equals that hash, and `git show rc2:BUILD-RC2.txt` contains the same hash and these paths.
 
