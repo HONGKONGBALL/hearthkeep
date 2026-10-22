@@ -1,0 +1,42 @@
+Chunk f1 — rc2 evidence conventions (§A step 1)
+Repo root /workspace/amazon-app. Fictional demo data. No secrets.
+Started from 6ad9bd175b499c4313c526598edd53039fb50ee5. No tag was created. rc1 and rc2 are not tags.
+
+What changed
+- docs/evidence/rc2/README.md — raw Vitest and Playwright output paths for rc2: vitest.txt, playwright.txt, vitest-report.json, playwright-report/.
+- docs/screens/rc2/README.md — screenshot list and what each frame shows.
+- BUILD-RC2.txt — verification-record skeleton at the repo root. Fields: git rev-parse HEAD (PENDING), commands, exit codes (PENDING), raw output paths, screenshot list. Tag rc2 is named and not created.
+- BUILD.txt item 91 — the old sentence said there was no audio to review. The files show a flite probe wav. Item 91 stays FAIL because that clip was not mixed and /workspace/demo/amazon-demo.mp4 is absent. The narrate-demo.mjs note no longer says that no other voice engine was used. A 13:01 CST note records the inspection.
+
+Screenshot names reserved in BUILD-RC2.txt and docs/screens/rc2/README.md
+S0 s0-welcome.png, S1 s1-briefing.png, C1 c1-status-card.png, C2 c2-options-carousel.png, C3 c3-checkout-card.png, C4 c4-receipt-card.png, C5 c5-task-card.png, Trace trace.png, Data data.png, About about.png, offline banner offline-banner.png, danger alert danger-alert.png, 390 px viewport-390.png, 768 px viewport-768.png.
+PNG files were not captured in this step. Raw logs were not copied into docs/evidence/rc2/.
+
+Flite evidence (item 91)
+ls -l /tmp/hearthkeep-video/flite-test.wav
+  -rw-rw-r-- 1 grok-sup grok-sup 565518 Oct 22 03:30
+ls -l /tmp/hearthkeep-video/flite.log
+  -rw-rw-r-- 1 grok-sup grok-sup 2648 Oct 22 03:30
+ffprobe -hide_banner /tmp/hearthkeep-video/flite-test.wav
+  exit 0
+  wav, pcm_s16le, 48000 Hz, 2 channels, s16, duration 00:00:02.95, bitrate 1536 kb/s, encoder Lavf61.7.103
+flite.log
+  ffmpeg lavfi flite=text='Upkeep you only notice when something beeps.':voice=slt
+  source pcm_s16le 16000 Hz mono
+  output wav pcm_s16le 48000 Hz stereo, 552 KiB, time 00:00:02.94
+The directory has that wav and flite.log. It has no espeak, pico, say, or edge-tts file.
+
+Commands and exit codes
+  ls -l of the two flite paths: exit 0
+  ffprobe -hide_banner /tmp/hearthkeep-video/flite-test.wav: exit 0
+  git commit 72f5fbed8815c93b882132f9b335d9cc31d45381 docs: add rc2 evidence and screenshot directories: exit 0
+  git commit 885d3218babb9c69d1d504117f104d04dcea2585 docs: add the BUILD-RC2 verification record skeleton: exit 0
+  git commit 5b81d5f50d5d32e8bd5afc4c42980fd6de05c703 docs: correct item 91 with the flite probe evidence: exit 0
+  npm test redirected to /tmp/npm-test-f1.log: exit 1. That path is not writable (mode rw-rw-r--, owner grok-sup). Vitest did not run.
+  npm test (vitest run 4.1.12) at 13:02:55, log /tmp/chunkf1-npm-test.log: exit 0. 16 files passed, 196 tests passed, duration 7.26s. The log was not copied into docs/evidence/rc2/.
+  git rev-parse rc2: exit 128 (unknown revision). Left untagged on purpose.
+
+Checks on 5b81d5f50d5d32e8bd5afc4c42980fd6de05c703
+  BUILD-RC2.txt, docs/evidence/rc2/README.md, docs/screens/rc2/README.md, and the item 91 edit in BUILD.txt are in that commit or its parents.
+  BUILD-RC2.txt contains git rev-parse HEAD, npm test, npm run test:e2e, the raw output paths, and the screenshot ids S0, S1, C1–C5, Trace, Data, About, offline banner, danger alert, 390 px, and 768 px.
+  HEAD hash and exit codes in BUILD-RC2.txt are PENDING until the delivery commit fills them.
