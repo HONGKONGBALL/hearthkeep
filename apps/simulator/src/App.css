@@ -88,13 +88,9 @@ button[aria-pressed="true"] {
   overflow: visible;
 }
 
+/* No box of its own, so the page flex layout stays as it was. inert on this element still covers the children. */
 .app-shell {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: 0;
+  display: contents;
 }
 
 .top {
