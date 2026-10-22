@@ -30,7 +30,7 @@ Commands and exit codes
   ls -l of the two flite paths: exit 0
   ffprobe -hide_banner /tmp/hearthkeep-video/flite-test.wav: exit 0
   git commit 72f5fbed8815c93b882132f9b335d9cc31d45381 docs: add rc2 evidence and screenshot directories: exit 0
-  git commit 885d3218babb9c69d1d504117f104d04dcea2585 docs: add the BUILD-RC2 verification record skeleton: exit 0
+  git commit 885d3218babb9c69d1d504117f104d04dcea2585 docs: add the BUILD-RC2 verification record draft: exit 0
   git commit 5b81d5f50d5d32e8bd5afc4c42980fd6de05c703 docs: correct item 91 with the flite probe evidence: exit 0
   npm test redirected to /tmp/npm-test-f1.log: exit 1. That path is not writable (mode rw-rw-r--, owner grok-sup). Vitest did not run.
   npm test (vitest run 4.1.12) at 13:02:55, log /tmp/chunkf1-npm-test.log: exit 0. 16 files passed, 196 tests passed, duration 7.26s. The log was not copied into docs/evidence/rc2/.
