@@ -1,0 +1,21 @@
+Chunk f5 — rc1 review fix: P-12 notifications/initialized
+Repo root /workspace/amazon-app. Fictional household data. No secrets. No tag was created. Nothing was pushed.
+
+Started from cb68e67 (docs: record the P-08 card layout review).
+
+What changed
+- apps/simulator/src/mcp-client.ts — initialize() still posts notifications/initialized after the initialize result and still requires HTTP 202. It now returns both statuses.
+- apps/simulator/src/App.tsx — The Session opened trace records initialize, then notifications/initialized. Next morning keeps DELETE ahead of that pair. Open session, new session, reset, and retry use the same pair.
+- tests/e2e/f5-initialized.spec.ts — After Start, the MCP responses are initialize 200 then notifications/initialized 202, with nothing between them. The Session opened list is initialize 200, then initialized 202. Next morning keeps that same order. The initialized line fits at 1280 and 390.
+
+Verification
+- npx tsc -p apps/simulator/tsconfig.json --noEmit: exit 0.
+- npx tsc -p tsconfig.json --noEmit: exit 2. tests/docs-video.test.ts reports a missing declaration for scripts/video-script.mjs. This chunk did not change that file.
+- npm test (vitest run 4.1.12), log docs/evidence/rc2/f5-vitest.txt: exit 0. 18 files passed, 217 tests passed, duration 9.31s.
+- npm run test:e2e (Playwright, Chrome), log docs/evidence/rc2/f5-playwright.txt: exit 0. 29 passed, duration 40.4s. The P-12 test is in that run.
+- Screenshots: docs/screens/rc2/f5-session-initialized.png, docs/screens/rc2/f5-session-initialized-390.png. The Session opened list shows initialize 200 session, then notifications/initialized 202 session.
+
+Commits
+- e2f1e48 fix: show notifications/initialized in the session trace
+- 77a1221 test: assert initialize 200 before initialized 202
+- f8c2b6e docs: record the P-12 initialized handshake review
