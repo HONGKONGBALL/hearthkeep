@@ -76,5 +76,25 @@ test("P-07 Tab stays in the welcome dialog and the server clock stays put", asyn
   expect(await serverClock(request)).toBe(before);
   expect(sideEffects).toEqual([]);
 
+  for (const size of [
+    { width: 390, height: 800 },
+    { width: 768, height: 800 },
+    { width: 1280, height: 800 },
+  ]) {
+    await page.setViewportSize(size);
+    await expect(start).toBeVisible();
+    await page.keyboard.press("Tab");
+    expect(await focusInsideDialog(page), `${size.width}px Tab left the dialog`).toBe(true);
+    const sheetBox = await page.locator(".welcome-sheet").boundingBox();
+    expect(sheetBox?.width ?? 0, `${size.width}px sheet width`).toBeGreaterThan(200);
+    expect(sheetBox?.height ?? 0, `${size.width}px sheet height`).toBeGreaterThan(120);
+    const frameBox = await page.locator(".frame").boundingBox();
+    expect(frameBox?.height ?? 0, `${size.width}px frame`).toBeGreaterThan(200);
+  }
+
+  expect(await serverClock(request)).toBe(SEEDED_CLOCK);
+  expect(sideEffects).toEqual([]);
   await page.screenshot({ path: "docs/screens/rc2/f4b-welcome-tab.png", fullPage: true });
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.screenshot({ path: "docs/screens/rc2/f4b-welcome-tab-390.png", fullPage: true });
 });
