@@ -3,12 +3,14 @@
  * Household data is the fictional seed. The database file is temporary.
  */
 import { spawn } from "node:child_process";
-import { openSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, openSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 export const ROOT = resolve(import.meta.dirname, "../..");
 export const PID_FILE = resolve(ROOT, "tests/e2e/.servers.json");
 export const DB_FILE = resolve(ROOT, "data/e2e.db");
+/** Writable by the grokproj default ACL on tests/e2e. Do not use /tmp. */
+const LOG_DIR = resolve(ROOT, "tests/e2e/.logs");
 export const MCP_URL = "http://127.0.0.1:8787";
 export const SIM_URL = "http://127.0.0.1:5173";
 
@@ -43,7 +45,8 @@ export function writePids(pids: Pids): void {
 }
 
 function logFd(name: string): number {
-  return openSync(`/tmp/hearthkeep-${name}.log`, "a");
+  mkdirSync(LOG_DIR, { recursive: true });
+  return openSync(resolve(LOG_DIR, `${name}.log`), "w");
 }
 
 function launch(bin: string, args: string[], cwd: string, logName: string): number {

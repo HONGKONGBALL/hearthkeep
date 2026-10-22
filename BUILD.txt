@@ -117,7 +117,7 @@ Sections B–E above passed in both SSE and JSON response modes (the protocol fi
 82 | NOT SHIPPED | tools/list is the 10 P0 tools (case 20). cancel_order, set_preferences, and get_home_profile are not registered.
 83 | PASS | Shipped Voice control. tests/e2e/qa-g.spec.ts "83 voice speaks once when it is on"
 84 | PASS | tests/protocol/qa-i.test.ts I84 localhost bind
-85 | PASS | tests/protocol/qa-i.test.ts I85 redaction (sse) and I85 redaction (json). E2E case 75. /tmp/hearthkeep-mcp.log from the e2e run had no "2468".
+85 | PASS | tests/protocol/qa-i.test.ts I85 redaction (sse) and I85 redaction (json). E2E case 75. tests/e2e/.logs/mcp.log from the e2e run had no "2468".
 86 | PASS | tests/protocol/qa-i.test.ts I86 no personal data. docs/data-notice.md.
 87 | PASS | tests/protocol/qa-i.test.ts I87 determinism (sse) and I87 determinism (json)
 88 | PASS | tests/protocol/qa-i.test.ts I88 tool call p95 (sse) and I88 tool call p95 (json). UI: three Chrome rounds of cases 64, 65, 67, and 68, 36 utterance-to-reply samples, max 106 ms, p95 102 ms.

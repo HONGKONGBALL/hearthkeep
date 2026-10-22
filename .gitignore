@@ -11,3 +11,4 @@ test-results/
 playwright-report/
 blob-report/
 tests/e2e/.servers.json
+tests/e2e/.logs/
