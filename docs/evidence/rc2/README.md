@@ -13,6 +13,8 @@ Household names, prices, and the purchase code in those runs are fictional sampl
 | `vitest-report.json` | Machine-readable Vitest report from that same run. |
 | `playwright-report/` | Playwright HTML report (`index.html`). The repo-root `playwright-report/` directory is gitignored, so the copy that belongs to this record lives here. |
 | `playwright-report.json` | Machine-readable Playwright JSON report from that same run. |
+| `perf.txt` | P-13 raw per-turn timings. Cases 64, 65, 67, and 68, three Chrome runs each. Reply and settled milliseconds, and the p95. |
+| `f8-measure.txt` | Stdout and stderr of the command that wrote `perf.txt`. |
 
 `BUILD-RC2.txt` stores the `git rev-parse HEAD` value, each command, and each exit code, and points at these paths. On the delivery commit that hash equals `HEAD`. After the `rc2` tag exists, `git rev-parse rc2^{commit}` equals that hash, and `git show rc2:BUILD-RC2.txt` contains the same hash and these paths.
 
