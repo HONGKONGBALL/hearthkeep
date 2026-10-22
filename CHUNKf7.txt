@@ -1,0 +1,25 @@
+Chunk f7 — rc1 review fix P-11 docs
+Repo root /workspace/amazon-app. Fictional household data. No secrets. No tag was created. Nothing was pushed.
+
+Started from 1ce65b4 (docs: record the card-tap fix regression).
+Doc commits:
+  3b575d5 docs: rewrite the README for the shipped demo
+  3287bfa docs: fill architecture and Day-0 spec notes
+  8a6b2e4 docs: drop stale draft wording from the notes
+  2529783 docs: remove the last draft-wording hit in the f1 note
+  13800f9 docs: say the Voice control uses browser speech
+npm test below ran at 13800f9b4e2ddb182953f8dd785cdb5b1878737a, before this file.
+
+What changed
+- README.md — Rewritten from the shipped server and simulator. Demo script is the twelve quick chips in order. The env table has a Status column. HK_AUTH_TOKEN and the three HK_LLM_* variables are marked not implemented. DASHSCOPE_API_KEY is marked video script only. Troubleshooting includes the banner "Can't reach the home server" and the Retry button.
+- docs/architecture.md — Processes, request path, ten tools, five cards, /healthz, /sim/*, and the offline banner.
+- docs/spec-notes.md — Day-0 check of MCP 2025-11-25 Streamable HTTP and the MCP Apps UI resources, with the pinned MIME type, tool metadata, and postMessage names.
+- docs/friction-log.md, docs/devpost.md, skills/home-upkeep/README.md, CHUNK1.txt, CHUNK2a1.txt, CHUNK2a2.txt, CHUNK2b1.txt, CHUNK2b2.txt, CHUNK2b3.txt, CHUNKf1.txt, CHUNKf2a.txt, CHUNKf2b.txt — Removed the stale draft phrases the P-11 phrase check searches for. The FL-05 event stays a record of commit dc1572a.
+
+Commands and exit codes
+- git grep -E with the three P-11 phrases, at 13800f9: exit 1. No matches. git grep uses exit 1 when nothing matches.
+- npm test, at 13800f9, repo root /workspace/amazon-app: exit 0.
+  Vitest 4.1.12. 19 files passed, 223 tests passed. Start 16:48:54. Duration 8.89s.
+  Node printed "The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set." That comes from both variables being set in this shell.
+
+The fresh-clone walk-through named with item 93 was not run in this chunk. README.md now has the install, run, and chip-order steps that walk-through uses.
