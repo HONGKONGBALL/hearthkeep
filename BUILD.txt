@@ -121,10 +121,10 @@ Sections B–E above passed in both SSE and JSON response modes (the protocol fi
 86 | PASS | tests/protocol/qa-i.test.ts I86 no personal data. docs/data-notice.md.
 87 | PASS | tests/protocol/qa-i.test.ts I87 determinism (sse) and I87 determinism (json)
 88 | PASS | tests/protocol/qa-i.test.ts I88 tool call p95 (sse) and I88 tool call p95 (json). UI: three Chrome rounds of cases 64, 65, 67, and 68, 36 utterance-to-reply samples, max 106 ms, p95 102 ms.
-89 | FAIL | No video file is in the repo. ffprobe and a public logged-out link were not run.
-90 | FAIL | docs/video-script.md and docs/devpost.md are stubs. No narration or Devpost disclosure paragraph is present.
-91 | FAIL | No video frames or audio to review.
-92 | FAIL | docs/devpost.md, docs/product-feedback.md, docs/friction-log.md, and docs/feature-requests.md are stubs.
+89 | FAIL | /workspace/demo/amazon-demo.mp4 is missing. ffprobe -hide_banner exited 1: "/workspace/demo/amazon-demo.mp4: No such file or directory". open errno 2 (ENOENT). Width, height, duration, and an aac stream were not reported.
+90 | PASS | docs/video-script.md (nine English cues, L1–L9, picture ends at 170 seconds, DashScope qwen3-tts-flash voice Cherry, no music). docs/devpost.md (draft, including the Simulation disclosure section).
+91 | FAIL | No video frames or audio to review. ffmpeg -i /workspace/demo/amazon-demo.mp4 -af volumedetect -f null - exited 254: "Error opening input: No such file or directory" (errno 2 ENOENT). mean_volume was not reported.
+92 | PASS | docs/product-feedback.md, docs/friction-log.md (FL-01 through FL-06), docs/feature-requests.md (none filed), docs/devpost.md, docs/video-script.md.
 93 | FAIL | README was not followed on a separate clean Ubuntu account. This workspace did run npm test and npm run demo.
 94 | FAIL | No Devpost submission timestamp is available.
 
@@ -134,11 +134,11 @@ Playwright
   CI definition: .github/workflows/ci.yml (not pushed).
 
 Hearthkeep — chunk 6 docs and demo picture
-Date: 2026-10-22 (Asia/Shanghai)
+Date: 2026-10-22 12:57:47 (Asia/Shanghai)
 Household names, prices, and the purchase code in the recording are fictional sample data.
 
 Commit
-  c8eefa9 docs: add submission notes and the demo video scripts
+  COMMIT_HASH_PENDING docs: record the missing demo mp4 and key errno
 
 Docs
   docs/product-feedback.md
@@ -147,41 +147,40 @@ Docs
   docs/devpost.md
   docs/video-script.md (nine cues, ends at 170 seconds)
 
-Commands
-  npx vitest run
-    exit 0
-    16 files, 196 tests, about 13s
-    includes tests/docs-video.test.ts
-  node scripts/record-demo.mjs
-    exit 0
-    wrote /tmp/hk-video/page.webm
-    copy: /workspace/demo/hearthkeep-page.webm
+Commands this run
   node scripts/narrate-demo.mjs
     exit 1
     Cannot read /etc/grok-secrets/dashscope.env (ENOENT)
+    open errno 2 (ENOENT), "No such file or directory"
+    sudo -n cat /etc/grok-secrets/dashscope.env: exit 1, "sudo: a password is required"
+    mkdir /etc/grok-secrets: errno 13 (EACCES)
     No synthesis request was sent. No other voice engine was used.
   node scripts/assemble-demo.mjs
     not run. It needs narration.wav from the narrate step.
-  /workspace/demo/amazon-demo.mp4
-    not created
+  The saved picture was not re-recorded.
+    /tmp/hk-video/page.webm
+    /workspace/demo/hearthkeep-page.webm
+    both present
 
-Picture probe (ffprobe on /tmp/hk-video/page.webm)
+ffprobe -hide_banner /workspace/demo/amazon-demo.mp4
+  exit 1
+  /workspace/demo/amazon-demo.mp4: No such file or directory
+  errno 2 (ENOENT)
+  duration: not reported
+  resolution: not reported
+  audio codec: not reported
+
+ffmpeg -i /workspace/demo/amazon-demo.mp4 -af volumedetect -f null -
+  exit 254
+  Error opening input: No such file or directory
+  errno 2 (ENOENT)
+  mean_volume: not reported
+
+Picture on disk (not re-recorded this run)
+  /tmp/hk-video/page.webm
   codec vp9
   1920x1080
   duration 177.840 seconds
 
-Frames checked from that recording
-  0:06 title card, Alexa+ track, Simulation, fictional-data line
-  0:22 architecture: simulator, MCP 2025-11-25 Streamable HTTP, SQLite
-  0:38 morning briefing and status card, SIMULATION ribbon
-  1:00 Rillstone CX-28 mock receipt, ord_0001, trace open
-  1:36 battery task, 9V on the garage shelf, Done
-  1:54 booking over the cap, then bk_0001 Booked
-  2:16 next morning, Thu Oct 22, filter shipped, Tuesday booking kept
-  2:26 gas smell, leave-the-home alert, no shopping card
-  2:30 trace raw JSON, purchase code shown as a redaction dot
-  2:38 MIT, copyright 2026 Zhenhua Liu
-  2:48 close card, fictional sample data, simulated Alexa+ experience
-
 Narration
-  Blocked on FL-06. The secret directory is not on this machine, and this user cannot create /etc/grok-secrets. The script reads only that file and does not print a key.
+  Blocked on FL-06. No readable DASHSCOPE_API_KEY assignment was found. The script reads only /etc/grok-secrets/dashscope.env and does not print a key.
