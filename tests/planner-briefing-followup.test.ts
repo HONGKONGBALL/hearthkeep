@@ -38,8 +38,7 @@ function tool(structured: Record<string, unknown>): ToolResponse {
 }
 
 function choresOf(state: DialogueState): ChoreRow[] {
-  const pending = (state as DialogueState & { pendingChores?: ChoreRow[] }).pendingChores;
-  return pending ?? [];
+  return state.pendingChores ?? [];
 }
 
 function attention(rows: Array<Record<string, unknown>>): Record<string, unknown> {
@@ -192,8 +191,8 @@ describe("briefing follow-up", () => {
       { kind: "part", id: "P-CX28", name: "Rillstone CX-28", applianceId: "ap_fridge", item: "water_filter", recommended: true, partKind: "compatible" },
     ];
     state.optionsTurnsLeft = 3;
-    (state as DialogueState & { pendingChores?: ChoreRow[] }).pendingChores = [
-      { item: "vent_cleaning", spokenName: "dryer", how: "pro" },
+    state.pendingChores = [
+      { applianceId: "ap_dryer", spokenName: "dryer", item: "vent_cleaning", how: "pro" },
     ];
     const chosen = await executeTurn({
       utterance: "Yes",

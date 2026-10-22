@@ -80,8 +80,7 @@ describe("planner flows on the MCP server", () => {
       state = emptyDialogue();
       const brief = await say("What needs doing?");
       expect(brief.reply).toContain("Want me to handle them?");
-      const chores = (brief.state as { pendingChores?: { item: string }[] }).pendingChores ?? [];
-      expect(chores.map((chore) => chore.item)).toEqual(["vent_cleaning", "water_filter"]);
+      expect(brief.state.pendingChores?.map((chore) => chore.item)).toEqual(["vent_cleaning", "water_filter"]);
       const next = await say(utterance);
       expect(next.reply).toContain("three openings");
       expect(next.reply).toContain("Tuesday");
