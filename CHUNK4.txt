@@ -1,6 +1,6 @@
 Chunk 4 — Simulator UI polish
 Status: implemented and checked as listed below
-Commits: b30e360 device frame and welcome overlay; card spacing, screenshots, and this note follow in the next commit
+Commits: b30e360 device frame and welcome overlay; 0b3ab59 card spacing and screenshots
 
 Delivered
 - 1024x600 smart-display frame in a 1280x800 page, with a warm light ring, the ribbon "SIMULATION — not a real Alexa+ device", a large sim clock, and the hint "Try: What needs doing?".
