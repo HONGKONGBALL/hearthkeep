@@ -1,0 +1,21 @@
+Chunk f2d — rc1 review fix: P-05 locked-quote recovery
+Repo root /workspace/amazon-app. Fictional household data. No secrets. No tag was created. Nothing was pushed.
+
+Started from 704a4ef (docs: record the P-04 install close fix).
+
+What changed
+- apps/simulator/src/planner.ts — A quote that locks or expires drops the pending quote and the purchase-code lock, and the turn returns no checkout card. When the saved lines can be priced again, the reply ends with "Say yes and I'll price it again." Yes calls prepare_checkout with those lines and opens a new checkout. A wrong code that has tries left still keeps the quote.
+- tests/planner.test.ts — A locked fridge filter and an expired vent visit both drop the quote, then Yes prepares a new checkout. The locked quote's code is not sent again.
+- tests/e2e/p05-locked-quote.spec.ts — Three wrong codes on the fridge filter, then Yes, then the demo code places ord_0001.
+
+Verification
+- Before the fix, npx playwright test tests/e2e/p05-locked-quote.spec.ts: exit 1. The reply was "That quote is locked after three wrong codes." and did not contain "say yes".
+- npx tsc -p packages/core/tsconfig.json --noEmit && npx tsc -p apps/mcp-server/tsconfig.json --noEmit && npx tsc -p apps/simulator/tsconfig.json --noEmit: exit 0.
+- npx vitest run tests/planner.test.ts tests/planner-flows.test.ts tests/planner-briefing-followup.test.ts tests/planner-install.test.ts: exit 0. 4 files passed, 36 tests passed.
+- After the fix, npx playwright test tests/e2e/p05-locked-quote.spec.ts: exit 0. 1 passed.
+- npm test (vitest run 4.1.12), log docs/evidence/rc2/vitest.txt: exit 0. 18 files passed, 214 tests passed, duration 8.19s.
+- npm run test:e2e (Playwright 1.64.1, Chrome), log docs/evidence/rc2/playwright.txt: exit 0. 23 passed, duration 32.5s. After 0000, 1111, and 2222 the reply contains "Say yes and I'll price it again.", the lock icon and checkout frame are gone, Yes returns the $24.99 checkout, and 2468 places ord_0001.
+
+Commits
+- deff4e7 test: fail when a locked quote has no next price
+- 9b9ab51 fix: offer a new price after a quote locks
