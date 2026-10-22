@@ -1,5 +1,5 @@
 Hearthkeep — rc2 verification record
-Status: SKELETON. Conventions only. The rc2 tag is not created in this step.
+Status: Full regression recorded from a clean worktree. The rc2 tag is not created in this step.
 Household names, prices, and the purchase code in the product are fictional sample data. This file stores no secrets.
 
 Bind
@@ -10,29 +10,34 @@ Bind
   Fill rule: on the delivery commit, the HEAD hash below equals `git rev-parse HEAD`. After the tag exists, `git rev-parse rc2^{commit}` equals that same hash, and `git show rc2:BUILD-RC2.txt` contains that hash and the raw output paths.
 
 HEAD hash
-  command: git rev-parse HEAD
-  value: PENDING
-  captured_at: PENDING
+  command: git -C /tmp/hk-rc2-f6 rev-parse HEAD
+  value: 86d0f1b0c98606c3062990deb991968444d42466
+  captured_at: 2026-10-22T07:49:49Z
+  where: detached worktree /tmp/hk-rc2-f6. That checkout is the tree npm ci, npm test, and npm run test:e2e ran. The rc2 tag is not created in this step, so this value stays the tested revision.
 
 Commands and exit codes
-  command: npm test
+  command: npm test -- --reporter=default --reporter=json --outputFile.json=docs/evidence/rc2/vitest-report.json
   purpose: Vitest unit and protocol tests
-  exit_code: PENDING
+  exit_code: 0
+  result: 18 files passed, 217 tests passed, duration 8.21s
   raw_output: docs/evidence/rc2/vitest.txt
   report: docs/evidence/rc2/vitest-report.json
 
-  command: npm run test:e2e
+  command: PLAYWRIGHT_HTML_OPEN=never PLAYWRIGHT_HTML_OUTPUT_DIR=docs/evidence/rc2/playwright-report PLAYWRIGHT_JSON_OUTPUT_NAME=docs/evidence/rc2/playwright-report.json npm run test:e2e -- --reporter=list,html,json
   purpose: Playwright end-to-end tests
-  exit_code: PENDING
+  exit_code: 0
+  result: 29 passed, duration 40.1s. F58, F59, G67, G69, and G74 passed in that run.
   raw_output: docs/evidence/rc2/playwright.txt
   report: docs/evidence/rc2/playwright-report/
+  json_report: docs/evidence/rc2/playwright-report.json
 
 Raw output
   vitest: docs/evidence/rc2/vitest.txt
   vitest report: docs/evidence/rc2/vitest-report.json
   playwright: docs/evidence/rc2/playwright.txt
   playwright report: docs/evidence/rc2/playwright-report/
-  A later fill copies the raw stdout and stderr, including the tool summary, into those paths and writes the process exit code next to each command above.
+  playwright json: docs/evidence/rc2/playwright-report.json
+  Chunk f6 copied the raw stdout and stderr, including the tool summary, into those paths. Exit codes are next to the commands above. Household names, prices, and the purchase code in the logs are fictional sample data.
 
 Screenshot list
   S0: docs/screens/rc2/s0-welcome.png

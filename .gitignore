@@ -8,7 +8,7 @@ dist/
 *.tsbuildinfo
 coverage/
 test-results/
-playwright-report/
+/playwright-report/
 blob-report/
 tests/e2e/.servers.json
 tests/e2e/.logs/

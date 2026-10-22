@@ -3,22 +3,37 @@ Repo root /workspace/amazon-app. Fictional household data. No secrets. No tag wa
 
 Started from 86d0f1b0c98606c3062990deb991968444d42466 (docs: record the P-12 chunk f5 review).
 
+What changed
+- .gitignore — The Playwright HTML ignore is anchored at /playwright-report/, so the repo-root report stays ignored and docs/evidence/rc2/playwright-report/ can be committed.
+- docs/evidence/rc2/vitest.txt — Raw npm test output from the clean worktree.
+- docs/evidence/rc2/vitest-report.json — Vitest JSON report from that run.
+- docs/evidence/rc2/playwright.txt — Raw npm run test:e2e output from the clean worktree.
+- docs/evidence/rc2/playwright-report.json — Playwright JSON report from that run.
+- docs/evidence/rc2/playwright-report/index.html — Playwright HTML report from that run.
+- docs/evidence/rc2/README.md — Lists playwright-report.json and the commit the logs came from.
+- BUILD-RC2.txt — Records the tested revision, both commands, and exit code 0.
+
+No product code changed. F58, F59, G67, G69, and G74 passed, so there was no selector, copy, or trace-row fix.
+
 Clean checkout
 - git worktree add --detach /tmp/hk-rc2-f6 HEAD
-- npm ci in /tmp/hk-rc2-f6: exit 0. 229 packages. better-sqlite3 and esbuild loaded after install. Google Chrome 155.0.8059.84.
+- Worktree HEAD: 86d0f1b0c98606c3062990deb991968444d42466
+- npm ci in /tmp/hk-rc2-f6: exit 0. 229 packages audited. better-sqlite3 opened an in-memory database. esbuild 0.28.2 loaded. Google Chrome 155.0.8059.84.
 
-Commands (running in that worktree)
-- npm test with default and json reporters. Raw log docs/evidence/rc2/vitest.txt. Report docs/evidence/rc2/vitest-report.json.
-- npm run test:e2e with list, html, and json reporters. Raw log docs/evidence/rc2/playwright.txt. HTML docs/evidence/rc2/playwright-report/. JSON docs/evidence/rc2/playwright-report.json.
+Commands and exit codes
+- npm test -- --reporter=default --reporter=json --outputFile.json=docs/evidence/rc2/vitest-report.json
+  Ran in /tmp/hk-rc2-f6. Log docs/evidence/rc2/vitest.txt. Report docs/evidence/rc2/vitest-report.json.
+  Exit 0. Vitest 4.1.12. 18 files passed, 217 tests passed, duration 8.21s. JSON success true, numFailedTests 0.
+- PLAYWRIGHT_HTML_OPEN=never PLAYWRIGHT_HTML_OUTPUT_DIR=docs/evidence/rc2/playwright-report PLAYWRIGHT_JSON_OUTPUT_NAME=docs/evidence/rc2/playwright-report.json npm run test:e2e -- --reporter=list,html,json
+  Ran in /tmp/hk-rc2-f6. Log docs/evidence/rc2/playwright.txt. HTML docs/evidence/rc2/playwright-report/index.html. JSON docs/evidence/rc2/playwright-report.json.
+  Exit 0. Playwright, Chrome. 29 passed, duration 40.1s. JSON stats: expected 29, unexpected 0, flaky 0, skipped 0.
+- Ports 8787 and 5173 were free after the run.
 
-Regression watch
-- F58 status card sandbox and copy
-- F59 carousel selectors
-- G67 battery copy
-- G69 next morning
-- G74 trace rows after Retry
+Regression watch (all in docs/evidence/rc2/playwright.txt)
+- F58 tests/e2e/qa-f.spec.ts:6 status card sandbox and copy: passed (435ms)
+- F59 tests/e2e/qa-f.spec.ts:30 carousel keys and Choose: passed (739ms)
+- G67 tests/e2e/qa-g.spec.ts:90 hallway alarm battery copy: passed (972ms)
+- G69 tests/e2e/qa-g.spec.ts:152 next morning ships the filter: passed (1.6s)
+- G74 tests/e2e/qa-g.spec.ts:254 stopped server, Retry, trace rows: passed (1.4s)
 
-Exit codes
-- npm ci: 0
-- npm test: PENDING
-- npm run test:e2e: PENDING
+The purchase code 2468 appears only in the Vitest report title "fictional code 2468". The HTML report's password and token strings are Playwright library text.

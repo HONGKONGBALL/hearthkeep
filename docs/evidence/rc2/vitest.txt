@@ -1,33 +1,34 @@
 
 > hearthkeep@0.1.0 test
-> vitest run
+> vitest run --reporter=default --reporter=json --outputFile.json=/workspace/amazon-app/docs/evidence/rc2/vitest-report.json
 
 
- RUN  v4.1.12 /workspace/amazon-app
+ RUN  v4.1.12 /tmp/hk-rc2-f6
 
-(node:1424927) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:1515573) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
- ✓ tests/planner-flows.test.ts (14 tests) 289ms
- ✓ tests/protocol/qa-i.test.ts (8 tests) 331ms
- ✓ tests/protocol/qa-e.test.ts (12 tests) 413ms
- ✓ tests/protocol/qa-b.test.ts (34 tests) 288ms
- ✓ tests/protocol/qa-d.test.ts (26 tests) 276ms
- ✓ tests/sim.test.ts (6 tests) 243ms
- ✓ tests/protocol/tools.test.ts (10 tests) 196ms
- ✓ tests/protocol/qa-c.test.ts (30 tests) 200ms
- ✓ tests/domain.test.ts (28 tests) 117ms
- ✓ tests/protocol/transport.test.ts (3 tests) 98ms
- ✓ tests/healthz.test.ts (3 tests) 87ms
- ✓ tests/storage.test.ts (9 tests) 68ms
- ✓ tests/planner.test.ts (14 tests) 40ms
- ✓ tests/planner-briefing-followup.test.ts (4 tests) 37ms
- ✓ tests/planner-install.test.ts (4 tests) 22ms
- ✓ tests/cards.test.ts (5 tests) 13ms
- ✓ tests/docs-video.test.ts (2 tests) 6ms
+ ✓ tests/planner.test.ts (17 tests) 51ms
+ ✓ tests/domain.test.ts (28 tests) 116ms
+ ✓ tests/protocol/tools.test.ts (10 tests) 205ms
+ ✓ tests/storage.test.ts (9 tests) 67ms
+ ✓ tests/sim.test.ts (6 tests) 280ms
+ ✓ tests/planner-flows.test.ts (14 tests) 300ms
+ ✓ tests/protocol/qa-b.test.ts (34 tests) 305ms
+ ✓ tests/protocol/qa-d.test.ts (26 tests) 265ms
+ ✓ tests/protocol/qa-c.test.ts (30 tests) 195ms
+ ✓ tests/protocol/transport.test.ts (3 tests) 106ms
+ ✓ tests/cards.test.ts (5 tests) 16ms
+ ✓ tests/protocol/qa-i.test.ts (8 tests) 339ms
+ ✓ tests/planner-install.test.ts (4 tests) 25ms
+ ✓ tests/planner-briefing-followup.test.ts (4 tests) 46ms
+ ✓ tests/protocol/qa-e.test.ts (12 tests) 350ms
+ ✓ tests/healthz.test.ts (3 tests) 120ms
+ ✓ tests/docs-video.test.ts (2 tests) 5ms
  ✓ tests/simulator-chrome.test.ts (2 tests) 4ms
 
  Test Files  18 passed (18)
-      Tests  214 passed (214)
-   Start at  14:03:01
-   Duration  8.19s (transform 448ms, setup 0ms, import 2.31s, tests 2.73s, environment 2ms)
+      Tests  217 passed (217)
+   Start at  15:49:49
+   Duration  8.21s (transform 457ms, setup 0ms, import 2.29s, tests 2.80s, environment 2ms)
 
+JSON report written to /workspace/amazon-app/docs/evidence/rc2/vitest-report.json
