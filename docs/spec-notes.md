@@ -58,4 +58,4 @@ The flat legacy key `_meta["ui/resourceUri"]` is not set. `initialize` does not 
 
 ## Speech
 
-Replies in the simulator are on-screen text from the deterministic planner. `npm run demo` and `npm test` do not call a TTS endpoint. Narration for the video script is `scripts/narrate-demo.mjs`, which reads `DASHSCOPE_API_KEY` from `/etc/grok-secrets/dashscope.env` and is not part of the product server.
+Replies in the simulator are on-screen text from the deterministic planner. With Voice on, the page also speaks that reply through the browser `speechSynthesis` API. `npm run demo` and `npm test` do not call a TTS endpoint. Narration for the video script is `scripts/narrate-demo.mjs`, which reads `DASHSCOPE_API_KEY` from `/etc/grok-secrets/dashscope.env` and is not part of the product server.
