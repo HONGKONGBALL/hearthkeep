@@ -1,0 +1,24 @@
+Chunk f6 — rc1 review fix: full regression (§A step 6)
+Repo root /workspace/amazon-app. Fictional household data. No secrets. No tag was created. Nothing was pushed.
+
+Started from 86d0f1b0c98606c3062990deb991968444d42466 (docs: record the P-12 chunk f5 review).
+
+Clean checkout
+- git worktree add --detach /tmp/hk-rc2-f6 HEAD
+- npm ci in /tmp/hk-rc2-f6: exit 0. 229 packages. better-sqlite3 and esbuild loaded after install. Google Chrome 155.0.8059.84.
+
+Commands (running in that worktree)
+- npm test with default and json reporters. Raw log docs/evidence/rc2/vitest.txt. Report docs/evidence/rc2/vitest-report.json.
+- npm run test:e2e with list, html, and json reporters. Raw log docs/evidence/rc2/playwright.txt. HTML docs/evidence/rc2/playwright-report/. JSON docs/evidence/rc2/playwright-report.json.
+
+Regression watch
+- F58 status card sandbox and copy
+- F59 carousel selectors
+- G67 battery copy
+- G69 next morning
+- G74 trace rows after Retry
+
+Exit codes
+- npm ci: 0
+- npm test: PENDING
+- npm run test:e2e: PENDING
