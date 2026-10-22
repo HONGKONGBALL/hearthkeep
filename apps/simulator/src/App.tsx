@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { CodeLock, WelcomeOverlay } from "./chrome";
 import { HearthkeepClient, type SimSnapshot } from "./mcp-client";
 import {
   PROTOCOL_LABEL,
@@ -10,6 +11,7 @@ import {
   type DialogueState,
   type TraceStep,
 } from "./planner";
+import { FICTIONAL_CHIP, NEXT_MORNING_LABEL, SIMULATION_RIBBON, TRY_HINT } from "./ui-copy";
 
 const SERVER = "http://127.0.0.1:8787";
 const WELCOME_KEY = "hearthkeep.welcome.dismissed";
@@ -286,19 +288,24 @@ export function App() {
   const visible = turns.slice(-6);
   const latestAlert = [...visible].reverse().find((turn) => turn.alert)?.alert ?? null;
 
+  const pageClass = showTrace || showData ? "page page-panels" : "page";
+
   return (
-    <div className="page">
+    <div className={pageClass}>
       <header className="top">
-        <div>
-          <strong>Hearthkeep</strong>
+        <div className="identity">
+          <strong className="brand"><span className="mark" aria-hidden="true" />Hearthkeep</strong>
           <span className="meta">Session {sessionPrefix || "—"}</span>
           <span className="meta">{PROTOCOL_LABEL}</span>
           <span className="meta">{formatSimHeader(clockIso)}</span>
           <span className="badge">Deterministic (offline)</span>
+          <span className={`status status-${connection}`}>
+            {connection === "down" ? "Server unreachable" : connection === "connecting" ? "Connecting" : "Connected"}
+          </span>
         </div>
         <div className="controls">
           <button type="button" onClick={() => void onNewSession()} disabled={busy}>New session</button>
-          <button type="button" onClick={() => void onNextMorning()} disabled={busy}>Next morning</button>
+          <button type="button" onClick={() => void onNextMorning()} disabled={busy}>{NEXT_MORNING_LABEL}</button>
           <button type="button" onClick={() => void onReset()} disabled={busy}>Reset demo</button>
           <button type="button" aria-pressed={showTrace} onClick={() => setShowTrace((value) => !value)}>Trace</button>
           <button type="button" aria-pressed={showData} onClick={() => { setShowData((value) => !value); void refreshData(); }}>Data</button>
@@ -316,14 +323,15 @@ export function App() {
       ) : null}
 
       <section className="frame" aria-label="Simulated smart display">
-        <p className="ribbon">SIMULATION — not a real Alexa+ device</p>
+        <p className="ribbon">{SIMULATION_RIBBON}</p>
         <div className="frame-bar">
-          <span className="chip">Fictional data</span>
-          <time dateTime={clockIso}>{formatSimHeader(clockIso)}</time>
-          <p className="hint">Try: What needs doing?</p>
+          <span className="chip">{FICTIONAL_CHIP}</span>
+          <time className="clock" dateTime={clockIso}>{formatSimHeader(clockIso)}</time>
+          <p className="hint">{TRY_HINT}</p>
         </div>
         <div className="frame-body">
           <div className="conversation">
+            <h2 className="sr-only">Conversation</h2>
             <div className="transcript" aria-live="polite">
               {connection === "connecting" && visible.length === 0 ? <p>Connecting…</p> : null}
               {visible.map((turn, index) => (
@@ -334,7 +342,7 @@ export function App() {
               ))}
             </div>
             {latestAlert ? <p className="alert" role="alert">{latestAlert}</p> : null}
-            <div className="chips">
+            <div className="chips" role="group" aria-label="Quick replies in demo order">
               {QUICK_CHIPS.map((chip) => (
                 <button key={chip.label} type="button" disabled={busy} onClick={() => void onSend(chip.utterance)}>
                   {chip.label}
@@ -349,7 +357,7 @@ export function App() {
             >
               <label htmlFor="say">{awaitingCode ? "Purchase code" : "Say something"}</label>
               <div className="composer">
-                {awaitingCode ? <span className="lock" aria-hidden="true">Lock</span> : null}
+                {awaitingCode ? <CodeLock /> : null}
                 <input
                   id="say"
                   value={draft}
@@ -361,11 +369,13 @@ export function App() {
               </div>
             </form>
           </div>
-          {showCards && card && cardHtml ? (
-            <CardHost html={cardHtml} payload={card} onIntent={(utterance) => void onSend(utterance)} />
-          ) : (
-            <p className="card-placeholder">{showCards ? "Cards appear here." : "Cards are off. Replies stay in the transcript."}</p>
-          )}
+          <div className="stage" aria-label="Card">
+            {showCards && card && cardHtml ? (
+              <CardHost html={cardHtml} payload={card} onIntent={(utterance) => void onSend(utterance)} />
+            ) : (
+              <p className="card-placeholder">{showCards ? "Cards appear here." : "Cards are off. Replies stay in the transcript."}</p>
+            )}
+          </div>
         </div>
       </section>
 
@@ -431,17 +441,7 @@ export function App() {
         </div>
       ) : null}
 
-      {welcome ? (
-        <div className="overlay" role="dialog" aria-labelledby="welcome-title">
-          <div className="sheet">
-            <h2 id="welcome-title">Hearthkeep simulation</h2>
-            <p>This is a simulated household agent talking to a real local MCP server. It is not Alexa, Amazon, or a real device.</p>
-            <p className="chip">Fictional data</p>
-            <p>Names, prices, parts, and appointments are invented sample data. Nothing is purchased.</p>
-            <button type="button" onClick={() => void onStart()}>Start</button>
-          </div>
-        </div>
-      ) : null}
+      {welcome ? <WelcomeOverlay onStart={() => void onStart()} /> : null}
     </div>
   );
 }
