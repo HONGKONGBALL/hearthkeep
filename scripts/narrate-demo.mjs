@@ -216,9 +216,9 @@ async function mix(cues, rows) {
 
 async function main() {
   const cues = loadCues();
-  const key = loadKey();
   mkdirSync(resolve(OUT, "lines"), { recursive: true });
   writeFileSync(resolve(OUT, "captions.ass"), captionsAss(cues));
+  const key = loadKey();
   const rows = [];
   for (const cue of cues) {
     const binPath = resolve(OUT, "lines", `${cue.id}.bin`);

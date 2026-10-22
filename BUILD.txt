@@ -132,3 +132,56 @@ Playwright
   playwright.config.ts uses Chrome, viewport 1280x800.
   npm run test:e2e starts the MCP server and the simulator, then runs tests/e2e/qa-f.spec.ts and tests/e2e/qa-g.spec.ts.
   CI definition: .github/workflows/ci.yml (not pushed).
+
+Hearthkeep — chunk 6 docs and demo picture
+Date: 2026-10-22 (Asia/Shanghai)
+Household names, prices, and the purchase code in the recording are fictional sample data.
+
+Commit
+  c8eefa9 docs: add submission notes and the demo video scripts
+
+Docs
+  docs/product-feedback.md
+  docs/friction-log.md (FL-01 through FL-06)
+  docs/feature-requests.md (none filed)
+  docs/devpost.md
+  docs/video-script.md (nine cues, ends at 170 seconds)
+
+Commands
+  npx vitest run
+    exit 0
+    16 files, 196 tests, about 13s
+    includes tests/docs-video.test.ts
+  node scripts/record-demo.mjs
+    exit 0
+    wrote /tmp/hk-video/page.webm
+    copy: /workspace/demo/hearthkeep-page.webm
+  node scripts/narrate-demo.mjs
+    exit 1
+    Cannot read /etc/grok-secrets/dashscope.env (ENOENT)
+    No synthesis request was sent. No other voice engine was used.
+  node scripts/assemble-demo.mjs
+    not run. It needs narration.wav from the narrate step.
+  /workspace/demo/amazon-demo.mp4
+    not created
+
+Picture probe (ffprobe on /tmp/hk-video/page.webm)
+  codec vp9
+  1920x1080
+  duration 177.840 seconds
+
+Frames checked from that recording
+  0:06 title card, Alexa+ track, Simulation, fictional-data line
+  0:22 architecture: simulator, MCP 2025-11-25 Streamable HTTP, SQLite
+  0:38 morning briefing and status card, SIMULATION ribbon
+  1:00 Rillstone CX-28 mock receipt, ord_0001, trace open
+  1:36 battery task, 9V on the garage shelf, Done
+  1:54 booking over the cap, then bk_0001 Booked
+  2:16 next morning, Thu Oct 22, filter shipped, Tuesday booking kept
+  2:26 gas smell, leave-the-home alert, no shopping card
+  2:30 trace raw JSON, purchase code shown as a redaction dot
+  2:38 MIT, copyright 2026 Zhenhua Liu
+  2:48 close card, fictional sample data, simulated Alexa+ experience
+
+Narration
+  Blocked on FL-06. The secret directory is not on this machine, and this user cannot create /etc/grok-secrets. The script reads only that file and does not print a key.

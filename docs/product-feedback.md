@@ -76,7 +76,7 @@ Dated from the chunk notes, commits, and checks in this workspace. Versions are 
 
 ## DashScope TTS
 
-- Notes: FL-06, 2026-10-22 12:31. Model required by the video plan: `qwen3-tts-flash`, voice Cherry, English.
+- Notes: FL-06, checked 2026-10-22 12:31 and again at 12:46. Model required by the video plan: `qwen3-tts-flash`, voice Cherry, English. `node scripts/narrate-demo.mjs` exited 1 with ENOENT for the secret file. No synthesis request was sent.
 - Tools used: `scripts/narrate-demo.mjs`. It reads `/etc/grok-secrets/dashscope.env` and posts to the DashScope multimodal generation endpoint. No other speech engine is coded there.
 - What worked: not yet. The script has not received a key from that file, so no synthesis call has succeeded in this workspace.
 - What needs work: FL-06, the secret file is missing and this user cannot create it under `/etc`.
