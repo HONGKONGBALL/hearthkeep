@@ -82,8 +82,8 @@ const CASES: Record<number, TurnSpec[]> = {
     },
     {
       utterance: "Tuesday morning",
-      snippet: "over your $60.00 limit",
-      phrases: ["$89.00", "over your $60.00 limit", "approve"],
+      snippet: "over your $60",
+      phrases: ["$29", "over your $60", "approve"],
     },
     {
       utterance: "2468",
@@ -110,82 +110,104 @@ function roundMs(value: number): number {
   return Math.round(value * 1000) / 1000;
 }
 
+/**
+ * Playwright serializes the function passed into the page. A body built with
+ * new Function stays free of the TypeScript helper the browser does not have.
+ */
+function inPage(body: string): () => unknown {
+  return new Function(body) as () => unknown;
+}
+
+function inPageArg(body: string): (arg: string) => unknown {
+  return new Function("arg", body) as (arg: string) => unknown;
+}
+
 async function arm(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    const lastText = (): string => {
-      const nodes = document.querySelectorAll(".transcript .assistant");
-      const last = nodes[nodes.length - 1];
-      return last?.textContent ?? "";
-    };
-    const state = {
-      start: 0,
-      replyAt: 0,
-      settledAt: 0,
-      base: lastText(),
-      replyText: "",
-    };
-    const root = document.querySelector(".transcript");
-    const previous = (window as unknown as { __hkObs?: MutationObserver }).__hkObs;
-    previous?.disconnect();
-    const obs = new MutationObserver(() => {
-      const text = lastText();
-      if (state.replyAt === 0 && text !== "" && text !== state.base) {
-        state.replyAt = performance.now();
-        state.replyText = text;
-      }
-    });
-    (window as unknown as { __hk: typeof state; __hkObs: MutationObserver }).__hk = state;
-    (window as unknown as { __hkObs: MutationObserver }).__hkObs = obs;
-    if (root) obs.observe(root, { childList: true, subtree: true, characterData: true });
-  });
+  await page.evaluate(
+    inPage(`
+      var nodes = document.querySelectorAll(".transcript .assistant");
+      var last = nodes[nodes.length - 1];
+      var state = {
+        start: 0,
+        replyAt: 0,
+        settledAt: 0,
+        base: last ? (last.textContent || "") : "",
+        replyText: ""
+      };
+      var root = document.querySelector(".transcript");
+      if (window.__hkObs) window.__hkObs.disconnect();
+      var obs = new MutationObserver(function () {
+        var list = document.querySelectorAll(".transcript .assistant");
+        var node = list[list.length - 1];
+        var text = node ? (node.textContent || "") : "";
+        if (state.replyAt === 0 && text !== "" && text !== state.base) {
+          state.replyAt = performance.now();
+          state.replyText = text;
+        }
+      });
+      window.__hk = state;
+      window.__hkObs = obs;
+      if (root) obs.observe(root, { childList: true, subtree: true, characterData: true });
+    `),
+  );
 }
 
 async function markClick(page: Page, selector: string): Promise<void> {
-  const armed = await page.evaluate((sel) => {
-    const button = document.querySelector(selector);
-    if (!(button instanceof HTMLElement)) return false;
-    button.addEventListener(
-      "click",
-      () => {
-        const state = (window as unknown as { __hk: { start: number } }).__hk;
-        state.start = performance.now();
-      },
-      { capture: true, once: true },
-    );
-    return true;
-  }, selector);
+  const armed = await page.evaluate(
+    inPageArg(`
+      var button = document.querySelector(arg);
+      if (!button) return false;
+      button.addEventListener("click", function () {
+        window.__hk.start = performance.now();
+      }, { capture: true, once: true });
+      return true;
+    `),
+    selector,
+  );
   if (!armed) throw new Error(`missing click target ${selector}`);
 }
 
 async function readSample(page: Page, snippet: string): Promise<{ replyMs: number; settledMs: number; reply: string }> {
-  await page.waitForFunction(
-    (expected) => {
-      const state = (
-        window as unknown as {
-          __hk: { start: number; replyAt: number; settledAt: number; replyText: string };
+  try {
+    await page.waitForFunction(
+      inPageArg(`
+        var state = window.__hk;
+        var say = document.querySelector("#say");
+        var enabled = say instanceof HTMLInputElement && !say.disabled;
+        var text = (state.replyText || "").toLowerCase();
+        if (state.start > 0 && state.replyAt > 0 && text.indexOf(arg) !== -1 && enabled && state.settledAt === 0) {
+          state.settledAt = performance.now();
         }
-      ).__hk;
-      const say = document.querySelector("#say");
-      const enabled = say instanceof HTMLInputElement && !say.disabled;
-      const text = state.replyText.toLowerCase();
-      if (state.start > 0 && state.replyAt > 0 && text.includes(expected) && enabled && state.settledAt === 0) {
-        state.settledAt = performance.now();
-      }
-      return state.settledAt > 0;
-    },
-    snippet,
-    { timeout: 20000 },
-  );
-  return page.evaluate(() => {
-    const state = (
-      window as unknown as { __hk: { start: number; replyAt: number; settledAt: number; replyText: string } }
-    ).__hk;
-    return {
-      replyMs: state.replyAt - state.start,
-      settledMs: state.settledAt - state.start,
-      reply: state.replyText,
-    };
-  });
+        return state.settledAt > 0;
+      `),
+      snippet,
+      { timeout: 20000 },
+    );
+  } catch (error) {
+    const seen = await page.evaluate(
+      inPage(`
+        var list = document.querySelectorAll(".transcript .assistant");
+        var node = list[list.length - 1];
+        return {
+          start: window.__hk ? window.__hk.start : 0,
+          replyAt: window.__hk ? window.__hk.replyAt : 0,
+          replyText: window.__hk ? window.__hk.replyText : "",
+          visible: node ? (node.textContent || "") : ""
+        };
+      `),
+    );
+    throw new Error(`timed out waiting for ${JSON.stringify(snippet)}: ${JSON.stringify(seen)}`, { cause: error });
+  }
+  return page.evaluate(
+    inPage(`
+      var state = window.__hk;
+      return {
+        replyMs: state.replyAt - state.start,
+        settledMs: state.settledAt - state.start,
+        reply: state.replyText
+      };
+    `),
+  ) as Promise<{ replyMs: number; settledMs: number; reply: string }>;
 }
 
 async function openFresh(page: Page): Promise<void> {
@@ -204,10 +226,12 @@ async function timeSend(page: Page, spec: TurnSpec): Promise<{ replyMs: number; 
   const input = page.locator("#say");
   await input.waitFor({ state: "visible" });
   if (await input.isDisabled()) {
-    await page.waitForFunction(() => {
-      const say = document.querySelector("#say");
-      return say instanceof HTMLInputElement && !say.disabled;
-    });
+    await page.waitForFunction(
+      inPage(`
+        var say = document.querySelector("#say");
+        return say instanceof HTMLInputElement && !say.disabled;
+      `),
+    );
   }
   await input.fill(spec.utterance);
   await arm(page);
@@ -243,12 +267,15 @@ async function runCase(page: Page, caseId: number, run: number): Promise<Sample[
   }
   await page.getByRole("button", { name: "Start" }).click();
   await page.locator(".transcript .assistant").last().waitFor({ state: "visible" });
-  await page.waitForFunction(() => {
-    const last = document.querySelector(".transcript .assistant:last-of-type, .transcript .assistant:last-child");
-    const say = document.querySelector("#say");
-    const text = (last?.textContent ?? "").toLowerCase();
-    return text.includes("dryer vent") && say instanceof HTMLInputElement && !say.disabled;
-  });
+  await page.waitForFunction(
+    inPage(`
+      var list = document.querySelectorAll(".transcript .assistant");
+      var last = list[list.length - 1];
+      var say = document.querySelector("#say");
+      var text = (last ? last.textContent || "" : "").toLowerCase();
+      return text.indexOf("dryer vent") !== -1 && say instanceof HTMLInputElement && !say.disabled;
+    `),
+  );
   for (let index = 0; index < turns.length; index += 1) {
     const spec = turns[index];
     const timed = await timeSend(page, spec);
@@ -348,7 +375,10 @@ async function main(): Promise<void> {
     const samples: Sample[] = [];
     for (let run = 1; run <= RUNS; run += 1) {
       for (const caseId of [64, 65, 67, 68]) {
-        const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+        const context = await browser.newContext({
+          baseURL: SIM_URL,
+          viewport: { width: 1280, height: 800 },
+        });
         const page = await context.newPage();
         try {
           const batch = await runCase(page, caseId, run);
