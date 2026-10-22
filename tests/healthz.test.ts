@@ -41,6 +41,7 @@ describe("GET /healthz", () => {
     const response = await fetch(`${started.base}/healthz`);
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type") ?? "").toContain("application/json");
+    expect(response.headers.get("access-control-allow-origin")).toBeNull();
     await expect(response.json()).resolves.toEqual({
       status: "ok",
       protocolVersion: "2025-11-25",
@@ -70,5 +71,15 @@ describe("GET /healthz", () => {
     const disabledResponse = await fetch(`${disabled.base}/healthz`);
     expect(disabledResponse.status).toBe(200);
     await expect(disabledResponse.json()).resolves.toMatchObject({ simMode: false });
+  });
+
+  it("allows the simulator origin and rejects an unknown origin", async () => {
+    const started = await listen({ HK_DB: ":memory:", HK_SIM_MODE: "1" });
+    open.push(started.server);
+    const allowed = await fetch(`${started.base}/healthz`, { headers: { origin: "http://127.0.0.1:5173" } });
+    expect(allowed.status).toBe(200);
+    expect(allowed.headers.get("access-control-allow-origin")).toBe("http://127.0.0.1:5173");
+    const denied = await fetch(`${started.base}/healthz`, { headers: { origin: "http://evil.example" } });
+    expect(denied.status).toBe(403);
   });
 });

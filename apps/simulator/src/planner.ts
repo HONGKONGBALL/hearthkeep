@@ -593,6 +593,10 @@ export function parseUtterance(utterance: string, state: DialogueState = emptyDi
     return { intent: "symptom", slots: { symptom: text, sound: "alarm", query: extractQuery(text) }, codeTurn: false, guard: "hazard" };
   }
 
+  if (/^confirm by voice$/i.test(text)) {
+    return { intent: "confirm", slots: {}, codeTurn: false, guard: null };
+  }
+
   const code = matchCode(text);
   if (code) return { intent: "confirm", slots: code, codeTurn: true, guard: null };
 
@@ -1051,6 +1055,13 @@ export async function executeTurn(input: {
   }
 
   if (parsed.intent === "confirm") {
+    if (!parsed.slots.code) {
+      if (state.pendingQuote !== null) {
+        state.awaitingCode = true;
+        return finish(parsed, state, "Say your purchase code to confirm.", { displayUtterance, steps: [] });
+      }
+      return finish(parsed, state, NO_CODE_REPLY, { displayUtterance, steps: [] });
+    }
     if (state.pendingQuote === null) {
       return finish(parsed, state, NO_CODE_REPLY, { displayUtterance, steps: [] });
     }

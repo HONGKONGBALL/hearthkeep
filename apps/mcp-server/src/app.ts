@@ -1,6 +1,6 @@
 import express, { type Express } from "express";
 import { healthReport, openRepositoryFromEnv, type HealthEnv, type Repository } from "@hearthkeep/core";
-import { mountMcp, type McpEnv } from "./mcp";
+import { allowOrigin, mountMcp, type McpEnv } from "./mcp";
 import { mountSim } from "./sim";
 
 export interface AppEnv extends HealthEnv, McpEnv {
@@ -16,7 +16,8 @@ export function createApp(env: AppEnv = process.env): Express {
     if (repository === undefined) repository = openRepositoryFromEnv(env);
     return repository;
   };
-  app.get("/healthz", (_req, res) => {
+  app.get("/healthz", (req, res) => {
+    if (!allowOrigin(req, res, env)) return;
     res.status(200).json(healthReport(env, getRepo().now()));
   });
   mountSim(app, env, getRepo);
