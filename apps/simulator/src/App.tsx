@@ -13,7 +13,7 @@ import {
   type TraceStep,
 } from "./planner";
 import { acceptUtterance, isCardFrameSource, nextIntent, rememberCardWindow } from "./turn-queue";
-import { FICTIONAL_CHIP, NEXT_MORNING_LABEL, SIMULATION_RIBBON, TRY_HINT } from "./ui-copy";
+import { ABOUT_LICENSE, FICTIONAL_CHIP, NEXT_MORNING_LABEL, SIMULATION_RIBBON, TRY_HINT } from "./ui-copy";
 
 const SERVER = "http://127.0.0.1:8787";
 const WELCOME_KEY = "hearthkeep.welcome.dismissed";
@@ -493,7 +493,8 @@ export function App() {
             <p>Planner: deterministic, offline. Storage: SQLite. Payment: mock. Catalog: fictional seed.</p>
             <p>Endpoint {SERVER}/mcp. Protocol {PROTOCOL_LABEL}.</p>
             <p>SIMULATION — not a real Alexa+ device. All household names, prices, and appointments are fictional.</p>
-            <p>MIT license. No network calls leave this computer except the local server.</p>
+            <p>{ABOUT_LICENSE}</p>
+            <p>No network calls leave this computer except the local server.</p>
             <button type="button" onClick={() => setAbout(false)}>Close</button>
           </div>
         </div>

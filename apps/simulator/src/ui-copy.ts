@@ -19,6 +19,9 @@ export const TRY_HINT = "Try: What needs doing?";
 
 export const NEXT_MORNING_LABEL = "Next morning";
 
+/** Shown on its own line in the About dialog so the license identifier is visible. */
+export const ABOUT_LICENSE = "License: MIT";
+
 /** Demo script order from the product spec, section 9.6. */
 export const DEMO_CHIP_LABELS = [
   "What needs doing?",

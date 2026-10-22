@@ -4,6 +4,7 @@ import {
   DATA_NOTICE,
   DEMO_CHIP_LABELS,
   FICTIONAL_CHIP,
+  ABOUT_LICENSE,
   NEXT_MORNING_LABEL,
   SIMULATION_RIBBON,
   TRY_HINT,
@@ -28,5 +29,10 @@ describe("simulator chrome", () => {
     expect(SIMULATION_RIBBON).toBe("SIMULATION — not a real Alexa+ device");
     expect(TRY_HINT).toBe("Try: What needs doing?");
     expect(NEXT_MORNING_LABEL).toBe("Next morning");
+  });
+
+  it("shows MIT in the About dialog", () => {
+    expect(ABOUT_LICENSE).toBe("License: MIT");
+    expect(ABOUT_LICENSE).toContain("MIT");
   });
 });
