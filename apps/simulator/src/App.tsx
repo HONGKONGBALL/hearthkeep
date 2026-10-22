@@ -12,6 +12,7 @@ import {
   type DialogueState,
   type TraceStep,
 } from "./planner";
+import { acceptUtterance, isCardFrameSource, nextIntent, rememberCardWindow } from "./turn-queue";
 import { FICTIONAL_CHIP, NEXT_MORNING_LABEL, SIMULATION_RIBBON, TRY_HINT } from "./ui-copy";
 
 const SERVER = "http://127.0.0.1:8787";
@@ -88,6 +89,8 @@ export function App() {
   const [showData, setShowData] = useState(false);
   const [showCards, setShowCards] = useState(true);
   const [voice, setVoice] = useState(false);
+  const voiceRef = useRef(voice);
+  voiceRef.current = voice;
   const [about, setAbout] = useState(false);
   const [card, setCard] = useState<CardPayload | null>(null);
   const [cardHtml, setCardHtml] = useState("");
@@ -99,6 +102,35 @@ export function App() {
   const [awaitingCode, setAwaitingCode] = useState(false);
   const [rawOpen, setRawOpen] = useState<Record<string, boolean>>({});
   const shellRef = useRef<HTMLDivElement>(null);
+  const busyRef = useRef(false);
+  const pendingRef = useRef<string | null>(null);
+  const speakTimerRef = useRef<number | null>(null);
+
+  function holdBusy(): void {
+    busyRef.current = true;
+    setBusy(true);
+  }
+
+  function pulseSpeaking(): void {
+    setSpeaking(true);
+    if (speakTimerRef.current !== null) window.clearTimeout(speakTimerRef.current);
+    speakTimerRef.current = window.setTimeout(() => {
+      speakTimerRef.current = null;
+      setSpeaking(false);
+    }, 900);
+  }
+
+  /** Run a card tap that landed during this turn, then clear busy. One turn at a time. */
+  async function finishBusy(): Promise<void> {
+    const queued = nextIntent(pendingRef.current);
+    pendingRef.current = null;
+    if (queued !== null) {
+      await runUtterance(queued, true);
+      return;
+    }
+    busyRef.current = false;
+    setBusy(false);
+  }
 
   function client(): HearthkeepClient {
     if (clientRef.current === null) {
@@ -151,8 +183,8 @@ export function App() {
   }
 
   async function runUtterance(utterance: string, showUser: boolean, transport: TraceTransport[] = []): Promise<void> {
-    setBusy(true);
-    setSpeaking(true);
+    holdBusy();
+    pulseSpeaking();
     try {
       const turn = await executeTurn({
         utterance,
@@ -187,21 +219,20 @@ export function App() {
       if (turn.unreachable) setConnection("down");
       else setConnection("connected");
       await showCard(turn.card);
-      if (voice && "speechSynthesis" in window) {
+      if (voiceRef.current && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(new SpeechSynthesisUtterance(turn.reply));
       }
     } catch {
       setConnection("down");
     } finally {
-      setBusy(false);
-      window.setTimeout(() => setSpeaking(false), 900);
+      await finishBusy();
     }
   }
 
   async function openSession(keepTranscript: boolean): Promise<void> {
     setConnection("connecting");
-    setBusy(true);
+    holdBusy();
     try {
       const health = await client().health();
       rememberClock(health.simNow ?? clockRef.current);
@@ -219,7 +250,7 @@ export function App() {
       await refreshData();
     } catch {
       setConnection("down");
-      setBusy(false);
+      await finishBusy();
     }
   }
 
@@ -246,15 +277,17 @@ export function App() {
   }
 
   async function onSend(utterance: string): Promise<void> {
-    const text = utterance.trim();
-    if (text === "" || busy) return;
+    const decision = acceptUtterance(busyRef.current, pendingRef.current, utterance);
+    pendingRef.current = decision.pending;
+    if (utterance.trim() === "") return;
     setDraft("");
-    await runUtterance(text, true);
+    if (decision.start === null) return;
+    await runUtterance(decision.start, true);
   }
 
   async function onNewSession(): Promise<void> {
-    if (busy) return;
-    setBusy(true);
+    if (busyRef.current) return;
+    holdBusy();
     try {
       const deleted = client().sessionId ? await client().deleteSession() : 0;
       await openSession(false);
@@ -264,13 +297,13 @@ export function App() {
       ]);
     } catch {
       setConnection("down");
-      setBusy(false);
+      await finishBusy();
     }
   }
 
   async function onNextMorning(): Promise<void> {
-    if (busy) return;
-    setBusy(true);
+    if (busyRef.current) return;
+    holdBusy();
     try {
       const now = await client().advanceDays(1);
       rememberClock(now);
@@ -286,13 +319,13 @@ export function App() {
       await runUtterance("", false, sessionTransport(opened, [{ method: "DELETE", status: deleted, detail: "session" }]));
     } catch {
       setConnection("down");
-      setBusy(false);
+      await finishBusy();
     }
   }
 
   async function onReset(): Promise<void> {
-    if (busy) return;
-    setBusy(true);
+    if (busyRef.current) return;
+    holdBusy();
     try {
       if (client().sessionId) await client().deleteSession();
       const now = await client().resetSim();
@@ -300,7 +333,7 @@ export function App() {
       await openSession(false);
     } catch {
       setConnection("down");
-      setBusy(false);
+      await finishBusy();
     }
   }
 
@@ -484,36 +517,57 @@ function CardHost({
   const frameRef = useRef<HTMLIFrameElement>(null);
   const intentRef = useRef(onIntent);
   intentRef.current = onIntent;
+  const payloadRef = useRef(payload);
+  payloadRef.current = payload;
+  const liveWindowRef = useRef<Window | null>(null);
+  const previousWindowRef = useRef<Window | null>(null);
+
+  function rememberFrame(frame: HTMLIFrameElement): void {
+    const noted = rememberCardWindow(liveWindowRef.current, previousWindowRef.current, frame.contentWindow);
+    liveWindowRef.current = noted.live;
+    previousWindowRef.current = noted.previous;
+  }
+
+  function postResult(frame: HTMLIFrameElement): void {
+    rememberFrame(frame);
+    const current = payloadRef.current;
+    frame.contentWindow?.postMessage(
+      {
+        source: "hearthkeep-host",
+        type: "tool-result",
+        tool: current.tool,
+        structuredContent: current.structuredContent,
+        context: current.context,
+      },
+      "*",
+    );
+  }
+
+  useEffect(() => {
+    // Listener stays up across srcdoc reloads. The load effect below rebinds separately.
+    const onMessage = (event: MessageEvent): void => {
+      const frame = frameRef.current;
+      if (!frame) return;
+      rememberFrame(frame);
+      const live = frame.contentWindow ?? liveWindowRef.current;
+      if (!isCardFrameSource(event.source, live, previousWindowRef.current)) return;
+      const data = event.data as { source?: string; type?: string; utterance?: string } | null;
+      if (!data || data.source !== "hearthkeep-card") return;
+      if (data.type === "ready") postResult(frame);
+      if (data.type === "intent" && typeof data.utterance === "string") intentRef.current(data.utterance);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
 
   useEffect(() => {
     const frame = frameRef.current;
     if (!frame) return;
-    const send = (): void => {
-      frame.contentWindow?.postMessage(
-        {
-          source: "hearthkeep-host",
-          type: "tool-result",
-          tool: payload.tool,
-          structuredContent: payload.structuredContent,
-          context: payload.context,
-        },
-        "*",
-      );
-    };
-    const onMessage = (event: MessageEvent): void => {
-      if (event.source !== frame.contentWindow) return;
-      const data = event.data as { source?: string; type?: string; utterance?: string } | null;
-      if (!data || data.source !== "hearthkeep-card") return;
-      if (data.type === "ready") send();
-      if (data.type === "intent" && typeof data.utterance === "string") intentRef.current(data.utterance);
-    };
-    window.addEventListener("message", onMessage);
+    const send = (): void => postResult(frame);
     frame.addEventListener("load", send);
+    rememberFrame(frame);
     send();
-    return () => {
-      window.removeEventListener("message", onMessage);
-      frame.removeEventListener("load", send);
-    };
+    return () => frame.removeEventListener("load", send);
   }, [html, payload]);
 
   return (
