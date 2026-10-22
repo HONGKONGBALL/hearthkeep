@@ -1,0 +1,24 @@
+Chunk f3 — rc1 review fix: copy fixes (P-09, P-10)
+Repo root /workspace/amazon-app. Fictional household data. No secrets. No tag was created. Nothing was pushed.
+
+Started from d59c764 (docs: record the P-05 locked quote fix).
+
+What changed
+- apps/simulator/src/planner.ts — Spoken sentences start with a capital. One overdue day is "1 day", and one battery is "one 9-volt battery" / "One battery fits". A shelf stays "on the garage shelf". Location "Received, not yet installed" is "that has arrived and is waiting to be installed", not "on the received, not yet installed". The battery follow-up says "Replace the … battery" and does not invent a chirp. A parts checkout is two sentences and includes "Within your $60 limit".
+- apps/mcp-server/src/card-html.ts — The battery row's action is "Replace battery" and sends "Replace the … battery". The task card labels Due or Next due, Appliance, and Supplies. A finished task shows the next due month, and the appliance name starts with a capital.
+- apps/simulator/src/App.css — On a narrow window the card frame is at least 420 px tall and the stage scrolls, so the task labels stay reachable.
+- tests/planner.test.ts — The shelf reply is a semantic sentence check, not a case-sensitive "nothing to buy" lock. Separate cases cover one battery, an arrived pack, "1 day overdue", the replace-battery action, and the two-sentence parts limit.
+- tests/cards.test.ts — The status card covers "1 day overdue" and "Replace battery". The task card covers the labels and "Next due October 2027".
+- tests/e2e/qa-f.spec.ts — Case 63 requires "Within your $60 limit" and at most two sentences.
+- tests/e2e/f3-copy.spec.ts — Browser pass for the battery action, task labels, next due date, the parts limit, and next-morning "1 day overdue".
+
+Verification
+- npx vitest run tests/planner.test.ts tests/cards.test.ts tests/planner-briefing-followup.test.ts tests/planner-flows.test.ts tests/planner-install.test.ts: exit 0. 5 files passed, 44 tests passed.
+- npx playwright test tests/e2e/f3-copy.spec.ts tests/e2e/qa-f.spec.ts tests/e2e/qa-g.spec.ts: exit 0. 19 passed. Case 63 and case 65 both passed.
+- npm test (vitest run 4.1.12), log docs/evidence/rc2/f3-vitest.txt: exit 0. 18 files passed, 217 tests passed, duration 9.85s.
+- npm run test:e2e (Playwright 1.64.1, Chrome), log docs/evidence/rc2/f3-playwright.txt: exit 0. 24 passed, duration 35.7s.
+- Screenshots: docs/screens/rc2/f3-task-card.png, f3-task-card-390.png, f3-task-next-due.png, f3-parts-limit.png, f3-one-day-overdue.png. The open task reads Due, Appliance Hallway smoke alarm, and Supplies. After the swap the label is Next due October 2027. The checkout reply is "That's $24.99, arriving Friday, October 23. Within your $60 limit, so say your purchase code to confirm." Next morning says "1 day overdue" on the fridge filter, in the reply and on the card.
+
+Commits
+- ff50e1b fix: agree upkeep copy for counts, places, and the parts limit
+- 5348f8a test: record the f3 copy review in the browser
