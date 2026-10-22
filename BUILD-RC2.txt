@@ -1,0 +1,52 @@
+Hearthkeep — rc2 verification record
+Status: SKELETON. Conventions only. The rc2 tag is not created in this step.
+Household names, prices, and the purchase code in the product are fictional sample data. This file stores no secrets.
+
+Bind
+  Release tag (later): rc2
+  This file: BUILD-RC2.txt at the repo root
+  Screenshots: docs/screens/rc2/ (list in docs/screens/rc2/README.md)
+  Raw outputs and reports: docs/evidence/rc2/ (list in docs/evidence/rc2/README.md)
+  Fill rule: on the delivery commit, the HEAD hash below equals `git rev-parse HEAD`. After the tag exists, `git rev-parse rc2^{commit}` equals that same hash, and `git show rc2:BUILD-RC2.txt` contains that hash and the raw output paths.
+
+HEAD hash
+  command: git rev-parse HEAD
+  value: PENDING
+  captured_at: PENDING
+
+Commands and exit codes
+  command: npm test
+  purpose: Vitest unit and protocol tests
+  exit_code: PENDING
+  raw_output: docs/evidence/rc2/vitest.txt
+  report: docs/evidence/rc2/vitest-report.json
+
+  command: npm run test:e2e
+  purpose: Playwright end-to-end tests
+  exit_code: PENDING
+  raw_output: docs/evidence/rc2/playwright.txt
+  report: docs/evidence/rc2/playwright-report/
+
+Raw output
+  vitest: docs/evidence/rc2/vitest.txt
+  vitest report: docs/evidence/rc2/vitest-report.json
+  playwright: docs/evidence/rc2/playwright.txt
+  playwright report: docs/evidence/rc2/playwright-report/
+  A later fill copies the raw stdout and stderr, including the tool summary, into those paths and writes the process exit code next to each command above.
+
+Screenshot list
+  S0: docs/screens/rc2/s0-welcome.png
+  S1: docs/screens/rc2/s1-briefing.png
+  C1: docs/screens/rc2/c1-status-card.png
+  C2: docs/screens/rc2/c2-options-carousel.png
+  C3: docs/screens/rc2/c3-checkout-card.png
+  C4: docs/screens/rc2/c4-receipt-card.png
+  C5: docs/screens/rc2/c5-task-card.png
+  Trace: docs/screens/rc2/trace.png
+  Data: docs/screens/rc2/data.png
+  About: docs/screens/rc2/about.png
+  offline banner: docs/screens/rc2/offline-banner.png
+  danger alert: docs/screens/rc2/danger-alert.png
+  390 px: docs/screens/rc2/viewport-390.png
+  768 px: docs/screens/rc2/viewport-768.png
+  Capture notes for each id are in docs/screens/rc2/README.md. The PNG files are added when this record is filled.
