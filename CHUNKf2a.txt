@@ -1,0 +1,23 @@
+Chunk f2a — rc1 review fix: P-02 briefing follow-up
+Repo root /workspace/amazon-app. Fictional household data. No secrets. No tag was created. Nothing was pushed.
+
+Started from b063856 (docs: record chunk f1 rc2 evidence conventions).
+
+What changed
+- apps/simulator/src/planner.ts — A briefing that asks "Want me to handle them?" or "Want me to handle it?" stores the attention rows on the dialogue as pendingChores. While those chores are waiting and no part or slot list is open, yes, yeah, yep, sure, ok, sure thing, handle them, handle it, and "yes, handle them" start the first chore. A pro visit or vent cleaning opens next week's appointments. A filter or bulb uses the existing order flow. A battery uses the chirp flow. Any other chore becomes a task. The reply names that chore and then speaks the same next step as the direct request (openings, day, and price, or the part offer). The transcript keeps the user's words. Yes still picks a part or slot when that list is open. Sure and Handle them with nothing waiting stay out of scope.
+- tests/planner-briefing-followup.test.ts — Failing unit coverage was added first. Eight affirmative wordings start the dryer vent openings. A one-item briefing starts the fridge filter. Yes with a part list still checks out. An empty briefing does not invent a chore.
+- tests/planner-flows.test.ts — Against the local MCP server, Yes, Sure, and Handle them after "What needs doing?" call find_service_slots for vent_cleaning and the reply contains three openings, Tuesday, and $89.
+- tests/e2e/briefing-yes.spec.ts — Start, then Yes. The reply names the dryer and the Tuesday openings. Cards off, reset, then Yes again: the same reply, no card frame.
+
+Verification
+- Before the planner change, npx vitest run tests/planner-briefing-followup.test.ts tests/planner-flows.test.ts failed 3 tests. Each failure was pendingChores [] instead of vent_cleaning and water_filter. The option-priority test and the empty-briefing test passed.
+- npm test (vitest run 4.1.12) at 13:20, log docs/evidence/rc2/vitest.txt: exit 0. 17 files passed, 201 tests passed, duration 7.67s.
+- npx playwright test --reporter=list at 13:20, log docs/evidence/rc2/playwright.txt: exit 0. 19 passed, duration 27.0s. Includes Start → Yes with cards on and cards off, and the existing cards-off purchase path.
+- npx tsc -p packages/core, apps/mcp-server, apps/simulator, and the repo tsconfig: exit 2. The only errors are tests/docs-video.test.ts (no declaration for scripts/video-script.mjs, and an implicit any). That file was not edited in this chunk.
+
+Commits
+- 6b43966 test: cover briefing yes, sure, and handle them
+- 932e527 fix: continue the briefing when the user says yes
+- 26d4381 test: type the saved briefing chores
+
+BUILD-RC2.txt is still the skeleton from chunk f1 (HEAD hash PENDING). These two logs are the f2a runs. vitest-report.json and playwright-report/ were not produced.
