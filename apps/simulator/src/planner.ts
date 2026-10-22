@@ -838,15 +838,59 @@ function storeQuote(state: DialogueState, structured: Record<string, unknown>, i
   state.awaitingCode = true;
 }
 
+function openInstallTasks(structured: Record<string, unknown>): Record<string, unknown>[] {
+  return asArray(structured.tasks).filter((task) => textOf(task.applianceId) !== "" && textOf(task.item) !== "");
+}
+
+function sameChore(row: Record<string, unknown>, applianceId: string, item: string): boolean {
+  return textOf(row.applianceId) === applianceId && textOf(row.item) === item;
+}
+
+function arrivedInstalls(structured: Record<string, unknown>): Record<string, unknown>[] {
+  const tasks = openInstallTasks(structured);
+  return asArray(structured.inProgress).filter((row) => {
+    if (row.kind !== "order" || textOf(row.status) !== "delivered") return false;
+    return tasks.some((task) => sameChore(task, textOf(row.applianceId), textOf(row.item)));
+  });
+}
+
+function blockingOrder(structured: Record<string, unknown>, applianceId: string, item: string): Record<string, unknown> | undefined {
+  return asArray(structured.inProgress).find((row) => {
+    if (row.kind !== "order" || !sameChore(row, applianceId, item)) return false;
+    const status = textOf(row.status);
+    return status === "placed" || status === "shipped";
+  });
+}
+
+function taskLabel(task: Record<string, unknown>): string {
+  const title = textOf(task.title).replace(/^(install|swap|handle)\s+/i, "").trim();
+  if (title !== "") return title;
+  return humanItem(textOf(task.item));
+}
+
+function pickOpenTask(
+  tasks: Record<string, unknown>[],
+  lastTask: DialogueState["lastTask"],
+): Record<string, unknown> | null {
+  if (lastTask?.taskId) {
+    const match = tasks.find((task) => textOf(task.taskId) === lastTask.taskId);
+    if (match) return match;
+  }
+  if (tasks.length === 1) return tasks[0] ?? null;
+  return null;
+}
+
 function rememberBriefingChores(state: DialogueState, structured: Record<string, unknown>, reply: string): void {
   if (!/want me to handle/i.test(reply)) {
     state.pendingChores = null;
     return;
   }
+  const waiting = arrivedInstalls(structured);
   const chores = asArray(structured.attention).flatMap((row) => {
     const item = textOf(row.item);
     const applianceId = textOf(row.applianceId);
     if (item === "" || applianceId === "") return [];
+    if (waiting.some((order) => sameChore(order, applianceId, item))) return [];
     const how = textOf(row.how) || (item === "vent_cleaning" ? "pro" : "part");
     return [{ applianceId, spokenName: textOf(row.spokenName), item, how }];
   });
@@ -878,9 +922,10 @@ function followUtterance(chore: PendingChore): string | null {
 function composeBriefing(structured: Record<string, unknown>, today: string): string {
   const attention = asArray(structured.attention);
   const progress = asArray(structured.inProgress);
+  const waiting = arrivedInstalls(structured);
   const dryer = attention.find((row) => row.item === "vent_cleaning" && row.bucket === "overdue");
   const fridge = attention.find((row) => row.item === "water_filter" && row.bucket === "due_today");
-  if (dryer && fridge) {
+  if (dryer && fridge && waiting.length === 0) {
     const overdue = dryer.daysOverdue === 21 ? "three weeks" : `${String(dryer.daysOverdue ?? "some")} days`;
     return `Good morning, the dryer vent cleaning is ${overdue} overdue and your fridge water filter is due today. Want me to handle them?`;
   }
@@ -894,6 +939,24 @@ function composeBriefing(structured: Record<string, unknown>, today: string): st
     const noun = shipped.item === "water_filter" ? "fridge filter" : textOf(shipped.name) || "order";
     const job = booking.item === "vent_cleaning" ? "dryer vent cleaning" : textOf(booking.name) || "appointment";
     return `Good morning. Your ${noun} has shipped and arrives ${arrive}, and the ${job} is booked for ${when}.`;
+  }
+  if (waiting.length > 0) {
+    const tasks = openInstallTasks(structured);
+    const arrived = waiting.map((order) => {
+      const task = tasks.find((row) => sameChore(row, textOf(order.applianceId), textOf(order.item)));
+      const label = task ? taskLabel(task) : textOf(order.name) || "part";
+      return `your ${label} has arrived and is waiting to be installed`;
+    });
+    const rest = attention.filter((row) => !waiting.some((order) => sameChore(order, textOf(row.applianceId), textOf(row.item))));
+    const extra = rest.slice(0, 2).map((row) => {
+      const name = `${textOf(row.spokenName)} ${humanItem(textOf(row.item))}`.trim();
+      if (row.bucket === "due_today") return `your ${name} is due today`;
+      return `your ${name} is overdue`;
+    });
+    const phrases = [...arrived, ...extra];
+    const joined = phrases.length === 2 ? `${phrases[0]}, and ${phrases[1]}` : phrases.join(", and ");
+    const ask = extra.length > 0 ? " Want me to handle it?" : " Say done when you've swapped it.";
+    return `Good morning. ${titleCase(joined)}.${ask}`;
   }
   if (attention.length === 0) return "Good morning. Nothing needs attention right now.";
   const phrases = attention.slice(0, 2).map((row) => {
@@ -1049,7 +1112,7 @@ async function offerOnHand(
   });
 }
 
-function composeDone(structured: Record<string, unknown>, item: string): string {
+function composeDone(structured: Record<string, unknown>, item: string, label = ""): string {
   const inventory = asRecord(structured.inventoryAfter);
   const qty = typeof inventory?.qty === "number" ? inventory.qty : undefined;
   const nextDue = textOf(structured.nextDue);
@@ -1058,7 +1121,8 @@ function composeDone(structured: Record<string, unknown>, item: string): string 
     const left = qty === 1 ? "One 9-volt left" : `${titleCase(qtyWord(qty))} 9-volt batteries left`;
     return `Nice. ${left}, and the next battery change is due ${when}.`;
   }
-  return `Nice. I logged that, and the next one is due ${when}.`;
+  const named = label || humanItem(item);
+  return `Nice. I logged the ${named}. The next one is due ${when}.`;
 }
 
 function failureReply(result: ToolResponse): string {
@@ -1292,26 +1356,47 @@ export async function executeTurn(input: {
 
   if (parsed.intent === "done") {
     decayOptions(state, false);
-    const task = state.lastTask;
-    if (task?.applianceId == null || task.item == null) {
-      return finish(parsed, state, "Tell me which chore you finished.", { displayUtterance, steps: [] });
+    const status = await callTool(ctx, "get_upkeep_status", { horizonDays: 14 });
+    if (status === null) return unreachableResult(parsed, state, ctx, displayUtterance);
+    if (status.isError) return finish(parsed, state, failureReply(status), { displayUtterance, steps: ctx.steps });
+    const task = pickOpenTask(openInstallTasks(status.structuredContent), state.lastTask);
+    if (task === null) {
+      return finish(parsed, state, "I don't have a task waiting to close.", { displayUtterance, steps: ctx.steps });
+    }
+    const applianceId = textOf(task.applianceId);
+    const item = textOf(task.item);
+    const label = taskLabel(task);
+    const blocked = blockingOrder(status.structuredContent, applianceId, item);
+    if (blocked) {
+      const eta = textOf(blocked.eta) || textOf(task.dueDate);
+      const when = eta !== "" ? titleCase(formatWeekdayLong(eta)) : "the delivery day";
+      return finish(parsed, state, `The ${label} hasn't arrived yet. I'll remind you to swap it on ${when}.`, {
+        displayUtterance,
+        steps: ctx.steps,
+        card: { uri: CARD_URIS.status, tool: "get_upkeep_status", structuredContent: status.structuredContent, context: {} },
+      });
     }
     const result = await callTool(ctx, "log_maintenance", {
-      applianceId: task.applianceId,
-      item: task.item,
+      applianceId,
+      item,
       consumeInventory: true,
     });
     if (result === null) return unreachableResult(parsed, state, ctx, displayUtterance);
     if (result.isError) return finish(parsed, state, failureReply(result), { displayUtterance, steps: ctx.steps });
-    state.lastTask = { ...task, title: task.title };
-    return finish(parsed, state, composeDone(result.structuredContent, task.item), {
+    state.lastTask = {
+      taskId: textOf(task.taskId),
+      applianceId,
+      item,
+      title: textOf(task.title) || label,
+    };
+    return finish(parsed, state, composeDone(result.structuredContent, item, label), {
       displayUtterance,
       steps: ctx.steps,
       card: {
         uri: CARD_URIS.task,
         tool: "log_maintenance",
         structuredContent: result.structuredContent,
-        context: { done: true, applianceName: state.lastAppliance?.spokenName ?? "", title: task.title },
+        context: { done: true, applianceName: state.lastAppliance?.spokenName ?? label, title: textOf(task.title) || label },
       },
     });
   }

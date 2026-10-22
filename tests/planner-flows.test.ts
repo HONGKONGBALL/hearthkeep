@@ -175,7 +175,7 @@ describe("planner flows on the MCP server", () => {
     const done = await say("Done, I swapped it");
     expect(done.reply).toContain("One 9-volt left");
     expect(done.reply).toContain("October 2027");
-    expect(done.steps.map((step) => step.tool)).toEqual(["log_maintenance"]);
+    expect(done.steps.map((step) => step.tool)).toEqual(["get_upkeep_status", "log_maintenance"]);
   });
 
   it("P03 orders a hallway battery from the shelf", async () => {

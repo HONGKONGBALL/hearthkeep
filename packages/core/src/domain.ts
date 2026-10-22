@@ -478,9 +478,11 @@ function toRegisterSchedule(schedule: Schedule): RegisterSchedule {
 
 function activeOrders(repo: Repository): UpkeepInProgress[] {
   const parts = new Map(repo.listParts().map((part) => [part.id, part]));
+  const openTaskIds = new Set(repo.listTasks().filter((task) => task.status === "open").map((task) => task.id));
   const rows: UpkeepInProgress[] = [];
   for (const order of repo.listOrders()) {
-    if (order.status !== "placed" && order.status !== "shipped") continue;
+    const awaitingInstall = order.status === "delivered" && order.taskId !== null && openTaskIds.has(order.taskId);
+    if (order.status !== "placed" && order.status !== "shipped" && !awaitingInstall) continue;
     const part = order.optionId ? parts.get(order.optionId) : undefined;
     const entry: UpkeepInProgress = {
       kind: "order",

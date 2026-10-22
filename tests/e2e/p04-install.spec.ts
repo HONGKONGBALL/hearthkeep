@@ -69,7 +69,7 @@ test("P04 furnace filter closes on the same path", async ({ page }) => {
   await expect(task).toContainText("closed");
   await openData(page, "Inventory");
   const stock = page.getByRole("complementary", { name: "Data" }).locator("tbody tr", { hasText: "Loftaire" });
-  await expect(stock).toContainText("2");
+  await expect(stock.locator("td").nth(2)).toHaveText("2");
   await openData(page, "Schedule");
   const schedule = page.getByRole("complementary", { name: "Data" }).locator("tbody tr", { hasText: "air_filter" });
   await expect(schedule).toContainText("Thu, Jan 21");

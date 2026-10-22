@@ -368,7 +368,7 @@ const readOnlyTools: RegisteredTool[] = [
   defineTool({
     name: "get_upkeep_status",
     description:
-      "What needs attention, what is coming, and what is in progress. horizonDays is 1 to 400 and defaults to 14. An optional applianceId limits the lists. Items with an active order or booking appear only in inProgress.",
+      "What needs attention, what is coming, and what is in progress. horizonDays is 1 to 400 and defaults to 14. An optional applianceId limits the lists. Items with an order on the way, a delivered part waiting to be installed, or a booking appear only in inProgress.",
     input: upkeepInput,
     output: upkeepOutput,
     run(repo, args) {
