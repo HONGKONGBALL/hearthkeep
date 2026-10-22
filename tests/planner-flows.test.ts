@@ -308,6 +308,7 @@ describe("planner flows on the MCP server", () => {
     const after = await client.getSimState();
     expect(after.tasks.find((row) => row.id === "t_0001")?.status).toBe("closed");
     expect(after.schedule.find((row) => row.applianceId === "ap_furnace" && row.item === "air_filter")?.nextDue).toBe("2027-01-21");
-    expect(after.inventory.find((row) => row.name.startsWith("Loftaire"))?.qty).toBe(2);
+    const loftaire = after.inventory.find((row) => typeof row.name === "string" && row.name.startsWith("Loftaire"));
+    expect(loftaire?.qty).toBe(2);
   });
 });
