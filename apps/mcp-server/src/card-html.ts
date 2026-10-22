@@ -29,6 +29,7 @@ const CSS = [
   ".steps{display:flex;gap:8px;flex-wrap:wrap}",
   ".step{padding:4px 8px;border-radius:8px;background:#e7dcc8}",
   ".step.active{background:#143d2c;color:#fff}",
+  ".label{font-weight:700}",
   ".warn{font-weight:700}",
   "@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}",
 ].join("");
@@ -76,10 +77,11 @@ const STATUS_RENDER = [
   "function attentionLine(row,context){const phrase=row.bucket==='due_today'?'due today':(Number(row.daysOverdue)===1?'1 day overdue':Number(row.daysOverdue||0)+' days overdue');return labelFor(row,context)+', '+phrase;}",
   "function taskReady(task,progress){return (progress||[]).some(function(row){return row.kind==='order'&&row.status==='delivered'&&row.applianceId===task.applianceId&&row.item===task.item;});}",
   "function progressLine(row,context){if(row.kind==='order'&&row.status==='delivered')return (row.name||'Order')+' has arrived, waiting to install';if(row.kind==='order')return (row.name||'Order')+' ('+sentence(row.status||'')+')';const spoken=namesOf(context)[row.applianceId]||'';const item=humanItem(row.item||row.name||'');const label=spoken?sentence(spoken+' '+item):sentence(row.name||item);const when=row.windowStart?shortDate(row.windowStart):'';return when?label+' ('+when+')':label;}",
-  "function handleIntent(row){const spoken=row.spokenName||'it';if(row.item==='water_filter'||row.item==='air_filter')return 'Order a new filter for the '+spoken;if(row.item==='vent_cleaning')return 'Book someone to clean the '+spoken+' vent';if(row.item==='battery')return 'The '+spoken+' needs a battery';return 'Handle the '+spoken;}",
+  "function handleIntent(row){const spoken=row.spokenName||'it';if(row.item==='water_filter'||row.item==='air_filter')return 'Order a new filter for the '+spoken;if(row.item==='vent_cleaning')return 'Book someone to clean the '+spoken+' vent';if(row.item==='battery')return 'Replace the '+spoken+' battery';return 'Handle the '+spoken;}",
+  "function actionLabel(intent){return /^Replace the .+ battery$/.test(intent)?'Replace battery':'Handle it';}",
   "function render(data,context){const attention=data.attention||[];const upcoming=data.upcoming||[];const progress=data.inProgress||[];const tasks=data.tasks||[];if(!attention.length&&!upcoming.length&&!progress.length&&!tasks.length){main.innerHTML='<p class=\"empty\">All caught up</p>';return;}let html='';",
-  "if(attention.length){html+='<section><h2>Needs attention</h2><ul>';attention.forEach(function(row){html+='<li class=\"row\"><span>'+attentionLine(row,context)+'</span><button type=\"button\" data-intent=\"'+handleIntent(row).replaceAll('\"','')+'\">Handle it</button></li>';});html+='</ul></section>';}",
-  "if(upcoming.length){html+='<section><h2>Coming up</h2><ul>';upcoming.forEach(function(row){html+='<li>'+labelFor(row,context)+', '+shortDate(row.due)+'</li>';});html+='</ul></section>';}",
+  "if(attention.length){html+='<section><h2>Needs attention</h2><ul>';attention.forEach(function(row){var intent=handleIntent(row);html+='<li class=\"row\"><span>'+attentionLine(row,context)+'</span><button type=\"button\" data-intent=\"'+intent.replaceAll('\"','')+'\">'+actionLabel(intent)+'</button></li>';});html+='</ul></section>';}",
+  "if(upcoming.length){html+='<section><h2>Coming up</h2><ul>';upcoming.forEach(function(row){var line=labelFor(row,context)+', '+shortDate(row.due);if(row.item==='battery'){var intent=handleIntent(row);html+='<li class=\"row\"><span>'+line+'</span><button type=\"button\" data-intent=\"'+intent.replaceAll('\"','')+'\">'+actionLabel(intent)+'</button></li>';}else{html+='<li>'+line+'</li>';}});html+='</ul></section>';}",
   "if(progress.length){html+='<section><h2>On the way / Booked</h2><ul>';progress.forEach(function(row){html+='<li>'+progressLine(row,context)+'</li>';});html+='</ul></section>';}",
   "if(tasks.length){html+='<section><h2>Open tasks</h2><ul>';tasks.forEach(function(row){var note=taskReady(row,progress)?' has arrived, waiting to install':'';html+='<li class=\"row\"><span>'+sentence(row.title||'Task')+(row.dueDate?', '+shortDate(row.dueDate):'')+note+'</span><button type=\"button\" data-intent=\"Done, I swapped it\">Mark done</button></li>';});html+='</ul></section>';}",
   "main.innerHTML=html;main.querySelectorAll('button').forEach(function(button){button.addEventListener('click',function(){postIntent(button.getAttribute('data-intent')||'');});});}",
@@ -118,10 +120,11 @@ const RECEIPT_RENDER = [
 ].join("");
 
 const TASK_RENDER = [
-  "function render(data,context){const task=data.task||{};const title=(context&&context.title)||task.title||'Task';const due=task.dueDate||data.nextDue||'';const appliance=(context&&context.applianceName)||'';const onHand=context&&context.onHand;const done=context&&context.done===true||task.status==='closed'||!!data.lastDone;",
-  "let html='<h2>'+title+'</h2>';if(due)html+='<p>'+shortDate(due)+'</p>';if(appliance)html+='<p>'+sentence(appliance)+'</p>';",
-  "if(onHand)html+='<p>'+onHand.name+' x'+onHand.qty+', '+(onHand.location||'')+'</p>';",
-  "const after=data.inventoryAfter;if(after)html+='<p>'+after.name+' x'+after.qty+', '+after.location+'</p>';",
+  "function monthYear(ymd){const p=ymdParts(ymd);const long=['January','February','March','April','May','June','July','August','September','October','November','December'];return long[(p.m||1)-1]+' '+String(ymd).slice(0,4);}",
+  "function render(data,context){const task=data.task||{};const title=(context&&context.title)||task.title||'Task';const appliance=(context&&context.applianceName)||'';const onHand=context&&context.onHand;const done=context&&context.done===true||task.status==='closed'||!!data.lastDone;const nextDue=data.nextDue||'';const dueDate=task.dueDate||'';",
+  "const dateLabel=done&&nextDue?'Next due':'Due';const dateValue=done?(nextDue||dueDate):dueDate;const printed=done&&nextDue?monthYear(nextDue):(dateValue?shortDate(dateValue):'');",
+  "let html='<h2>'+sentence(title)+'</h2>';if(printed)html+='<p class=\"meta\"><span class=\"label\">'+dateLabel+'</span> '+printed+'</p>';if(appliance)html+='<p class=\"meta\"><span class=\"label\">Appliance</span> '+sentence(appliance)+'</p>';",
+  "const stock=onHand||data.inventoryAfter;if(stock&&stock.name)html+='<p class=\"meta\"><span class=\"label\">Supplies</span> '+stock.name+' x'+stock.qty+', '+(stock.location||'')+'</p>';",
   "if(done){html+='<p class=\"warn\">Done</p>';}else{html+='<button type=\"button\" id=\"done\">Mark done</button>';}",
   "main.innerHTML=html;const button=main.querySelector('#done');if(button)button.addEventListener('click',function(){postIntent('Done, I swapped it');});}",
 ].join("");

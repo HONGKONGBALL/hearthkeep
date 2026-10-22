@@ -73,11 +73,27 @@ describe("card resources", () => {
     expect(html).toContain("Fridge water filter, due today");
     expect(html).toContain("Coming up");
     expect(html).toContain("Hallway smoke alarm battery, Wed, Oct 28");
+    expect(html).toContain("Replace battery");
+    expect(html).toContain('data-intent="Replace the hallway smoke alarm battery"');
+    expect(html).not.toMatch(/keeps chirping/);
     expect(html).toContain("Furnace filter, Fri, Oct 30");
     expect(html).toContain("On the way / Booked");
     expect(html).toContain("Rillstone CX-28 (Shipped)");
     expect(html).toContain("Dryer vent cleaning (Tue, Oct 27)");
     expect(render(CARD_RESOURCES[0]?.text ?? "", { attention: [], upcoming: [], inProgress: [], tasks: [] })).toContain("All caught up");
+
+    const slipped = render(CARD_RESOURCES[0]?.text ?? "", {
+      attention: [
+        { spokenName: "fridge", item: "water_filter", bucket: "overdue", daysOverdue: 1, due: "2026-10-21" },
+        { spokenName: "dryer", item: "vent_cleaning", bucket: "overdue", daysOverdue: 22, due: "2026-09-30" },
+      ],
+      upcoming: [],
+      inProgress: [],
+      tasks: [],
+    });
+    expect(slipped).toContain("Fridge water filter, 1 day overdue");
+    expect(slipped).toContain("Dryer vent cleaning, 22 days overdue");
+    expect(slipped).not.toContain("1 days overdue");
   });
 
   it("renders part and service options", () => {
@@ -160,8 +176,29 @@ describe("card resources", () => {
       done: false,
     });
     expect(task).toContain("Swap hallway smoke alarm battery");
+    expect(task).toContain("Due");
+    expect(task).toContain("Wed, Oct 21");
+    expect(task).toContain("Appliance");
+    expect(task).toContain("Hallway smoke alarm");
+    expect(task).toContain("Supplies");
     expect(task).toContain("9V battery x2, Garage shelf");
     expect(task).toContain("Mark done");
+    expect(task).not.toMatch(/>hallway smoke alarm</);
+
+    const closed = render(CARD_RESOURCES[4]?.text ?? "", {
+      nextDue: "2027-10-21",
+      inventoryAfter: { name: "9V battery", qty: 1, location: "Garage shelf" },
+    }, {
+      title: "Swap hallway smoke alarm battery",
+      applianceName: "hallway smoke alarm",
+      done: true,
+    });
+    expect(closed).toContain("Next due");
+    expect(closed).toContain("October 2027");
+    expect(closed).not.toContain(">Due<");
+    expect(closed).toContain("Appliance");
+    expect(closed).toContain("Hallway smoke alarm");
+    expect(closed).toContain("Done");
   });
 
   it("P04b marks an arrived install task done from the status card", () => {

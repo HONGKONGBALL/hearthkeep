@@ -97,7 +97,9 @@ test("63 text-only replies keep price, arrival, slot, and the limit", async ({ p
   const priced = await send(page, "Yes, the CX-28");
   expect(priced).toContain("$24.99");
   expect(priced).toContain("October 23");
-  expect(priced.toLowerCase()).toContain("within your $60 limit");
+  expect(priced).toContain("Within your $60 limit");
+  const pricedSentences = priced.split(/(?<=[.!?])\s+/).map((part) => part.trim()).filter((part) => part !== "");
+  expect(pricedSentences.length).toBeLessThanOrEqual(2);
   expect(priced.toLowerCase()).toContain("purchase code");
   await expect(page.locator("iframe")).toHaveCount(0);
 

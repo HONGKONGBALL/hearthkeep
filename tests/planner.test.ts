@@ -51,6 +51,7 @@ const SAMPLES: Sample[] = [
   { text: "I need a new filter for the fridge", intent: "reorder_part", slots: { query: "fridge", item: "water_filter" } },
   { text: "Reorder the furnace filter", intent: "reorder_part", slots: { query: "furnace", item: "air_filter" } },
   { text: "Get a new bulb for the porch light", intent: "reorder_part", slots: { query: "porch light", item: "bulb" } },
+  { text: "Replace the hallway smoke alarm battery", intent: "reorder_part", slots: { query: "hallway smoke alarm", item: "battery" } },
 
   { text: "The hallway smoke alarm keeps chirping", intent: "symptom", slots: { query: "hallway smoke alarm", sound: "chirp" } },
   { text: "The fridge water tastes odd", intent: "symptom", slots: { query: "fridge" } },
@@ -272,6 +273,8 @@ describe("planner guards and checkout branches", () => {
     expect(calls).toEqual(["prepare_checkout"]);
     expect(chosen.reply).toContain("$24.99");
     expect(chosen.reply).toContain("October 23");
+    expect(chosen.reply).toContain("Within your $60 limit");
+    expect(spokenSentences(chosen.reply)).toHaveLength(2);
     expect(chosen.reply).toContain("purchase code");
     expect(chosen.card?.uri).toContain("checkout-card");
     expect(chosen.state.awaitingCode).toBe(true);
@@ -533,7 +536,9 @@ describe("P03 inventory before reorder", () => {
     });
     expect(turn.reply).toContain("two 9-volt");
     expect(turn.reply).toContain("garage shelf");
-    expect(turn.reply.toLowerCase()).toContain("nothing to buy");
+    expect(spokenSentences(turn.reply).every((sentence) => /^[A-Z]/.test(sentence)), turn.reply).toBe(true);
+    expect(spokenSentences(turn.reply).some((sentence) => /nothing to buy/i.test(sentence) && /added a task/i.test(sentence))).toBe(true);
+    expect(turn.reply).not.toMatch(/(^|[.!?]\s+)nothing\b/);
     expect(turn.reply).not.toContain("$11.49");
     expect(turn.reply).not.toMatch(/Want that one/i);
     expect(turn.reply).not.toMatch(/One batteries/);
@@ -589,4 +594,87 @@ describe("P03 inventory before reorder", () => {
     expect(two.reply).toMatch(/^Two batteries fit /);
     expect(two.reply).not.toMatch(/One batteries/);
   });
+
+  it("P09 says one 9-volt battery, and an arrived pack is not on the word on", async () => {
+    async function stocked(qty: number, location: string): Promise<string> {
+      const calls: Array<{ name: string; args: Record<string, unknown> }> = [];
+      const turn = await executeTurn({
+        utterance: "Order a battery for the hallway smoke alarm",
+        state: emptyDialogue(),
+        clock: CLOCK,
+        callTool: scripted(calls, {
+          options: [],
+          excluded: [],
+          onHand: { qty, location, name: "9V battery", receivedNotInstalled: location.toLowerCase().includes("received") ? qty : 0 },
+          recommendedAction: "use_on_hand",
+        }),
+      });
+      return turn.reply;
+    }
+
+    const one = await stocked(1, "Garage shelf");
+    expect(one).toMatch(/one 9-volt battery\b/i);
+    expect(one).not.toMatch(/1 9-volt batteries/);
+    expect(one).not.toMatch(/one 9-volt batteries/i);
+    expect(one).toMatch(/on the garage shelf/i);
+    expect(spokenSentences(one).every((sentence) => /^[A-Z]/.test(sentence)), one).toBe(true);
+    expect(one).toMatch(/Nothing to buy, so I added a task/);
+
+    const arrived = await stocked(1, "Received, not yet installed");
+    expect(arrived).not.toMatch(/on the received/i);
+    expect(arrived).toMatch(/one 9-volt battery that has arrived and is waiting to be installed/i);
+
+    const pair = await stocked(2, "Received, not yet installed");
+    expect(pair).toMatch(/two 9-volt batteries that have arrived and are waiting to be installed/i);
+    expect(pair).not.toMatch(/on the received/i);
+  });
+
+  it("P09 says 1 day overdue when a due-today item slips one morning", async () => {
+    const morning = await executeTurn({
+      utterance: "",
+      state: emptyDialogue(),
+      clock: { iso: "2026-10-22T09:00:00-07:00", timeZone: "America/Los_Angeles" },
+      callTool: (name) => {
+        expect(name).toBe("get_upkeep_status");
+        return Promise.resolve(tool({
+          attention: [
+            { applianceId: "ap_dryer", spokenName: "dryer", item: "vent_cleaning", how: "pro", bucket: "overdue", due: "2026-09-30", daysOverdue: 22 },
+            { applianceId: "ap_fridge", spokenName: "fridge", item: "water_filter", how: "part", bucket: "overdue", due: "2026-10-21", daysOverdue: 1 },
+          ],
+          upcoming: [],
+          inProgress: [],
+          tasks: [],
+        }));
+      },
+    });
+    expect(morning.reply).toContain("1 day overdue");
+    expect(morning.reply).not.toMatch(/1 days overdue/);
+    expect(morning.reply).toContain("22 days overdue");
+    expect(spokenSentences(morning.reply).every((sentence) => /^[A-Z]/.test(sentence)), morning.reply).toBe(true);
+  });
+
+  it("P09 replace-battery uses the shelf and does not invent a chirp", async () => {
+    const calls: Array<{ name: string; args: Record<string, unknown> }> = [];
+    const turn = await executeTurn({
+      utterance: "Replace the hallway smoke alarm battery",
+      state: emptyDialogue(),
+      clock: CLOCK,
+      callTool: scripted(calls, {
+        options: [],
+        excluded: [],
+        onHand: { qty: 2, location: "Garage shelf", name: "9V battery", receivedNotInstalled: 0 },
+        recommendedAction: "use_on_hand",
+      }),
+    });
+    expect(turn.reply).toMatch(/two 9-volt batteries on the garage shelf/i);
+    expect(turn.reply).toMatch(/Nothing to buy/);
+    expect(turn.reply).not.toMatch(/chirp/i);
+    expect(calls.map((call) => call.name)).toEqual(["resolve_appliance", "find_parts", "create_task"]);
+    expect(spokenSentences(turn.reply).every((sentence) => /^[A-Z]/.test(sentence)), turn.reply).toBe(true);
+  });
 });
+
+/** Spoken sentences. A price such as $24.99 is not a break. */
+function spokenSentences(reply: string): string[] {
+  return reply.split(/(?<=[.!?])\s+/).map((part) => part.trim()).filter((part) => part !== "");
+}

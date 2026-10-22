@@ -942,7 +942,7 @@ function followUtterance(chore: PendingChore): string | null {
   if (chore.item === "air_filter") return `Reorder the ${name} filter`;
   if (chore.item === "water_filter") return `Order a new filter for the ${name}`;
   if (chore.item === "bulb") return `Get a new bulb for the ${name}`;
-  if (chore.item === "battery") return `The ${name} keeps chirping`;
+  if (chore.item === "battery") return `Replace the ${name} battery`;
   return null;
 }
 
@@ -953,7 +953,7 @@ function composeBriefing(structured: Record<string, unknown>, today: string): st
   const dryer = attention.find((row) => row.item === "vent_cleaning" && row.bucket === "overdue");
   const fridge = attention.find((row) => row.item === "water_filter" && row.bucket === "due_today");
   if (dryer && fridge && waiting.length === 0) {
-    const overdue = dryer.daysOverdue === 21 ? "three weeks" : `${String(dryer.daysOverdue ?? "some")} days`;
+    const overdue = overdueSpan(Number(dryer.daysOverdue ?? Number.NaN));
     return `Good morning, the dryer vent cleaning is ${overdue} overdue and your fridge water filter is due today. Want me to handle them?`;
   }
   const shipped = progress.find((row) => row.kind === "order" && row.status === "shipped");
@@ -986,13 +986,31 @@ function composeBriefing(structured: Record<string, unknown>, today: string): st
     return `Good morning. ${titleCase(joined)}.${ask}`;
   }
   if (attention.length === 0) return "Good morning. Nothing needs attention right now.";
-  const phrases = attention.slice(0, 2).map((row) => {
-    const name = `${textOf(row.spokenName)} ${humanItem(textOf(row.item))}`.trim();
-    if (row.bucket === "due_today") return `your ${name} is due today`;
-    return `your ${name} is overdue`;
-  });
-  const joined = phrases.length === 2 ? `${phrases[0]} and ${phrases[1]}` : phrases[0];
-  return `Good morning. ${titleCase(joined ?? "Something")} needs a look. Want me to handle it?`;
+  const phrases = attention.slice(0, 2).map((row) => attentionSpoken(row));
+  const joined = phrases.length === 2 ? `${phrases[0]} and ${phrases[1]}` : phrases[0] ?? "something";
+  const ask = phrases.length > 1 ? "Want me to handle them?" : "Want me to handle it?";
+  return `Good morning. ${capSentence(joined)}. ${ask}`;
+}
+
+/** One day stays singular. Twenty-one days stays the morning-briefing "three weeks". */
+function overdueSpan(days: number): string {
+  if (!Number.isFinite(days)) return "some days";
+  const count = Math.trunc(days);
+  if (count === 21) return "three weeks";
+  if (count === 1) return "1 day";
+  return `${count} days`;
+}
+
+function capSentence(value: string): string {
+  const text = value.trim();
+  if (text === "") return text;
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function attentionSpoken(row: Record<string, unknown>): string {
+  const name = `${textOf(row.spokenName)} ${humanItem(textOf(row.item))}`.trim();
+  if (row.bucket === "due_today") return `your ${name} is due today`;
+  return `your ${name} is ${overdueSpan(Number(row.daysOverdue ?? 0))} overdue`;
 }
 
 function composeUpcoming(structured: Record<string, unknown>): string {
@@ -1046,7 +1064,7 @@ function composeCheckout(quote: PendingQuote, timeZone: string): string {
     return `That's ${speechMoney(quote.totalUsd)} for ${when}, ${limit}. Say your purchase code to confirm.`;
   }
   const eta = quote.eta ? `${titleCase(formatWeekdayLong(quote.eta))}, ${formatMonthDay(quote.eta)}` : "soon";
-  return `That's ${speechMoney(quote.totalUsd)}, arriving ${eta}, ${limit}. Say your purchase code to confirm.`;
+  return `That's ${speechMoney(quote.totalUsd)}, arriving ${eta}. Within your ${speechMoney(quote.capUsd)} limit, so say your purchase code to confirm.`;
 }
 
 function composeConfirmed(structured: Record<string, unknown>, quote: PendingQuote, timeZone: string): string {
@@ -1067,8 +1085,21 @@ function composeConfirmed(structured: Record<string, unknown>, quote: PendingQuo
   return `Ordered. I'll remind you when it arrives on ${day}.`;
 }
 
+/** A shelf is "on the …". An arrived part is not a place name. */
+function placeTail(qty: number, location: string | null): string {
+  if (!location) return "";
+  const where = location.trim().toLowerCase().replace(/\s+/g, " ");
+  if (where === "") return "";
+  if (where === "received, not yet installed") {
+    return qty === 1
+      ? " that has arrived and is waiting to be installed"
+      : " that have arrived and are waiting to be installed";
+  }
+  return ` on the ${where}`;
+}
+
 function supplyClause(onHand: NonNullable<DialogueState["lastOnHand"]>): string {
-  const place = onHand.location ? ` on the ${onHand.location.toLowerCase()}` : "";
+  const place = placeTail(onHand.qty, onHand.location);
   if (onHand.item === "battery" || /9v/i.test(onHand.name)) {
     const noun = onHand.qty === 1 ? "9-volt battery" : "9-volt batteries";
     return `${qtyWord(onHand.qty)} ${noun}${place}`;
