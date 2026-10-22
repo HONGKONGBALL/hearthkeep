@@ -1,0 +1,33 @@
+Chunk f10 — rc1 review fix: evidence + tag
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed.
+
+Started from 7885e55 (docs: record the P-14 local release prep).
+Commits:
+  3579289 test: add the rc2 screenshot capture script
+  e07bf12 docs: capture rc2 screenshots and fresh test logs
+  3d628a3 docs: record the rc2 verification results
+Tag:
+  rc2 is an annotated tag on 3d628a35b5c4b5200bfa91420c6e5049dc23ea4f.
+  BUILD-RC2.txt in that commit describes its parent, e07bf1255914441ef777aed18df56c6704147ee2.
+  git rev-parse 'rc2^{commit}^' equals that hash.
+  git show rc2:BUILD-RC2.txt contains that hash.
+  This file is committed after the tag, so rc2 stays on 3d628a3.
+
+What changed
+- scripts/capture-rc2-screens.ts — Chrome capture of the required rc2 frames against the local MCP server.
+- docs/screens/rc2/ — S0, S1, C1–C5, trace, data, about, offline banner, danger alert, viewport-390, and viewport-768. The f3 and f5 shots were rewritten by the Playwright run in this chunk.
+- docs/evidence/rc2/vitest.txt, vitest-report.json, playwright.txt, playwright-report.json, playwright-report/index.html — this chunk's test runs.
+- docs/screens/rc2/README.md and docs/evidence/rc2/README.md — point at the captured files and the parent-commit hash rule.
+- BUILD-RC2.txt — described commit, commands, exit codes, raw output paths, and status for P-01–P-14 and QA checklist items 1–94.
+
+Commands and exit codes
+- npx tsx scripts/capture-rc2-screens.ts, final run after Playwright: exit 0. The script checks the License: MIT line, the redacted purchase code in the trace, and the hazard alert text. The committed PNGs are from this run for the required shots.
+- npm test -- --reporter=default --reporter=json --outputFile.json=docs/evidence/rc2/vitest-report.json, log docs/evidence/rc2/vitest.txt: exit 0. 19 files, 224 tests, duration 9.04s.
+- PLAYWRIGHT_HTML_OPEN=never PLAYWRIGHT_HTML_OUTPUT_DIR=docs/evidence/rc2/playwright-report PLAYWRIGHT_JSON_OUTPUT_NAME=docs/evidence/rc2/playwright-report.json npm run test:e2e -- --reporter=list,html,json, log docs/evidence/rc2/playwright.txt: exit 0. 30 passed, duration 41.0s.
+- git grep -E -n 'later chunk|arrives later|skeleton' on e07bf12: exit 1. No matches.
+- git rev-parse 'rc2^{commit}': 3d628a35b5c4b5200bfa91420c6e5049dc23ea4f.
+- git rev-parse 'rc2^{commit}^': e07bf1255914441ef777aed18df56c6704147ee2.
+- git show rc2:BUILD-RC2.txt value line: e07bf1255914441ef777aed18df56c6704147ee2.
+
+Tag check
+- The record describes its parent commit. That parent holds the screenshots and the raw Vitest and Playwright output. The tagged commit adds BUILD-RC2.txt on top of those files.
