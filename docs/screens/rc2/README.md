@@ -4,7 +4,7 @@ Release candidate rc2. PNG screenshots for the UI review go in this directory. T
 
 Capture the simulator (`apps/simulator`) against the local MCP server. Household data on screen is fictional. Keep the simulation ribbon in the frame.
 
-This conventions step adds the directory and this list. The PNG files are captured when the rc2 record is filled.
+The PNG files in this directory were captured from the simulator on the local MCP server. Required shots were taken with `scripts/capture-rc2-screens.ts`. The f3, f4, and f5 shots were taken by the Playwright specs named in those sections.
 
 ## Required shots
 

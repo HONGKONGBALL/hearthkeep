@@ -1,40 +1,45 @@
 Hearthkeep — rc2 verification record
-Status: Full regression recorded from a clean worktree after the card-tap fix. The rc2 tag is not created in this step.
+Status: Screenshots, Vitest, and Playwright for rc2 are recorded. The annotated tag rc2 points at the commit that adds this file.
 Household names, prices, and the purchase code in the product are fictional sample data. This file stores no secrets.
 
 Bind
-  Release tag (later): rc2
+  Release tag: rc2
   This file: BUILD-RC2.txt at the repo root
   Screenshots: docs/screens/rc2/ (list in docs/screens/rc2/README.md)
   Raw outputs and reports: docs/evidence/rc2/ (list in docs/evidence/rc2/README.md)
-  Fill rule: on the delivery commit, the HEAD hash below equals `git rev-parse HEAD`. After the tag exists, `git rev-parse rc2^{commit}` equals that same hash, and `git show rc2:BUILD-RC2.txt` contains that hash and the raw output paths.
+  Fill rule: the hash below is the parent of the commit that contains this file. The rc2 tag points at that child commit. A commit cannot store its own hash, so this record describes its parent commit. After the tag exists, git rev-parse 'rc2^{commit}^' equals the value below, and git show rc2:BUILD-RC2.txt contains that value and the raw output paths.
 
-HEAD hash
-  command: git -C /tmp/hk-rc2-f6b rev-parse HEAD
-  value: 3d7c059249bc2d78aed262e498f40f2ec0704e1e
-  captured_at: 2026-10-22T08:33:50Z
-  where: detached worktree /tmp/hk-rc2-f6b. That checkout is the tree npm ci, npm test, and both npm run test:e2e runs used. The tested product revision is this fix commit. The rc2 tag is not created in this step.
+Described commit
+  command: git rev-parse HEAD
+  value: e07bf1255914441ef777aed18df56c6704147ee2
+  captured_at: 2026-10-22, after the screenshot and log commit, before this file
+  what it contains: product sources, scripts/capture-rc2-screens.ts, the PNG files under docs/screens/rc2/, and the Vitest and Playwright logs cited below. This file is the next commit.
 
 Commands and exit codes
   command: npm test -- --reporter=default --reporter=json --outputFile.json=docs/evidence/rc2/vitest-report.json
   purpose: Vitest unit and protocol tests
   exit_code: 0
-  result: 19 files passed, 223 tests passed, duration 8.88s
+  result: 19 files passed, 224 tests passed, start 18:13:47, duration 9.04s
   raw_output: docs/evidence/rc2/vitest.txt
   report: docs/evidence/rc2/vitest-report.json
 
-  command: npm run test:e2e -- --reporter=list
-  purpose: First Playwright end-to-end run
-  exit_code: 0
-  result: 29 passed, duration 41.1s. P08 passed in 2.0s. F58, F59, G67, G69, and G74 passed.
-
   command: PLAYWRIGHT_HTML_OPEN=never PLAYWRIGHT_HTML_OUTPUT_DIR=docs/evidence/rc2/playwright-report PLAYWRIGHT_JSON_OUTPUT_NAME=docs/evidence/rc2/playwright-report.json npm run test:e2e -- --reporter=list,html,json
-  purpose: Second Playwright end-to-end run. The saved logs are this run.
+  purpose: Playwright end-to-end run in Chrome at 1280x800
   exit_code: 0
-  result: 29 passed, duration 39.8s. P08 passed in 1.9s. F58, F59, G67, G69, and G74 passed. JSON stats: expected 29, unexpected 0, flaky 0, skipped 0.
+  result: 30 passed, duration 41.0s. Includes P-02 through P-10, P-12, P-14 About, and QA cases 58-76 and 83.
   raw_output: docs/evidence/rc2/playwright.txt
   report: docs/evidence/rc2/playwright-report/
   json_report: docs/evidence/rc2/playwright-report.json
+
+  command: npx tsx scripts/capture-rc2-screens.ts
+  purpose: Required rc2 frames after the Playwright run, so those PNGs match this record
+  exit_code: 0
+  result: wrote S0, S1, C1-C5, trace, data, about, offline banner, danger alert, viewport-390, viewport-768
+
+  command: git grep -E -n 'later chunk|arrives later|skeleton'
+  purpose: P-11 phrase check on the described commit
+  exit_code: 1
+  result: no matches. git grep exits 1 when nothing matches.
 
 Raw output
   vitest: docs/evidence/rc2/vitest.txt
@@ -42,7 +47,11 @@ Raw output
   playwright: docs/evidence/rc2/playwright.txt
   playwright report: docs/evidence/rc2/playwright-report/
   playwright json: docs/evidence/rc2/playwright-report.json
-  The card-tap fix copied the second Playwright run, and the Vitest run from the same worktree, into those paths. Both include the tool summary. Exit codes are next to the commands above. Household names, prices, and the purchase code in the logs are fictional sample data.
+  perf: docs/evidence/rc2/perf.txt
+  perf command log: docs/evidence/rc2/f8-measure.txt
+  fresh clone: docs/evidence/rc2/fresh-clone.log
+  local CI: docs/evidence/rc2/ci-local.txt
+  Household names, prices, and the purchase code in the logs are fictional sample data.
 
 Screenshot list
   S0: docs/screens/rc2/s0-welcome.png
@@ -59,16 +68,11 @@ Screenshot list
   danger alert: docs/screens/rc2/danger-alert.png
   390 px: docs/screens/rc2/viewport-390.png
   768 px: docs/screens/rc2/viewport-768.png
-  Capture notes for each id are in docs/screens/rc2/README.md. The PNG files are added when this record is filled.
-
-  Chunk f3 review shots (captured with the copy fix; not the required set above):
   f3 task: docs/screens/rc2/f3-task-card.png
   f3 task 390: docs/screens/rc2/f3-task-card-390.png
   f3 next due: docs/screens/rc2/f3-task-next-due.png
   f3 limit: docs/screens/rc2/f3-parts-limit.png
   f3 one day: docs/screens/rc2/f3-one-day-overdue.png
-
-  Chunk f4a review shots (captured with the focus-ring fix; not the required set above):
   f4a new session: docs/screens/rc2/f4a-focus-new-session.png
   f4a next morning: docs/screens/rc2/f4a-focus-next-morning.png
   f4a reset: docs/screens/rc2/f4a-focus-reset-demo.png
@@ -79,39 +83,129 @@ Screenshot list
   f4a about: docs/screens/rc2/f4a-focus-about.png
   f4a trace pressed: docs/screens/rc2/f4a-focus-trace-pressed.png
   f4a retry: docs/screens/rc2/f4a-focus-retry.png
-
-  Chunk f4c captured the required C1–C5 shots at 1280×800. Raw logs: docs/evidence/rc2/f4c-vitest.txt, docs/evidence/rc2/f4c-playwright.txt.
-
-  Chunk f5 review shots (session handshake in the trace; not the required set above):
+  f4b welcome: docs/screens/rc2/f4b-welcome-tab.png
+  f4b welcome 390: docs/screens/rc2/f4b-welcome-tab-390.png
   f5 session: docs/screens/rc2/f5-session-initialized.png
   f5 session 390: docs/screens/rc2/f5-session-initialized-390.png
-  Raw logs: docs/evidence/rc2/f5-vitest.txt, docs/evidence/rc2/f5-playwright.txt.
+  f9 about 390: docs/screens/rc2/f9-about-390.png
 
-P-14 release prep (local only)
-  Product About dialog shows the line License: MIT. Screenshot: docs/screens/rc2/about.png. Narrow shot: docs/screens/rc2/f9-about-390.png.
-  Fresh clone log: docs/evidence/rc2/fresh-clone.log
-    account: hkfresh (uid 1001) on Ubuntu 24.04.5 LTS, container hk-f9-fresh
-    clone: git clone -b main of a bundle of refs/heads/main at 02cc8d04c761667d556c831579f65ea65ddf150b
-    no .env file
-    npm ci exit 0
-    npm run demo, then curl -sS http://127.0.0.1:8787/healthz exit 0
-    health body: {"status":"ok","protocolVersion":"2025-11-25","storage":"sqlite","payment":"mock","simMode":true,"simNow":"2026-10-21T09:00:00-07:00"}
-    simulator page http://127.0.0.1:5173/ returned HTTP 200
-    demo stopped with SIGINT (Ctrl+C), wait status 130
-    npm test exit 0 (19 files, 224 tests)
-    npm run test:e2e exit 0 (30 passed)
-  Local CI: docs/evidence/rc2/ci-local.txt
-    commands from .github/workflows/ci.yml, run as hkfresh, not a GitHub Actions run
-    npm ci exit 0
-    npx playwright install chrome exit 0
-    npm test exit 0 (19 files, 224 tests)
-    npm run test:e2e exit 0 (30 passed)
-  Workspace npm test: docs/evidence/rc2/f9-vitest.txt, exit 0, 19 files, 224 tests, at 02cc8d04c761667d556c831579f65ea65ddf150b
+Review items P-01–P-14
+  P-01 evidence and tag. PASS once rc2 is on the commit that adds this file and the parent check above holds. Screenshots S0, S1, C1–C5, Trace, Data, About, offline banner, danger alert, 390 px, and 768 px are in the described commit. Vitest and Playwright raw output paths are listed above.
+  P-02 briefing follow-up. PASS. tests/e2e/briefing-yes.spec.ts and tests/planner-briefing-followup.test.ts in the runs above.
+  P-03 inventory before reorder. PASS. tests/e2e/p03-inventory.spec.ts. Reply path covers two 9-volt batteries on the garage shelf and does not call prepare_checkout.
+  P-04 install task close. PASS. tests/e2e/p04-install.spec.ts (fridge and furnace) and tests/planner-install.test.ts.
+  P-05 locked quote recovery. PASS. tests/e2e/p05-locked-quote.spec.ts.
+  P-06 focus rings. PASS. tests/e2e/f4a-focus.spec.ts. Shots docs/screens/rc2/f4a-focus-*.png. Contrast log docs/evidence/rc2/f4a-focus-contrast.txt.
+  P-07 welcome isolation. PASS. tests/e2e/f4b-welcome.spec.ts. Shots f4b-welcome-tab.png and f4b-welcome-tab-390.png.
+  P-08 card layout. PASS. tests/e2e/f4c-cards.spec.ts. Shots c1-status-card.png through c5-task-card.png at 1280x800.
+  P-09 visible copy. PASS. tests/e2e/f3-copy.spec.ts and the f3 shots.
+  P-10 limit sentence on parts checkout. PASS. Same f3 run, plus QA case 63 in tests/e2e/qa-f.spec.ts.
+  P-11 docs phrase check. PASS. git grep of the three phrases on the described commit exited 1, with no matches. Fresh-clone log docs/evidence/rc2/fresh-clone.log.
+  P-12 notifications/initialized. PASS. tests/e2e/f5-initialized.spec.ts. Shots f5-session-initialized.png and f5-session-initialized-390.png. trace.png also shows initialize 200 then notifications/initialized 202.
+  P-13 reply timing. PASS. docs/evidence/rc2/perf.txt, measured at 89116a89b403483b6687a0a33a95c63f607d7ac3. 36 reply samples, p95 reply_ms 45.800, threshold 1500 ms. Product sources are unchanged from that measurement through the described commit.
+  P-14 release prep, local parts. PASS for the in-app line License: MIT (about.png, f9-about-390.png, tests/e2e/f9-about-license.spec.ts), the fresh clone log, and the local CI log. Owner steps remain pending-owner below.
+
+QA checklist items
+  The checklist lives in BUILD.txt. qa.md is not a file in this repo. Status below uses this chunk's npm test and npm run test:e2e unless the row names another file. Product sources are unchanged since 02cc8d04c761667d556c831579f65ea65ddf150b, which is the fresh-clone and local-CI revision.
+  1 PASS. tests/healthz.test.ts in vitest.txt. Fresh clone health body is in docs/evidence/rc2/fresh-clone.log.
+  2 in-app PASS, GitHub About pending-owner. LICENSE is MIT. The About dialog line is License: MIT. This workspace has no git remote, so the GitHub About panel was not opened.
+  3 PASS. README.md has the install, run, test, env, demo script, data notice, troubleshooting, and license sections written in the docs pass.
+  4 PASS. No .env file. .gitignore ignores .env.
+  5 local PASS, Actions URL pending-owner. This chunk: npm test exit 0, npm run test:e2e exit 0. docs/evidence/rc2/ci-local.txt is the local run of .github/workflows/ci.yml as user hkfresh. There is no GitHub Actions URL.
+  6 PASS. Fictional-data chip is on the screenshots. tests/e2e/qa-f.spec.ts case 58 passed.
+  7 PASS. tests/protocol/qa-b.test.ts B7 initialize
+  8 PASS. B8 initialized notification
+  9 PASS. B9 version negotiation
+  10 PASS. B10 missing session
+  11 PASS. B11 unknown session
+  12 PASS. B12 version header
+  13 PASS. B13 accept header
+  14 PASS. B14 content type
+  15 PASS. B15 malformed JSON
+  16 PASS. B16 no batching
+  17 PASS. B17 origin allowlist and CORS
+  18 PASS. B18 no standalone stream
+  19 PASS. B19 end session
+  20 PASS. B20 tool list
+  21 PASS. B21 card resources
+  22 PASS. B22 unknown tool
+  23 PASS. B23 invalid arguments
+  24 PASS. tests/protocol/qa-c.test.ts C24 status buckets
+  25 PASS. C25 resolve match
+  26 PASS. C26 resolve ambiguous
+  27 PASS. C27 resolve none
+  28 PASS. C28 fridge parts
+  29 PASS. C29 furnace parts
+  30 PASS. C30 stock first
+  31 PASS. C31 wrong item
+  32 PASS. C32 diagnose
+  33 PASS. C33 hazard
+  34 PASS. C34 task then log
+  35 PASS. C35 register known model
+  36 PASS. C36 register unknown model
+  37 PASS. C37 service slots
+  38 PASS. C38 past window
+  39 PASS. tests/protocol/qa-d.test.ts D39 quote only
+  40 PASS. D40 wrong code
+  41 PASS. D41 right code
+  42 PASS. D42 idempotent
+  43 PASS. D43 expiry
+  44 PASS. D44 lockout
+  45 PASS. D45 over cap
+  46 PASS. D46 policy is server-side
+  47 PASS. D47 fit is server-side
+  48 PASS. D48 bounds
+  49 PASS. D49 slot taken
+  50 PASS. D50 lifecycle
+  51 PASS. D51 audit
+  52 PASS. tests/protocol/qa-e.test.ts E52 memory across sessions
+  53 PASS. E53 survives restart
+  54 PASS. E54 new session sees work
+  55 PASS. E55 reset
+  56 PASS. E56 clock rules
+  57 PASS. E57 sim routes check origin
+  58 PASS. tests/e2e/qa-f.spec.ts case 58
+  59 PASS. tests/e2e/qa-f.spec.ts cases 59 and 60
+  60 PASS. same test as 59
+  61 PASS. tests/e2e/qa-g.spec.ts cases 65 and 68
+  62 PASS. tests/e2e/qa-f.spec.ts case 62
+  63 PASS. tests/e2e/qa-f.spec.ts case 63
+  64 PASS. tests/e2e/qa-g.spec.ts case 64
+  65 PASS. case 65
+  66 PASS. case 66
+  67 PASS. case 67
+  68 PASS. case 68
+  69 PASS. case 69
+  70 PASS. case 70
+  71 PASS. case 71
+  72 PASS. case 72
+  73 PASS. case 73
+  74 PASS. case 74
+  75 PASS. case 75. trace.png shows the purchase code as bullets.
+  76 PASS. case 76
+  77 PASS. Deterministic offline badge is on the screenshots. Case 64 passed. The e2e monitor rejects off-machine requests.
+  78 NOT SHIPPED. HK_LLM_* are empty. No LLM planner is implemented.
+  79 NOT SHIPPED. skills/home-upkeep/README.md is a placeholder. skills/home-upkeep/SKILL.md is not in the tree.
+  80 NOT SHIPPED. The simulator does not show "Checking providers...".
+  81 NOT SHIPPED. No bearer-token check. HK_AUTH_TOKEN is empty.
+  82 NOT SHIPPED. tools/list is the 10 P0 tools. cancel_order, set_preferences, and get_home_profile are not registered.
+  83 PASS. tests/e2e/qa-g.spec.ts case 83
+  84 PASS. tests/protocol/qa-i.test.ts I84 localhost bind
+  85 PASS. I85 redaction in both response modes, and e2e case 75
+  86 PASS. I86 no personal data
+  87 PASS. I87 determinism in both response modes
+  88 PASS. I88 tool call p95 in both response modes. UI p95 is the P-13 row above.
+  89 FAIL. /workspace/demo/amazon-demo.mp4 is absent.
+  90 PASS. docs/video-script.md and docs/devpost.md are in the tree.
+  91 FAIL. There is no mixed audio in amazon-demo.mp4 because that file is absent. The flite probe wav recorded in BUILD.txt was not mixed into an mp4.
+  92 PASS. docs/product-feedback.md, docs/friction-log.md, docs/feature-requests.md, docs/devpost.md, and docs/video-script.md are in the tree.
+  93 PASS. docs/evidence/rc2/fresh-clone.log. User hkfresh on Ubuntu 24.04 followed the README: npm ci exit 0, healthz exit 0, simulator HTTP 200, npm test exit 0 (224 tests), npm run test:e2e exit 0 (30 passed).
+  94 pending-owner. No Devpost submission timestamp.
 
 pending-owner
-  These items were not done in this chunk. Nothing was pushed. The repository was not made public. Devpost was not opened.
-  - Publish the repository and set the GitHub About license to MIT. The in-app About line is already License: MIT. LICENSE, package.json, and README already say MIT.
-  - GitHub Actions run link for main. The same workflow steps were run locally; see docs/evidence/rc2/ci-local.txt. There is no Actions URL until the owner pushes.
-  - Screenshot of the repository while logged out. That needs the public repository.
+  Nothing was pushed. The repository was not made public. Devpost was not opened.
+  - Publish the repository and set the GitHub About license to MIT. The in-app About line is License: MIT. LICENSE, package.json, and README already say MIT.
+  - GitHub Actions run link for main. The workflow steps were run locally; see docs/evidence/rc2/ci-local.txt.
+  - Screenshot of the repository while logged out.
   - Devpost: paste the repository link and check each claim.
-  - Submit before 2026-10-23 09:00 PT. The video link is outside this round. There is no submission timestamp until the owner submits.
+  - Submit before 2026-10-23 09:00 PT. The video link is outside this round.

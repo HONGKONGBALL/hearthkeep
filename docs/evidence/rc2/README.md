@@ -20,6 +20,6 @@ Household names, prices, and the purchase code in those runs are fictional sampl
 | `fresh-clone.log` | README commands from a fresh clone as user `hkfresh` on Ubuntu 24.04. |
 | `f9-vitest.txt` | Raw stdout and stderr of `npm test` in the workspace after the About license line. |
 
-`BUILD-RC2.txt` stores the `git rev-parse HEAD` value, each command, and each exit code, and points at these paths. On the delivery commit that hash equals `HEAD`. After the `rc2` tag exists, `git rev-parse rc2^{commit}` equals that hash, and `git show rc2:BUILD-RC2.txt` contains the same hash and these paths.
+`BUILD-RC2.txt` stores the described commit hash, each command, and each exit code, and points at these paths. The annotated tag `rc2` points at the commit that adds that file. The hash in the file is the parent of `rc2`, because a commit cannot store its own hash. `git rev-parse rc2^{commit}^` equals that hash, and `git show rc2:BUILD-RC2.txt` contains it.
 
-The card-tap fix filled `vitest.txt`, `vitest-report.json`, `playwright.txt`, `playwright-report.json`, and `playwright-report/index.html` from a clean worktree at `3d7c059249bc2d78aed262e498f40f2ec0704e1e`. The Playwright files are the second `npm run test:e2e` run. The `rc2` tag is not created in that step.
+`vitest.txt`, `vitest-report.json`, `playwright.txt`, `playwright-report.json`, and `playwright-report/index.html` are the runs recorded in `BUILD-RC2.txt` for commit `e07bf1255914441ef777aed18df56c6704147ee2`.
