@@ -1,0 +1,32 @@
+Chunk 4 — Simulator UI polish
+Status: implemented and checked as listed below
+Commits: b30e360 device frame and welcome overlay; card spacing, screenshots, and this note follow in the next commit
+
+Delivered
+- 1024x600 smart-display frame in a 1280x800 page, with a warm light ring, the ribbon "SIMULATION — not a real Alexa+ device", a large sim clock, and the hint "Try: What needs doing?".
+- Welcome overlay (S0): simulated Alexa+ household agent, real local MCP server, fictional-data notice, Start. Focus starts on Start.
+- Quick chips in demo-script order, and a Next morning button (+1 day and a new session).
+- "Fictional data" chip on the device frame and on every card.
+- Header outside the frame: 8-character session id, protocol 2025-11-25, sim date and time, New session, Next morning, Reset demo, Trace, Data, Cards, Voice, and the Deterministic (offline) badge.
+- Card tiles keep the fit line, price, and arrival on separate lines. Option tiles share the card width so both parts stay on screen.
+
+Verification
+- npx tsc -p apps/simulator/tsconfig.json --noEmit exited 0.
+- npx tsc -p apps/mcp-server/tsconfig.json --noEmit exited 0.
+- npx tsc -p tsconfig.json --noEmit exited 0.
+- npm test (vitest run) exited 0 on the final tree.
+  15 files, 194 tests, started 11:56:30, duration 8.17s.
+  Includes tests/simulator-chrome.test.ts (2) and tests/cards.test.ts (4).
+- npm run demo started the MCP server on http://127.0.0.1:8787 and the simulator on http://127.0.0.1:5173. Both responded.
+- Chrome (Playwright, executable /usr/bin/google-chrome) at http://127.0.0.1:5173, viewport 1280x800:
+  S0 welcome dialog, Start focused;
+  after Start, ribbon, fictional-data chip, clock "Wed, Oct 21, 2026 · 9:00 AM", Next morning, status card with dryer vent and fridge filter;
+  quick chips in demo order;
+  "Order a new filter for the fridge" showed Rillstone CX-28 and Ferngate FG-WF2 with separate price and arrival lines, each card marked "Fictional data";
+  document scroll size 1280x800;
+  no page errors.
+  Screenshots: docs/screens/s0-welcome.png, docs/screens/s1-briefing.png, docs/screens/s2-options.png.
+
+Start
+- npm run demo
+- Open http://127.0.0.1:5173. Sample household data is fictional. With HK_PURCHASE_CODE unset, the demo code is 2468.

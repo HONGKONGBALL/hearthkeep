@@ -129,6 +129,12 @@ button[aria-pressed="true"] {
   color: #1c1917;
 }
 
+.frame-bar .chip {
+  background: #143d2c;
+  color: #fff;
+  font-weight: 700;
+}
+
 .badge {
   background: #143d2c;
   color: #fff;
