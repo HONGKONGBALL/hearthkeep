@@ -71,3 +71,8 @@ Screenshot list
   f4a retry: docs/screens/rc2/f4a-focus-retry.png
 
   Chunk f4c captured the required C1–C5 shots at 1280×800. Raw logs: docs/evidence/rc2/f4c-vitest.txt, docs/evidence/rc2/f4c-playwright.txt.
+
+  Chunk f5 review shots (session handshake in the trace; not the required set above):
+  f5 session: docs/screens/rc2/f5-session-initialized.png
+  f5 session 390: docs/screens/rc2/f5-session-initialized-390.png
+  Raw logs: docs/evidence/rc2/f5-vitest.txt, docs/evidence/rc2/f5-playwright.txt.

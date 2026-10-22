@@ -76,3 +76,12 @@ These are the required C1–C5 frames, captured at 1280×800 after the card layo
 | C3 | `c3-checkout-card.png` | Checkout for Rillstone CX-28. Total, arrival, the $60 limit, and Confirm by voice are visible. |
 | C4 | `c4-receipt-card.png` | Mock receipt ord_0001, Placed, and the no-payment line. |
 | C5 | `c5-task-card.png` | Open task to swap the hallway smoke alarm battery, with Due, Appliance, Supplies, and Mark done. |
+
+## Chunk f5 review shots
+
+These frames check the session handshake in the trace. They are not substitutes for the required shots above.
+
+| Id | File | What the frame shows |
+| --- | --- | --- |
+| f5 session | `f5-session-initialized.png` | Trace open after Start at 1280×800. Session opened lists initialize 200 session, then notifications/initialized 202 session. |
+| f5 session 390 | `f5-session-initialized-390.png` | Same session trace at 390 px wide. Both handshake lines are on screen. |

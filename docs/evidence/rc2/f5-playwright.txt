@@ -1,0 +1,38 @@
+
+> hearthkeep@0.1.0 test:e2e
+> playwright test
+
+
+Running 29 tests using 1 worker
+
+  ✓   1 [chrome] › tests/e2e/briefing-yes.spec.ts:16:1 › Start then Yes gives the dryer vent next step with cards on and off (1.1s)
+  ✓   2 [chrome] › tests/e2e/f3-copy.spec.ts:7:1 › P09 and P10 visible copy (2.1s)
+  ✓   3 [chrome] › tests/e2e/f4a-focus.spec.ts:238:1 › P-06 top bar focus rings are light and clear 3:1 (1.3s)
+  ✓   4 [chrome] › tests/e2e/f4a-focus.spec.ts:295:1 › P-06 Retry focus ring is light on the banner and clears 3:1 (1.4s)
+  ✓   5 [chrome] › tests/e2e/f4b-welcome.spec.ts:28:1 › P-07 Tab stays in the welcome dialog and the server clock stays put (772ms)
+  ✓   6 [chrome] › tests/e2e/f4c-cards.spec.ts:52:1 › P08 status, options, checkout, receipt, and task cards fit (1.9s)
+  ✓   7 [chrome] › tests/e2e/f5-initialized.spec.ts:46:1 › P-12 session trace lists initialize 200 then initialized 202 (747ms)
+  ✓   8 [chrome] › tests/e2e/p03-inventory.spec.ts:7:1 › P03 ordering a hallway battery uses the shelf (652ms)
+  ✓   9 [chrome] › tests/e2e/p04-install.spec.ts:12:1 › P04 fridge filter closes after two mornings (1.7s)
+  ✓  10 [chrome] › tests/e2e/p04-install.spec.ts:49:1 › P04 furnace filter closes on the same path (1.5s)
+  ✓  11 [chrome] › tests/e2e/p05-locked-quote.spec.ts:7:1 › P05 three wrong codes unlock a new fridge filter quote (1.7s)
+  ✓  12 [chrome] › tests/e2e/qa-f.spec.ts:6:1 › 58 status card is sandboxed and lists attention and upcoming (455ms)
+  ✓  13 [chrome] › tests/e2e/qa-f.spec.ts:30:1 › 59 and 60 carousel keys move focus and Choose prepares checkout (790ms)
+  ✓  14 [chrome] › tests/e2e/qa-f.spec.ts:68:1 › 62 card frames do not request anything during F1 to F4 (1.7s)
+  ✓  15 [chrome] › tests/e2e/qa-f.spec.ts:80:1 › 63 text-only replies keep price, arrival, slot, and the limit (1.4s)
+  ✓  16 [chrome] › tests/e2e/qa-g.spec.ts:19:1 › 64 launch shows the simulation ribbon and the morning briefing (409ms)
+  ✓  17 [chrome] › tests/e2e/qa-g.spec.ts:38:1 › 65 exact-fit purchase shows options, checkout, and a mock receipt (1.2s)
+  ✓  18 [chrome] › tests/e2e/qa-g.spec.ts:78:1 › 66 a wrong code leaves two tries and no receipt (984ms)
+  ✓  19 [chrome] › tests/e2e/qa-g.spec.ts:90:1 › 67 a chirping hallway alarm uses the battery on the shelf (943ms)
+  ✓  20 [chrome] › tests/e2e/qa-g.spec.ts:113:1 › 68 booking over the cap needs approve before it is saved (1.2s)
+  ✓  21 [chrome] › tests/e2e/qa-g.spec.ts:152:1 › 69 next morning ships the filter and keeps the Tuesday booking (1.6s)
+  ✓  22 [chrome] › tests/e2e/qa-g.spec.ts:180:1 › 70 a new water heater is remembered in the next session (784ms)
+  ✓  23 [chrome] › tests/e2e/qa-g.spec.ts:194:1 › 71 gas smell stops before any tool call (606ms)
+  ✓  24 [chrome] › tests/e2e/qa-g.spec.ts:207:1 › 72 smoke alarms are clarified, and a continuous alarm is a hazard (1.2s)
+  ✓  25 [chrome] › tests/e2e/qa-g.spec.ts:234:1 › 73 weather is out of scope and cancel drops the quote (1.2s)
+  ✓  26 [chrome] › tests/e2e/qa-g.spec.ts:254:1 › 74 a stopped server shows Retry and the transcript survives (1.4s)
+  ✓  27 [chrome] › tests/e2e/qa-g.spec.ts:279:1 › 75 the trace redacts the purchase code (1.0s)
+  ✓  28 [chrome] › tests/e2e/qa-g.spec.ts:300:1 › 76 keyboard purchase and axe scans stay clean with reduced motion (4.8s)
+  ✓  29 [chrome] › tests/e2e/qa-g.spec.ts:339:1 › 83 voice speaks once when it is on (810ms)
+
+  29 passed (40.4s)
