@@ -5,7 +5,7 @@ Started from 6ad9bd175b499c4313c526598edd53039fb50ee5. No tag was created. rc1 a
 What changed
 - docs/evidence/rc2/README.md — raw Vitest and Playwright output paths for rc2: vitest.txt, playwright.txt, vitest-report.json, playwright-report/.
 - docs/screens/rc2/README.md — screenshot list and what each frame shows.
-- BUILD-RC2.txt — verification-record skeleton at the repo root. Fields: git rev-parse HEAD (PENDING), commands, exit codes (PENDING), raw output paths, screenshot list. Tag rc2 is named and not created.
+- BUILD-RC2.txt — verification-record draft at the repo root. Fields: git rev-parse HEAD (PENDING), commands, exit codes (PENDING), raw output paths, screenshot list. Tag rc2 is named and not created.
 - BUILD.txt item 91 — the old sentence said there was no audio to review. The files show a flite probe wav. Item 91 stays FAIL because that clip was not mixed and /workspace/demo/amazon-demo.mp4 is absent. The narrate-demo.mjs note no longer says that no other voice engine was used. A 13:01 CST note records the inspection.
 
 Screenshot names reserved in BUILD-RC2.txt and docs/screens/rc2/README.md

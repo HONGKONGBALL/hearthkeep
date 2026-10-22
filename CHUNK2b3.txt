@@ -40,7 +40,7 @@ Fictional seed data only. The purchase code 2468 is the fictional demo code. Eac
 
 The transport tests now expect those ten tool names from tools/list in both SSE and JSON mode. Only the five lookup tools are read-only. Session, origin, and content-type checks are unchanged.
 
-Notes for later chunks
+Notes carried forward
 ----------------------
 P1 tools from section 7.2 are not registered. tools/call for an unknown name returns JSON-RPC -32602. A thrown non-domain error returns -32603.
 Schema failures become INVALID_ARGUMENT tool results before the domain function runs. DomainError messages are the speakable text.

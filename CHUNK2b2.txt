@@ -41,7 +41,7 @@ Fictional seed data only. Each call used HK_JSON_RESPONSE=1 and HK_DB=:memory: o
 
 The earlier transport tests now expect those five tool names from tools/list in both SSE and JSON mode. Session, origin, and content-type checks are unchanged.
 
-Notes for later chunks
+Notes carried forward
 ----------------------
 Write tools from section 7.2 are not registered. tools/call for an unknown name returns JSON-RPC -32602. A thrown non-domain error returns -32603.
 Schema failures become INVALID_ARGUMENT tool results before the domain function runs. DomainError messages are the speakable text.

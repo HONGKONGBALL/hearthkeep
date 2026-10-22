@@ -21,4 +21,4 @@ Commits
 - b3c19f9 fix: check the shelf before a part reorder
 - 0c4c007 test: show the shelf battery on the task card
 
-BUILD-RC2.txt is still the skeleton from chunk f1 (HEAD hash PENDING). These two logs are the f2b runs. vitest-report.json and playwright-report/ were not produced.
+BUILD-RC2.txt is still the draft from chunk f1 (HEAD hash PENDING). These two logs are the f2b runs. vitest-report.json and playwright-report/ were not produced.

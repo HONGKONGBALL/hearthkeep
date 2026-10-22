@@ -40,7 +40,7 @@ What the transport tests covered
 - tools/list without Mcp-Session-Id returns 400. MCP-Protocol-Version 2025-03-26 after initialize returns 400.
 - DELETE /mcp for a live session returns 200. A later tools/list or DELETE with that id returns 404.
 
-Notes for later chunks
+Notes carried forward
 ----------------------
 tools/list is an empty list. Tool handlers, output schemas, and HK_AUTH_TOKEN are untouched.
 Sessions live in the process that created the app. A restart drops them.

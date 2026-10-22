@@ -49,7 +49,7 @@ Check order for confirmPurchase
 -------------------------------
 Quote exists, not expired, not locked, code, then over-cap approval. A wrong code spends an attempt even when the quote is over the cap. The third wrong code locks it. The expected code is HK_PURCHASE_CODE, or the fictional demo code 2468 when that variable is unset. Confirmed quotes return the same order or booking with alreadyConfirmed.
 
-Notes for later chunks
+Notes carried forward
 ----------------------
 These functions are the domain core. They do not speak MCP, open HTTP, or advance the clock by themselves. Call syncLifecycle after the sim clock moves so placed orders ship the next local day and arrive on the ETA date.
 cancel_order, set_preferences, and get_home_profile stay P1 and are not implemented here. ORDER_NOT_CANCELLABLE is reserved on DomainError for that later tool.

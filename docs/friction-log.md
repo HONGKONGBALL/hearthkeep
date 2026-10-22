@@ -69,11 +69,11 @@ Each entry is something that actually happened while building or checking Hearth
 - Task: follow the README to run the demo and find the ordered chip script
 - Steps: read `README.md`, `docs/architecture.md`, and `docs/spec-notes.md` while preparing the video
 - Expected: those pages describe the shipped server, the ten tools, the cards, and the chip order
-- Actual: the README still says the host UI arrives in a later chunk, the transport arrives later, Playwright lands later, and the demo script is not filled in. `docs/architecture.md` and `docs/spec-notes.md` are still skeleton stubs. The simulator, the Streamable HTTP transport, and `npm run test:e2e` are already in the tree.
+- Actual: at commit `dc1572a` the README still deferred the host UI, the transport, and Playwright, and the demo script was not filled in. `docs/architecture.md` and `docs/spec-notes.md` were still stubs. The simulator, the Streamable HTTP transport, and `npm run test:e2e` were already in the tree.
 - Severity: Low
 - Time lost: a few minutes checking `BUILD.txt` and `apps/simulator/src/planner.ts` for the chip order
 - Workaround: use `BUILD.txt` and the `QUICK_CHIPS` list
-- Suggestion: replace the skeleton paragraphs in the README and those two docs with the shipped ports, the chip order, and the protocol version
+- Suggestion: replace the stub paragraphs in the README and those two docs with the shipped ports, the chip order, and the protocol version
 - Evidence: those three files at commit `dc1572a`
 - Product feedback: repository docs
 

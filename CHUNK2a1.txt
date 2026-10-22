@@ -36,7 +36,7 @@ What the storage tests covered
 - HK_DB defaults to ./data/hearthkeep.db and :memory: is preserved. HK_SIM_START defaults to the seed clock. A Zulu start is stored in America/Los_Angeles. Two memory databases do not share a clock.
 - A directory with no seed files throws SeedError.
 
-Notes for later chunks
+Notes carried forward
 ----------------------
 Domain rules (status buckets, parts policy, checkout, tasks) are not in this chunk. The repository stores the seed facts and the rows those rules will write.
 GET /healthz still reports the configured clock from the environment. It does not open SQLite yet.

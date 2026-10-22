@@ -65,9 +65,9 @@ Commands and results
    git check-ignore: .env, data/*.db, and node_modules/ are ignored. .env.example is not ignored.
    README headings: Simulation disclosure, Prerequisites, Install, Run, Test, E2E, Env table, Demo script, Data notice, Architecture, Troubleshooting, License.
 
-Notes for later chunks
+Notes carried forward
 ----------------------
-GET /healthz reports storage "sqlite" and payment "mock" as the configured adapters. This skeleton does not open a SQLite file yet.
+GET /healthz reports storage "sqlite" and payment "mock" as the configured adapters. This commit does not open a SQLite file yet.
 npm run test:e2e is not wired. Playwright lands later.
 The ordered quick-chip demo script is a README placeholder.
 npm audit on this lockfile reports 0 vulnerabilities.
