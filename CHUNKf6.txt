@@ -1,39 +1,38 @@
-Chunk f6 — rc1 review fix: full regression (§A step 6)
+Chunk f6 — card tap kept while a turn is busy (P08)
 Repo root /workspace/amazon-app. Fictional household data. No secrets. No tag was created. Nothing was pushed.
 
-Started from 86d0f1b0c98606c3062990deb991968444d42466 (docs: record the P-12 chunk f5 review).
+Started from ba007998e9137f836df67aea82ce8acce6bfa576 (docs: record the rc2 full regression).
+Fix commit: 3d7c059249bc2d78aed262e498f40f2ec0704e1e. The clean-worktree runs used that commit. The rc2 tag is not created.
 
 What changed
-- .gitignore — The Playwright HTML ignore is anchored at /playwright-report/, so the repo-root report stays ignored and docs/evidence/rc2/playwright-report/ can be committed.
-- docs/evidence/rc2/vitest.txt — Raw npm test output from the clean worktree.
-- docs/evidence/rc2/vitest-report.json — Vitest JSON report from that run.
-- docs/evidence/rc2/playwright.txt — Raw npm run test:e2e output from the clean worktree.
-- docs/evidence/rc2/playwright-report.json — Playwright JSON report from that run.
-- docs/evidence/rc2/playwright-report/index.html — Playwright HTML report from that run.
-- docs/evidence/rc2/README.md — Lists playwright-report.json and the commit the logs came from.
-- BUILD-RC2.txt — Records the tested revision, both commands, and exit code 0.
+- apps/simulator/src/App.tsx — onSend no longer drops a card tap that arrives while a turn is in flight. The tap is parked and run when that turn finishes. One turn at a time. CardHost keeps its message listener across an iframe reload and accepts the live card frame plus the window that reload just replaced.
+- apps/simulator/src/turn-queue.ts — Park, take, and frame-source checks used by the simulator.
+- tests/turn-queue.test.ts — Those checks, including a tap parked during a busy turn and a source that survives a reload.
 
-No product code changed. F58, F59, G67, G69, and G74 passed, so there was no selector, copy, or trace-row fix.
+A status button can be clicked after the card is painted and before busy clears. The old onSend returned immediately in that window, so no user turn and no POST /mcp followed. P08 hits that button as soon as it exists.
 
 Clean checkout
-- git worktree add --detach /tmp/hk-rc2-f6 HEAD
-- Worktree HEAD: 86d0f1b0c98606c3062990deb991968444d42466
-- npm ci in /tmp/hk-rc2-f6: exit 0. 229 packages audited. better-sqlite3 opened an in-memory database. esbuild 0.28.2 loaded. Google Chrome 155.0.8059.84.
+- git worktree add --detach /tmp/hk-rc2-f6b 3d7c059249bc2d78aed262e498f40f2ec0704e1e
+- Worktree HEAD: 3d7c059249bc2d78aed262e498f40f2ec0704e1e
+- npm ci in /tmp/hk-rc2-f6b: exit 0. 229 packages added, 233 audited. better-sqlite3 opened an in-memory database. esbuild loaded. Google Chrome 155.0.8059.84.
 
 Commands and exit codes
 - npm test -- --reporter=default --reporter=json --outputFile.json=docs/evidence/rc2/vitest-report.json
-  Ran in /tmp/hk-rc2-f6. Log docs/evidence/rc2/vitest.txt. Report docs/evidence/rc2/vitest-report.json.
-  Exit 0. Vitest 4.1.12. 18 files passed, 217 tests passed, duration 8.21s. JSON success true, numFailedTests 0.
+  Ran in /tmp/hk-rc2-f6b. Log docs/evidence/rc2/vitest.txt. Report docs/evidence/rc2/vitest-report.json.
+  Exit 0. Vitest 4.1.12. 19 files passed, 223 tests passed, duration 8.88s. JSON success true, numFailedTests 0.
+- npm run test:e2e -- --reporter=list
+  Ran in /tmp/hk-rc2-f6b. First end-to-end run. Exit 0. 29 passed, duration 41.1s. P08 passed in 2.0s. F58, F59, G67, G69, and G74 passed.
 - PLAYWRIGHT_HTML_OPEN=never PLAYWRIGHT_HTML_OUTPUT_DIR=docs/evidence/rc2/playwright-report PLAYWRIGHT_JSON_OUTPUT_NAME=docs/evidence/rc2/playwright-report.json npm run test:e2e -- --reporter=list,html,json
-  Ran in /tmp/hk-rc2-f6. Log docs/evidence/rc2/playwright.txt. HTML docs/evidence/rc2/playwright-report/index.html. JSON docs/evidence/rc2/playwright-report.json.
-  Exit 0. Playwright, Chrome. 29 passed, duration 40.1s. JSON stats: expected 29, unexpected 0, flaky 0, skipped 0.
-- Ports 8787 and 5173 were free after the run.
+  Ran in /tmp/hk-rc2-f6b. Second end-to-end run. Log docs/evidence/rc2/playwright.txt. HTML docs/evidence/rc2/playwright-report/index.html. JSON docs/evidence/rc2/playwright-report.json.
+  Exit 0. Playwright, Chrome. 29 passed, duration 39.8s. JSON stats: expected 29, unexpected 0, flaky 0, skipped 0.
+- Ports 8787 and 5173 were free after both runs.
 
-Regression watch (all in docs/evidence/rc2/playwright.txt)
-- F58 tests/e2e/qa-f.spec.ts:6 status card sandbox and copy: passed (435ms)
-- F59 tests/e2e/qa-f.spec.ts:30 carousel keys and Choose: passed (739ms)
-- G67 tests/e2e/qa-g.spec.ts:90 hallway alarm battery copy: passed (972ms)
-- G69 tests/e2e/qa-g.spec.ts:152 next morning ships the filter: passed (1.6s)
+Second-run watch (docs/evidence/rc2/playwright.txt)
+- P08 tests/e2e/f4c-cards.spec.ts:52 status, options, checkout, receipt, and task cards fit: passed (1.9s)
+- F58 tests/e2e/qa-f.spec.ts:6 status card sandbox and copy: passed (452ms)
+- F59 tests/e2e/qa-f.spec.ts:30 carousel keys and Choose: passed (763ms)
+- G67 tests/e2e/qa-g.spec.ts:90 hallway alarm battery copy: passed (942ms)
+- G69 tests/e2e/qa-g.spec.ts:152 next morning ships the filter: passed (1.7s)
 - G74 tests/e2e/qa-g.spec.ts:254 stopped server, Retry, trace rows: passed (1.4s)
 
 The purchase code 2468 appears only in the Vitest report title "fictional code 2468". The HTML report's password and token strings are Playwright library text.
