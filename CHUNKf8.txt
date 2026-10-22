@@ -1,0 +1,32 @@
+Chunk f8 — rc1 review fix P-13 performance
+Repo root /workspace/amazon-app. Fictional household data. No secrets. No tag was created. Nothing was pushed.
+
+Started from 32ef304 (docs: record the P-11 documentation fix).
+Commits:
+  39e4550 test: measure utterance-to-reply time for cases 64, 65, 67, and 68
+  89116a8 test: time the rendered reply from the click inside the page
+  093f2ec docs: record P-13 per-turn timings for cases 64, 65, 67, and 68
+npm test below ran at 093f2ecff13e27b148b9e4c7fbf8f3b72d211915, before this file.
+
+What changed
+- scripts/measure-p13.ts — Chrome measurement of cases 64, 65, 67, and 68. Three runs each. A new browser context and POST /sim/reset before every case run. reply_ms is the click until the new assistant text contains the snippet. settled_ms continues until #say is enabled. p95 uses the nearest-rank rule from tests/protocol/qa-i.test.ts.
+- docs/evidence/rc2/perf.txt — 30 raw turns. Purchase code 2468 is the fictional demo code.
+- docs/evidence/rc2/f8-measure.txt — stdout and stderr of that measurement command.
+- docs/evidence/rc2/f8-vitest.txt — stdout and stderr of npm test.
+- docs/evidence/rc2/README.md — lists perf.txt, f8-measure.txt, and f8-vitest.txt.
+
+Timings in perf.txt, measured at 89116a89b403483b6687a0a33a95c63f607d7ac3
+- n=30. reply_ms min 10.300, max 58.300, p95 45.800. settled_ms min 24.300, max 78.900, p95 68.000.
+- Case 64: 3 turns, reply_ms p95 38.200.
+- Case 65: 9 turns, reply_ms p95 27.300.
+- Case 67: 6 turns, reply_ms p95 45.800.
+- Case 68: 12 turns, reply_ms p95 58.300.
+- p95 reply_ms < 1500 ms: PASS (45.800 ms).
+- p95 settled_ms < 1500 ms: PASS (68.000 ms).
+
+Commands and exit codes
+- HK_MEASURE_HEAD=$(git rev-parse HEAD) npx tsx scripts/measure-p13.ts, at 89116a8, log docs/evidence/rc2/f8-measure.txt: exit 0. Verdict PASS. p95 reply_ms 45.800 ms.
+- node recompute of the 30 sample rows in perf.txt: same p95 values as the file.
+- npm test, at 093f2ec, repo root /workspace/amazon-app, log docs/evidence/rc2/f8-vitest.txt: exit 0.
+  Vitest 4.1.12. 19 files passed, 223 tests passed. Start 17:06:11. Duration 8.54s.
+  Node printed "The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set." That comes from both variables being set in this shell.
