@@ -1,7 +1,8 @@
 /**
- * Fictional MCP Apps card shells for the Hearthkeep simulation.
- * Inline HTML only. No network URLs. The simulator fills these in a later chunk.
+ * Fictional MCP Apps card resources for the Hearthkeep simulation.
+ * Inline HTML only. No network URLs. Taps post intents, never tool calls.
  */
+import { checkoutCardHtml, optionsCardHtml, receiptCardHtml, statusCardHtml, taskCardHtml } from "./card-html";
 
 export const MCP_APP_HTML_MIME = "text/html;profile=mcp-app";
 
@@ -13,61 +14,41 @@ export interface CardResource {
   text: string;
 }
 
-function page(title: string, marker: string): string {
-  return [
-    "<!DOCTYPE html>",
-    '<html lang="en">',
-    "<head>",
-    '<meta charset="utf-8">',
-    `<title>${title}</title>`,
-    "<style>body{font:16px sans-serif;margin:16px}.chip{font-size:12px}</style>",
-    "</head>",
-    "<body>",
-    '<p class="chip">Fictional data</p>',
-    `<main data-card="${marker}"></main>`,
-    "<script>",
-    `document.documentElement.dataset.card=${JSON.stringify(marker)};`,
-    "</script>",
-    "</body>",
-    "</html>",
-  ].join("");
-}
-
 export const CARD_RESOURCES: readonly CardResource[] = [
   {
     uri: "ui://hearthkeep/status-card.html",
     name: "status-card",
     description: "Fictional upkeep status card for get_upkeep_status.",
     mimeType: MCP_APP_HTML_MIME,
-    text: page("Upkeep status", "status"),
+    text: statusCardHtml(),
   },
   {
     uri: "ui://hearthkeep/options-carousel.html",
     name: "options-carousel",
     description: "Fictional options card for find_parts and find_service_slots.",
     mimeType: MCP_APP_HTML_MIME,
-    text: page("Options", "options"),
+    text: optionsCardHtml(),
   },
   {
     uri: "ui://hearthkeep/checkout-card.html",
     name: "checkout-card",
     description: "Fictional checkout card for prepare_checkout.",
     mimeType: MCP_APP_HTML_MIME,
-    text: page("Checkout", "checkout"),
+    text: checkoutCardHtml(),
   },
   {
     uri: "ui://hearthkeep/receipt-card.html",
     name: "receipt-card",
-    description: "Fictional receipt card for confirm_purchase.",
+    description: "Fictional receipt card for confirm_purchase and cancel_order.",
     mimeType: MCP_APP_HTML_MIME,
-    text: page("Receipt", "receipt"),
+    text: receiptCardHtml(),
   },
   {
     uri: "ui://hearthkeep/task-card.html",
     name: "task-card",
     description: "Fictional task card for create_task and log_maintenance.",
     mimeType: MCP_APP_HTML_MIME,
-    text: page("Task", "task"),
+    text: taskCardHtml(),
   },
 ];
 
