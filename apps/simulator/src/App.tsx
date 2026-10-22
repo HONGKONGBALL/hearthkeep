@@ -493,7 +493,7 @@ export function App() {
             <p>Planner: deterministic, offline. Storage: SQLite. Payment: mock. Catalog: fictional seed.</p>
             <p>Endpoint {SERVER}/mcp. Protocol {PROTOCOL_LABEL}.</p>
             <p>SIMULATION — not a real Alexa+ device. All household names, prices, and appointments are fictional.</p>
-            <p>{ABOUT_LICENSE}</p>
+            <p id="about-license">{ABOUT_LICENSE}</p>
             <p>No network calls leave this computer except the local server.</p>
             <button type="button" onClick={() => setAbout(false)}>Close</button>
           </div>
