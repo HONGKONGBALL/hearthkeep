@@ -326,7 +326,122 @@ describe("planner guards and checkout branches", () => {
     expect(wrong.reply).toContain("didn't match");
     expect(wrong.reply).toContain("2 tries left");
     expect(wrong.state.pendingQuote).not.toBeNull();
+    expect(wrong.state.requote).toBeNull();
     expect(wrong.card).toBeNull();
+  });
+
+  it("drops a locked quote and prices the same lines again on yes", async () => {
+    const state = emptyDialogue();
+    state.pendingQuote = {
+      quoteId: "q_0001",
+      kind: "part",
+      overCap: false,
+      totalUsd: "24.99",
+      capUsd: "60.00",
+      eta: "2026-10-23",
+      item: "water_filter",
+      lines: [{ type: "part", optionId: "P-CX28", qty: 1, forApplianceId: "ap_fridge" }],
+    };
+    state.awaitingCode = true;
+    const locked = await executeTurn({
+      utterance: "2222",
+      state,
+      clock: CLOCK,
+      callTool: () => Promise.resolve(fail("QUOTE_LOCKED", "That quote is locked after three wrong codes.")),
+    });
+    expect(locked.reply).toBe("That quote is locked after three wrong codes. Say yes and I'll price it again.");
+    expect(locked.state.pendingQuote).toBeNull();
+    expect(locked.state.awaitingCode).toBe(false);
+    expect(locked.state.requote?.quoteId).toBe("q_0001");
+    expect(locked.card).toBeNull();
+    expect(JSON.stringify(locked)).not.toContain("2222");
+
+    const refused = await executeTurn({
+      utterance: "2468",
+      state: locked.state,
+      clock: CLOCK,
+      callTool: () => Promise.reject(new Error("should not confirm a locked quote")),
+    });
+    expect(refused.reply).toBe(NO_CODE_REPLY);
+    expect(refused.card).toBeNull();
+
+    const calls: Array<{ name: string; args: Record<string, unknown> }> = [];
+    const again = await executeTurn({
+      utterance: "Yes",
+      state: locked.state,
+      clock: CLOCK,
+      callTool: (name, args) => {
+        calls.push({ name, args });
+        return Promise.resolve(tool({
+          quoteId: "q_0002",
+          kind: "part",
+          lines: [{ type: "part", optionId: "P-CX28", qty: 1, forApplianceId: "ap_fridge", name: "Rillstone CX-28" }],
+          totalUsd: "24.99",
+          capUsd: "60.00",
+          overCap: false,
+          eta: "2026-10-23",
+        }));
+      },
+    });
+    expect(calls).toEqual([
+      { name: "prepare_checkout", args: { items: [{ type: "part", optionId: "P-CX28", qty: 1, forApplianceId: "ap_fridge" }] } },
+    ]);
+    expect(again.reply).toContain("$24.99");
+    expect(again.reply.toLowerCase()).toContain("purchase code");
+    expect(again.state.pendingQuote?.quoteId).toBe("q_0002");
+    expect(again.state.awaitingCode).toBe(true);
+    expect(again.state.requote).toBeNull();
+    expect(again.card?.uri).toContain("checkout-card");
+  });
+
+  it("prices an expired quote again when the user says yes", async () => {
+    const state = emptyDialogue();
+    state.pendingQuote = {
+      quoteId: "q_0003",
+      kind: "service",
+      overCap: true,
+      totalUsd: "89.00",
+      capUsd: "60.00",
+      overByUsd: "29.00",
+      item: "vent_cleaning",
+      lines: [{ type: "service", slotId: "S-1027A" }],
+    };
+    state.awaitingCode = true;
+    const expired = await executeTurn({
+      utterance: "2468",
+      state,
+      clock: CLOCK,
+      callTool: () => Promise.resolve(fail("QUOTE_EXPIRED", "That price expired, and I can check again if you want.")),
+    });
+    expect(expired.reply).toBe("That price expired, and I can check again if you want. Say yes and I'll price it again.");
+    expect(expired.state.pendingQuote).toBeNull();
+    expect(expired.state.awaitingCode).toBe(false);
+    expect(expired.card).toBeNull();
+
+    const calls: string[] = [];
+    const again = await executeTurn({
+      utterance: "Yes",
+      state: expired.state,
+      clock: CLOCK,
+      callTool: (name, args) => {
+        calls.push(name);
+        expect(args).toEqual({ items: [{ type: "service", slotId: "S-1027A" }] });
+        return Promise.resolve(tool({
+          quoteId: "q_0004",
+          kind: "service",
+          lines: [{ type: "service", slotId: "S-1027A" }],
+          totalUsd: "89.00",
+          capUsd: "60.00",
+          overCap: true,
+          overByUsd: "29.00",
+          slot: { slotId: "S-1027A", provider: "Ventora Home Care", start: "2026-10-27T09:00:00-07:00", end: "2026-10-27T11:00:00-07:00", priceUsd: "89.00" },
+        }));
+      },
+    });
+    expect(calls).toEqual(["prepare_checkout"]);
+    expect(again.reply.toLowerCase()).toContain("approve");
+    expect(again.state.pendingQuote?.quoteId).toBe("q_0004");
+    expect(again.card?.tool).toBe("prepare_checkout");
   });
 });
 

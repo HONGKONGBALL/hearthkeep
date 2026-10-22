@@ -69,6 +69,7 @@ export type IntentName =
   | "choose_option"
   | "accept_briefing"
   | "confirm"
+  | "requote"
   | "cancel"
   | "done"
   | "book_service"
@@ -152,6 +153,7 @@ export interface DialogueState {
   lastOnHand: { name: string; qty: number; location: string | null; item: string } | null;
   clarify: { stage: "sound" | "appliance"; symptom: string } | null;
   awaitingCode: boolean;
+  requote: PendingQuote | null;
 }
 
 export interface Clock {
@@ -217,6 +219,7 @@ export function emptyDialogue(): DialogueState {
     lastOnHand: null,
     clarify: null,
     awaitingCode: false,
+    requote: null,
   };
 }
 
@@ -667,6 +670,9 @@ export function parseUtterance(utterance: string, state: DialogueState = emptyDi
   if (state.pendingOptions !== null && isChooseOption(lower)) {
     return { intent: "choose_option", slots: { option: optionName(text) }, codeTurn: false, guard: null };
   }
+  if (state.requote !== null && isBriefingYes(lower)) {
+    return { intent: "requote", slots: {}, codeTurn: false, guard: null };
+  }
   if ((state.pendingChores?.length ?? 0) > 0 && state.pendingOptions === null && isBriefingYes(lower)) {
     return { intent: "accept_briefing", slots: {}, codeTurn: false, guard: null };
   }
@@ -836,6 +842,27 @@ function storeQuote(state: DialogueState, structured: Record<string, unknown>, i
   state.pendingOptions = null;
   state.optionsTurnsLeft = 0;
   state.awaitingCode = true;
+  state.requote = null;
+}
+
+function checkoutItems(quote: PendingQuote): Array<Record<string, unknown>> {
+  const items: Array<Record<string, unknown>> = [];
+  for (const line of quote.lines) {
+    const row = asRecord(line);
+    if (row === null) continue;
+    if (row.type === "service") {
+      const slotId = textOf(row.slotId);
+      if (slotId !== "") items.push({ type: "service", slotId });
+      continue;
+    }
+    if (row.type !== "part") continue;
+    const optionId = textOf(row.optionId);
+    const forApplianceId = textOf(row.forApplianceId);
+    const qty = typeof row.qty === "number" && Number.isInteger(row.qty) ? row.qty : 1;
+    if (optionId === "" || forApplianceId === "") continue;
+    items.push({ type: "part", optionId, qty, forApplianceId });
+  }
+  return items.slice(0, 3);
 }
 
 function openInstallTasks(structured: Record<string, unknown>): Record<string, unknown>[] {
@@ -1128,9 +1155,17 @@ function composeDone(structured: Record<string, unknown>, item: string, label = 
 function failureReply(result: ToolResponse): string {
   const code = errorCode(result.structuredContent);
   const message = result.text.trim();
-  if (code === "QUOTE_EXPIRED") return `${message} I can price it again.`;
+  if (code === "QUOTE_EXPIRED" || code === "QUOTE_LOCKED") {
+    const base = message.replace(/[.?!]+$/, "");
+    return `${base}. Tell me what to price again.`;
+  }
   if (code === "APPLIANCE_NOT_FOUND") return message.endsWith(".") ? message : `${message}.`;
   return message;
+}
+
+function requoteOffer(text: string): string {
+  const message = text.trim().replace(/[.?!]+$/, "");
+  return `${message}. Say yes and I'll price it again.`;
 }
 
 function publicSlots(slots: Slots): Slots {
@@ -1217,6 +1252,8 @@ export async function executeTurn(input: {
     state,
     unreachable: false,
   };
+
+  if (parsed.intent !== "requote") state.requote = null;
 
   if (parsed.guard === "hazard") {
     state.clarify = null;
@@ -1315,13 +1352,16 @@ export async function executeTurn(input: {
     if (result === null) return unreachableResult(parsed, state, ctx, displayUtterance);
     if (result.isError) {
       const code = errorCode(result.structuredContent);
-      if (code !== "QUOTE_NOT_FOUND" && code !== "QUOTE_EXPIRED" && code !== "QUOTE_LOCKED") {
-        state.awaitingCode = true;
-      } else {
+      const recoverable = code === "QUOTE_LOCKED" || code === "QUOTE_EXPIRED";
+      if (code === "QUOTE_NOT_FOUND" || recoverable) {
         state.pendingQuote = null;
         state.awaitingCode = false;
+        if (recoverable && checkoutItems(quote).length > 0) state.requote = quote;
+      } else {
+        state.awaitingCode = true;
       }
-      return finish(parsed, state, failureReply(result), { displayUtterance, steps: ctx.steps });
+      const reply = state.requote !== null ? requoteOffer(result.text) : failureReply(result);
+      return finish(parsed, state, reply, { displayUtterance, steps: ctx.steps });
     }
     const reply = composeConfirmed(result.structuredContent, quote, ctx.timeZone);
     const card: CardPayload = {
@@ -1333,6 +1373,32 @@ export async function executeTurn(input: {
     state.pendingQuote = null;
     state.awaitingCode = false;
     return finish(parsed, state, reply, { displayUtterance, card, steps: ctx.steps });
+  }
+
+  if (parsed.intent === "requote") {
+    const saved = state.requote;
+    const items = saved === null ? [] : checkoutItems(saved);
+    if (saved === null || items.length === 0) {
+      state.requote = null;
+      return finish(parsed, state, "I don't have a price to check again. Tell me what to look up.", { displayUtterance, steps: [] });
+    }
+    const result = await callTool(ctx, "prepare_checkout", { items });
+    if (result === null) return unreachableResult(parsed, state, ctx, displayUtterance);
+    if (result.isError) {
+      return finish(parsed, state, `${failureReply(result).replace(/[.?!]+$/, "")}. Say yes and I'll price it again.`, {
+        displayUtterance,
+        steps: ctx.steps,
+      });
+    }
+    state.requote = null;
+    storeQuote(state, result.structuredContent, saved.item);
+    const priced = state.pendingQuote;
+    if (priced === null) return finish(parsed, state, result.text, { displayUtterance, steps: ctx.steps });
+    return finish(parsed, state, composeCheckout(priced, ctx.timeZone), {
+      displayUtterance,
+      steps: ctx.steps,
+      card: { uri: CARD_URIS.checkout, tool: "prepare_checkout", structuredContent: result.structuredContent, context: {} },
+    });
   }
 
   if (parsed.intent === "choose_option" || parsed.intent === "choose_slot") {
