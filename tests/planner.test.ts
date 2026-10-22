@@ -358,3 +358,120 @@ describe("planner clarify state", () => {
     expect(alarm.steps).toHaveLength(0);
   });
 });
+
+const HALLWAY = {
+  id: "ap_smoke_hall",
+  spokenName: "hallway smoke alarm",
+  maker: "Wardlight",
+  model: "SA-9",
+  product: "smoke alarm",
+  location: "Hallway",
+};
+
+function scripted(calls: Array<{ name: string; args: Record<string, unknown> }>, parts: Record<string, unknown>) {
+  return (name: string, args: Record<string, unknown>): Promise<ToolResponse> => {
+    calls.push({ name, args });
+    if (name === "resolve_appliance") return Promise.resolve(tool({ status: "match", appliance: HALLWAY, speech: "matched" }));
+    if (name === "find_parts") return Promise.resolve(tool(parts));
+    if (name === "create_task") {
+      return Promise.resolve(tool({
+        taskId: "t_0001",
+        task: {
+          id: "t_0001",
+          title: args.title,
+          applianceId: "ap_smoke_hall",
+          item: "battery",
+          dueDate: "2026-10-21",
+          notes: args.notes ?? null,
+          status: "open",
+          createdAt: SIM_EPOCH,
+          closedAt: null,
+        },
+      }));
+    }
+    return Promise.resolve(tool({}));
+  };
+}
+
+describe("P03 inventory before reorder", () => {
+  it("uses the hallway batteries on the shelf instead of checkout", async () => {
+    const calls: Array<{ name: string; args: Record<string, unknown> }> = [];
+    const turn = await executeTurn({
+      utterance: "Order a battery for the hallway smoke alarm",
+      state: emptyDialogue(),
+      clock: CLOCK,
+      callTool: scripted(calls, {
+        options: [{
+          optionId: "P-VW9V",
+          name: "Voltwick 9V, 4-pack",
+          brand: "Voltwick",
+          priceUsd: "11.49",
+          eta: "2026-10-22",
+          kind: "generic",
+          certified: null,
+          recommended: false,
+        }],
+        excluded: [],
+        onHand: { qty: 2, location: "Garage shelf", receivedNotInstalled: 0 },
+        recommendedAction: "use_on_hand",
+      }),
+    });
+    expect(turn.reply).toContain("two 9-volt");
+    expect(turn.reply).toContain("garage shelf");
+    expect(turn.reply.toLowerCase()).toContain("nothing to buy");
+    expect(turn.reply).not.toContain("$11.49");
+    expect(turn.reply).not.toMatch(/Want that one/i);
+    expect(turn.reply).not.toMatch(/One batteries/);
+    expect(calls.map((call) => call.name)).toEqual(["resolve_appliance", "find_parts", "create_task"]);
+    expect(turn.steps.some((step) => step.tool === "prepare_checkout")).toBe(false);
+    expect(turn.card?.tool).toBe("create_task");
+    expect(turn.card?.context.onHand).toMatchObject({ name: "9V battery", qty: 2, location: "Garage shelf" });
+    expect(calls.find((call) => call.name === "create_task")?.args.notes).toBe("9V battery x2, Garage shelf");
+  });
+
+  it("agrees the battery noun with the option count", async () => {
+    const oneCalls: Array<{ name: string; args: Record<string, unknown> }> = [];
+    const one = await executeTurn({
+      utterance: "Order a battery for the hallway smoke alarm",
+      state: emptyDialogue(),
+      clock: CLOCK,
+      callTool: scripted(oneCalls, {
+        options: [{
+          optionId: "P-VW9V",
+          name: "Voltwick 9V, 4-pack",
+          brand: "Voltwick",
+          priceUsd: "11.49",
+          eta: "2026-10-22",
+          kind: "generic",
+          certified: null,
+          recommended: true,
+        }],
+        excluded: [],
+        onHand: { qty: 0, location: null, receivedNotInstalled: 0 },
+        recommendedAction: "buy",
+      }),
+    });
+    expect(one.reply).toMatch(/^One battery fits /);
+    expect(one.reply).not.toMatch(/One batteries/);
+    expect(one.reply).toContain("$11.49");
+    expect(one.reply).toContain("Want that one?");
+
+    const twoCalls: Array<{ name: string; args: Record<string, unknown> }> = [];
+    const two = await executeTurn({
+      utterance: "Order a battery for the hallway smoke alarm",
+      state: emptyDialogue(),
+      clock: CLOCK,
+      callTool: scripted(twoCalls, {
+        options: [
+          { optionId: "P-A", name: "Voltwick 9V, 4-pack", brand: "Voltwick", priceUsd: "11.49", eta: "2026-10-22", kind: "generic", certified: null, recommended: true },
+          { optionId: "P-B", name: "Northcell 9V", brand: "Northcell", priceUsd: "12.00", eta: "2026-10-23", kind: "generic", certified: null, recommended: false },
+        ],
+        excluded: [],
+        onHand: { qty: 0, location: null, receivedNotInstalled: 0 },
+        recommendedAction: "buy",
+      }),
+    });
+    expect(two.reply).toMatch(/^Two batteries fit /);
+    expect(two.reply).not.toMatch(/One batteries/);
+  });
+});

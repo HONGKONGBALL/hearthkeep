@@ -178,6 +178,19 @@ describe("planner flows on the MCP server", () => {
     expect(done.steps.map((step) => step.tool)).toEqual(["log_maintenance"]);
   });
 
+  it("P03 orders a hallway battery from the shelf", async () => {
+    await client.resetSim();
+    clock = { iso: SIM_EPOCH };
+    state = emptyDialogue();
+    const turn = await say("Order a battery for the hallway smoke alarm");
+    expect(turn.reply).toContain("two 9-volt");
+    expect(turn.reply).toContain("garage shelf");
+    expect(turn.reply.toLowerCase()).toContain("nothing to buy");
+    expect(turn.reply).not.toMatch(/One batteries/);
+    expect(turn.steps.map((step) => step.tool)).not.toContain("prepare_checkout");
+    expect(turn.card?.tool).toBe("create_task");
+  });
+
   it("F6 registers a water heater and recalls the flush", async () => {
     const added = await say("I just installed a new water heater, a Brimwell WH-40, in the garage");
     expect(added.reply).toContain("Brimwell WH-40");
