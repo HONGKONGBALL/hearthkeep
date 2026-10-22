@@ -925,16 +925,22 @@ function composeDue(structured: Record<string, unknown>, appliance: NonNullable<
   return `Your ${appliance.spokenName} ${item} is due in ${when}.`;
 }
 
-function composeParts(appliance: NonNullable<DialogueState["lastAppliance"]>, structured: Record<string, unknown>): string {
+function fitClause(count: number, item: string): string {
+  const singular = item === "battery" ? "battery" : item === "bulb" ? "bulb" : item === "water_filter" || item === "air_filter" ? "filter" : "option";
+  const plural = singular === "battery" ? "batteries" : `${singular}s`;
+  const noun = count === 1 ? singular : plural;
+  const verb = count === 1 ? "fits" : "fit";
+  const countWord = count === 1 ? "One" : count === 2 ? "Two" : count === 3 ? "Three" : String(count);
+  return `${countWord} ${noun} ${verb}`;
+}
+
+function composeParts(appliance: NonNullable<DialogueState["lastAppliance"]>, structured: Record<string, unknown>, item: string): string {
   const options = asArray(structured.options);
   const recommended = options.find((option) => option.recommended === true) ?? options[0];
   if (!recommended) return "No matching part is available to buy.";
-  const count = options.length;
-  const countWord = count === 1 ? "One" : count === 2 ? "Two" : count === 3 ? "Three" : String(count);
-  const noun = count === 1 ? "option fits" : appliance.product === "fridge" ? "filters fit" : "options fit";
   const certified = recommended.certified === true ? "certified " : "";
   const when = formatWeekdayLong(textOf(recommended.eta));
-  return `${countWord} ${noun} your ${appliance.maker} ${appliance.model}, and the ${certified}${textOf(recommended.name)} is ${speechMoney(textOf(recommended.priceUsd))}, arriving ${titleCase(when)}. Want that one?`;
+  return `${fitClause(options.length, item)} your ${appliance.maker} ${appliance.model}, and the ${certified}${textOf(recommended.name)} is ${speechMoney(textOf(recommended.priceUsd))}, arriving ${titleCase(when)}. Want that one?`;
 }
 
 function composeCheckout(quote: PendingQuote, timeZone: string): string {
@@ -987,6 +993,60 @@ function composeOwned(cause: string, onHand: NonNullable<DialogueState["lastOnHa
     return `${lead}, and you have ${stock}. Nothing to buy, so I added a task.`;
   }
   return `You have ${stock}. Nothing to buy, so I added a task.`;
+}
+
+function stockRecord(onHand: Record<string, unknown> | null, item: string, qty: number): NonNullable<DialogueState["lastOnHand"]> {
+  return {
+    name: textOf(onHand?.name) || (item === "battery" ? "9V battery" : humanItem(item)),
+    qty,
+    location: typeof onHand?.location === "string" ? onHand.location : null,
+    item,
+  };
+}
+
+async function offerOnHand(
+  ctx: RunContext,
+  parsed: ParsedUtterance,
+  state: DialogueState,
+  displayUtterance: string,
+  appliance: Record<string, unknown>,
+  item: string,
+  parts: ToolResponse,
+  replyFor: (onHand: NonNullable<DialogueState["lastOnHand"]>) => string,
+): Promise<TurnResult | null> {
+  if (parts.structuredContent.recommendedAction !== "use_on_hand") return null;
+  const onHand = asRecord(parts.structuredContent.onHand);
+  const qty = typeof onHand?.qty === "number" ? onHand.qty : Number.NaN;
+  if (!(qty > 0)) return null;
+  const stock = stockRecord(onHand, item, qty);
+  state.lastOnHand = stock;
+  const title = `Swap ${textOf(appliance.spokenName)} ${humanItem(item)}`;
+  const created = await callTool(ctx, "create_task", {
+    title,
+    applianceId: textOf(appliance.id),
+    item,
+    dueDate: ctx.today,
+    notes: `${stock.name} x${stock.qty}, ${stock.location ?? ""}`.trim(),
+  });
+  if (created === null) return unreachableResult(parsed, state, ctx, displayUtterance);
+  if (created.isError) return finish(parsed, state, failureReply(created), { displayUtterance, steps: ctx.steps });
+  const task = asRecord(created.structuredContent.task);
+  state.lastTask = {
+    taskId: textOf(created.structuredContent.taskId),
+    applianceId: textOf(appliance.id),
+    item,
+    title: textOf(task?.title) || title,
+  };
+  return finish(parsed, state, replyFor(stock), {
+    displayUtterance,
+    steps: ctx.steps,
+    card: {
+      uri: CARD_URIS.task,
+      tool: "create_task",
+      structuredContent: created.structuredContent,
+      context: { applianceName: textOf(appliance.spokenName), onHand: stock, done: false, title },
+    },
+  });
 }
 
 function composeDone(structured: Record<string, unknown>, item: string): string {
@@ -1302,44 +1362,12 @@ export async function executeTurn(input: {
     const parts = await callTool(ctx, "find_parts", { applianceId: textOf(appliance.id), item });
     if (parts === null) return unreachableResult(parsed, state, ctx, displayUtterance);
     if (parts.isError) return finish(parsed, state, failureReply(parts), { displayUtterance, steps: ctx.steps });
-    const onHand = asRecord(parts.structuredContent.onHand);
-    state.lastOnHand = {
-      name: textOf(onHand?.name) || (item === "battery" ? "9V battery" : humanItem(item)),
-      qty: typeof onHand?.qty === "number" ? onHand.qty : 0,
-      location: typeof onHand?.location === "string" ? onHand.location : null,
-      item,
-    };
-    if (parts.structuredContent.recommendedAction === "use_on_hand" && state.lastOnHand.qty > 0) {
-      const title = `Swap ${textOf(appliance.spokenName)} ${humanItem(item)}`;
-      const created = await callTool(ctx, "create_task", {
-        title,
-        applianceId: textOf(appliance.id),
-        item,
-        dueDate: ctx.today,
-        notes: `${state.lastOnHand.name} x${state.lastOnHand.qty}, ${state.lastOnHand.location ?? ""}`.trim(),
-      });
-      if (created === null) return unreachableResult(parsed, state, ctx, displayUtterance);
-      if (created.isError) return finish(parsed, state, failureReply(created), { displayUtterance, steps: ctx.steps });
-      const task = asRecord(created.structuredContent.task);
-      state.lastTask = {
-        taskId: textOf(created.structuredContent.taskId),
-        applianceId: textOf(appliance.id),
-        item,
-        title: textOf(task?.title) || title,
-      };
-      return finish(parsed, state, composeOwned(textOf(diagnosed.structuredContent.cause), state.lastOnHand, parsed.slots.sound), {
-        displayUtterance,
-        steps: ctx.steps,
-        card: {
-          uri: CARD_URIS.task,
-          tool: "create_task",
-          structuredContent: created.structuredContent,
-          context: { applianceName: textOf(appliance.spokenName), onHand: state.lastOnHand, done: false, title },
-        },
-      });
-    }
+    const stocked = await offerOnHand(ctx, parsed, state, displayUtterance, appliance, item, parts, (onHand) =>
+      composeOwned(textOf(diagnosed.structuredContent.cause), onHand, parsed.slots.sound),
+    );
+    if (stocked) return stocked;
     storeParts(state, textOf(appliance.id), item, asArray(parts.structuredContent.options));
-    return finish(parsed, state, composeParts(state.lastAppliance!, parts.structuredContent), {
+    return finish(parsed, state, composeParts(state.lastAppliance!, parts.structuredContent, item), {
       displayUtterance,
       steps: ctx.steps,
       card: {
@@ -1367,36 +1395,12 @@ export async function executeTurn(input: {
     const parts = await callTool(ctx, "find_parts", { applianceId: textOf(appliance.id), item });
     if (parts === null) return unreachableResult(parsed, state, ctx, displayUtterance);
     if (parts.isError) return finish(parsed, state, failureReply(parts), { displayUtterance, steps: ctx.steps });
-    const onHand = asRecord(parts.structuredContent.onHand);
-    if (parts.structuredContent.recommendedAction === "use_on_hand" && typeof onHand?.qty === "number" && onHand.qty > 0) {
-      state.lastOnHand = {
-        name: textOf(onHand.name) || humanItem(item),
-        qty: onHand.qty,
-        location: typeof onHand.location === "string" ? onHand.location : null,
-        item,
-      };
-      const title = `Swap ${textOf(appliance.spokenName)} ${humanItem(item)}`;
-      const created = await callTool(ctx, "create_task", {
-        title,
-        applianceId: textOf(appliance.id),
-        item,
-        dueDate: ctx.today,
-      });
-      if (created === null) return unreachableResult(parsed, state, ctx, displayUtterance);
-      state.lastTask = { taskId: textOf(created.structuredContent.taskId), applianceId: textOf(appliance.id), item, title };
-      return finish(parsed, state, `You already have ${supplyClause(state.lastOnHand)}. Nothing to buy, so I added a task.`, {
-        displayUtterance,
-        steps: ctx.steps,
-        card: {
-          uri: CARD_URIS.task,
-          tool: "create_task",
-          structuredContent: created.structuredContent,
-          context: { applianceName: textOf(appliance.spokenName), onHand: state.lastOnHand, done: false, title },
-        },
-      });
-    }
+    const stocked = await offerOnHand(ctx, parsed, state, displayUtterance, appliance, item, parts, (onHand) =>
+      `You already have ${supplyClause(onHand)}. Nothing to buy, so I added a task.`,
+    );
+    if (stocked) return stocked;
     storeParts(state, textOf(appliance.id), item, asArray(parts.structuredContent.options));
-    return finish(parsed, state, composeParts(state.lastAppliance!, parts.structuredContent), {
+    return finish(parsed, state, composeParts(state.lastAppliance!, parts.structuredContent, item), {
       displayUtterance,
       steps: ctx.steps,
       card: {
