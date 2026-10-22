@@ -13,6 +13,7 @@
   },
   "scripts": {
     "demo": "node scripts/demo.mjs",
+    "demo:video": "node scripts/record-demo.mjs && node scripts/narrate-demo.mjs && node scripts/assemble-demo.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "typecheck": "tsc -p packages/core/tsconfig.json --noEmit && tsc -p apps/mcp-server/tsconfig.json --noEmit && tsc -p apps/simulator/tsconfig.json --noEmit && tsc -p tsconfig.json --noEmit"
