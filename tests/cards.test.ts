@@ -74,6 +74,9 @@ describe("card resources", () => {
     expect(html).toContain("Coming up");
     expect(html).toContain("Hallway smoke alarm battery, Wed, Oct 28");
     expect(html).toContain("Replace battery");
+    expect(html).toContain('aria-label="Handle it, Dryer vent cleaning"');
+    expect(html).toContain('aria-label="Handle it, Fridge water filter"');
+    expect(html).toContain('aria-label="Replace battery, Hallway smoke alarm battery"');
     expect(html).toContain('data-intent="Replace the hallway smoke alarm battery"');
     expect(html).not.toMatch(/keeps chirping/);
     expect(html).toContain("Furnace filter, Fri, Oct 30");
@@ -113,6 +116,8 @@ describe("card resources", () => {
     expect(parts).toContain("OEM");
     expect(parts).toContain("Not shown: Bargo ZX-28, not certified (your rules)");
     expect(parts).toContain('data-intent="Choose Rillstone CX-28"');
+    expect(parts).toContain('class="act">Choose</span>');
+    expect(CARD_RESOURCES[1]?.text).toContain("flex-flow:row nowrap");
 
     const slots = render(CARD_RESOURCES[1]?.text ?? "", {
       slots: [
@@ -183,6 +188,7 @@ describe("card resources", () => {
     expect(task).toContain("Supplies");
     expect(task).toContain("9V battery x2, Garage shelf");
     expect(task).toContain("Mark done");
+    expect(task).toContain('aria-label="Mark done, Swap hallway smoke alarm battery"');
     expect(task).not.toMatch(/>hallway smoke alarm</);
 
     const closed = render(CARD_RESOURCES[4]?.text ?? "", {
@@ -217,6 +223,7 @@ describe("card resources", () => {
     expect(html.toLowerCase()).toContain("arrived");
     expect(html.toLowerCase()).toContain("waiting to install");
     expect(html).toContain("Mark done");
+    expect(html).toContain('aria-label="Mark done, Install fridge water filter"');
     expect(html).toContain('data-intent="Done, I swapped it"');
   });
 });
