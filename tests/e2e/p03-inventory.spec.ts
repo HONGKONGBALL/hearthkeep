@@ -2,7 +2,7 @@
  * P-03: ordering a part checks the shelf before checkout.
  * Household names and prices are fictional sample data.
  */
-import { expect, send, startSim, test } from "./support";
+import { card, expect, send, startSim, test } from "./support";
 
 test("P03 ordering a hallway battery uses the shelf", async ({ page }) => {
   await startSim(page);
@@ -12,6 +12,8 @@ test("P03 ordering a hallway battery uses the shelf", async ({ page }) => {
   expect(reply.toLowerCase()).toContain("nothing to buy");
   expect(reply).not.toMatch(/One batteries/);
   expect(reply).not.toContain("$11.49");
+  await expect(card(page).locator("body")).toContainText("9V battery");
+  await expect(card(page).locator("body")).toContainText("Garage shelf");
   await page.getByRole("button", { name: "Trace", exact: true }).click();
   const turn = page.getByRole("complementary", { name: "Trace" }).locator("article").last();
   await expect(turn).toContainText("find_parts");
