@@ -19,7 +19,7 @@ This conventions step adds the directory and this list. The PNG files are captur
 | C5 | `c5-task-card.png` | Task card (`ui://hearthkeep/task-card.html`). |
 | Trace | `trace.png` | Trace panel open. Purchase code redacted. |
 | Data | `data.png` | Data drawer open. |
-| About | `about.png` | About panel: deterministic offline planner, SQLite, mock payment, fictional catalog, MIT license. |
+| About | `about.png` | About panel: deterministic offline planner, SQLite, mock payment, fictional catalog, and the line License: MIT. |
 | Offline banner | `offline-banner.png` | Banner while the MCP server is down: "Can't reach the home server", with Retry. |
 | Danger alert | `danger-alert.png` | Hazard alert (`p.alert`) for a sounding alarm or other safety short-circuit. |
 | 390 px | `viewport-390.png` | Same product UI at a 390 px wide viewport. |
@@ -85,3 +85,12 @@ These frames check the session handshake in the trace. They are not substitutes 
 | --- | --- | --- |
 | f5 session | `f5-session-initialized.png` | Trace open after Start at 1280×800. Session opened lists initialize 200 session, then notifications/initialized 202 session. |
 | f5 session 390 | `f5-session-initialized-390.png` | Same session trace at 390 px wide. Both handshake lines are on screen. |
+
+## Chunk f9 review shots
+
+These frames check that the About dialog shows the MIT license. `about.png` is the required About shot.
+
+| Id | File | What the frame shows |
+| --- | --- | --- |
+| About | `about.png` | About dialog at 1280×800 after Start. The license line reads License: MIT. Close is on the sheet. |
+| f9 about 390 | `f9-about-390.png` | Same dialog at 390 px wide. License: MIT and Close stay inside the sheet. |

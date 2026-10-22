@@ -70,6 +70,6 @@ These routes are separate from `/mcp`. With `HK_SIM_MODE=0` every `/sim/*` path 
 
 ## Host controls
 
-The header shows the first eight characters of the session id, the protocol label, the sim clock, and the badge `Deterministic (offline)`. New session keeps the database and opens a new MCP session. Reset demo calls `POST /sim/reset`. Trace lists the tool calls and redacts purchase codes. Data is read-only. Cards can be hidden. Voice, when on, speaks the latest reply with the browser `speechSynthesis` API on this computer. It does not call DashScope. About states the planner, storage, payment, catalog, endpoint, and protocol.
+The header shows the first eight characters of the session id, the protocol label, the sim clock, and the badge `Deterministic (offline)`. New session keeps the database and opens a new MCP session. Reset demo calls `POST /sim/reset`. Trace lists the tool calls and redacts purchase codes. Data is read-only. Cards can be hidden. Voice, when on, speaks the latest reply with the browser `speechSynthesis` API on this computer. It does not call DashScope. About states the planner, storage, payment, catalog, endpoint, protocol, and the MIT license.
 
 When the host cannot open a session it shows the banner `Can't reach the home server` and a Retry button. Retry builds a new client and calls `initialize` again. The transcript already on screen stays.
