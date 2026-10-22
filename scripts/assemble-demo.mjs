@@ -4,7 +4,7 @@
  */
 
 import { spawn } from "node:child_process";
-import { mkdirSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { loadCues } from "./video-script.mjs";
 
@@ -33,7 +33,10 @@ async function main() {
   const cues = loadCues();
   const seconds = String(cues[cues.length - 1].end);
   mkdirSync("/workspace/demo", { recursive: true });
-  const video = resolve(WORK, "page.webm");
+  const recorded = resolve(WORK, "page.webm");
+  const saved = "/workspace/demo/hearthkeep-page.webm";
+  const video = existsSync(recorded) ? recorded : saved;
+  if (!existsSync(video)) throw new Error(`missing picture: ${recorded}`);
   const audio = resolve(WORK, "narration.wav");
   const captions = resolve(WORK, "captions.ass");
   await run("ffmpeg", [
