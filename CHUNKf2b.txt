@@ -1,0 +1,24 @@
+Chunk f2b — rc1 review fix: P-03 inventory-first reorder
+Repo root /workspace/amazon-app. Fictional household data. No secrets. No tag was created. Nothing was pushed.
+
+Started from 3aff361 (docs: record the P-02 briefing follow-up fix).
+
+What changed
+- apps/simulator/src/planner.ts — reorder_part and symptom share offerOnHand. When find_parts returns use_on_hand and the quantity is above zero, both paths create a swap task, record the stock note, and do not call prepare_checkout. A battery on the shelf is named "9V battery" on the task card. The spoken reorder reply still says how many 9-volt batteries are on the shelf. A buy reply agrees the noun and the verb with the option count: "One battery fits", "Two batteries fit", "Two filters fit".
+- tests/planner.test.ts — Failing unit coverage was added first. "Order a battery for the hallway smoke alarm" with two batteries on the Garage shelf must say "two 9-volt" and "garage shelf", must not offer $11.49 or "Want that one?", and must call create_task instead of prepare_checkout. The task card and the task note must say "9V battery" and "Garage shelf". With an empty shelf, one option must say "One battery fits" and two options must say "Two batteries fit".
+- tests/planner-flows.test.ts — Against the local MCP server, the same sentence after a reset contains "two 9-volt" and "garage shelf", and the trace tools do not include prepare_checkout.
+- tests/e2e/p03-inventory.spec.ts — From a fresh session, that sentence contains "two 9-volt" and "garage shelf". The task card shows "9V battery" and "Garage shelf". The trace lists find_parts and create_task, and does not list prepare_checkout.
+
+Verification
+- Before the planner change, npx vitest run tests/planner.test.ts -t P03 failed 2 tests, exit 1. The shelf reply already contained "two 9-volt" and "garage shelf". The card name was "battery" where the test required "9V battery". The empty-shelf reply was "One option fits your Wardlight SA-9…", and the test required "One battery fits".
+- npx vitest run tests/planner.test.ts tests/planner-flows.test.ts tests/planner-briefing-followup.test.ts, after the fix: exit 0. 3 files passed, 28 tests passed.
+- npx tsc -p apps/simulator/tsconfig.json --noEmit: exit 0.
+- npm test (vitest run 4.1.12) at 13:33, log docs/evidence/rc2/vitest.txt: exit 0. 17 files passed, 204 tests passed, duration 8.36s.
+- npm run test:e2e (Playwright 1.64.1, Chrome) at 13:34, log docs/evidence/rc2/playwright.txt: exit 0. 20 passed, duration 27.6s. Includes "Order a battery for the hallway smoke alarm" with the shelf reply, the task card, and a trace that does not show prepare_checkout.
+
+Commits
+- eea43c2 test: fail when a battery order skips the shelf label
+- b3c19f9 fix: check the shelf before a part reorder
+- 0c4c007 test: show the shelf battery on the task card
+
+BUILD-RC2.txt is still the skeleton from chunk f1 (HEAD hash PENDING). These two logs are the f2b runs. vitest-report.json and playwright-report/ were not produced.
