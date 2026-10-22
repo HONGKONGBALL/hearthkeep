@@ -128,10 +128,10 @@ function pixel(shot: Shot, x: number, y: number): RGB {
   return [shot.data[i], shot.data[i + 1], shot.data[i + 2]];
 }
 
-function columnDump(shot: Shot, x: number, y0: number, y1: number): string {
-  const lines: string[] = [];
-  for (let y = y0; y <= y1; y += 1) lines.push(`${y}: ${fmt(pixel(shot, x, y))}`);
-  return lines.join(" | ");
+interface Run {
+  color: RGB;
+  start: number;
+  end: number;
 }
 
 interface Bands {
@@ -141,30 +141,41 @@ interface Bands {
   outside: RGB;
 }
 
-function bandsAbove(shot: Shot, x: number, yFill: number, innerTarget: RGB, outerTarget: RGB, scale: number): Bands {
-  const fill = pixel(shot, x, yFill);
-  let edge = yFill;
-  while (edge > 1 && dist(pixel(shot, x, edge - 1), fill) <= 40) edge -= 1;
-  const limit = Math.max(8, Math.round(10 * scale));
-  const find = (start: number, target: RGB): number => {
-    for (let i = 0; i < limit; i += 1) {
-      const y = start - i;
-      if (y < 0) break;
-      if (dist(pixel(shot, x, y), target) <= 32) return y;
+function runsOf(column: RGB[]): Run[] {
+  const found: Run[] = [];
+  let start = 0;
+  for (let y = 1; y <= column.length; y += 1) {
+    if (y !== column.length && dist(column[y], column[y - 1]) <= 18) continue;
+    if (y - start >= 2) {
+      const slice = column.slice(start, y);
+      const mid = slice[Math.floor(slice.length / 2)];
+      found.push({ color: mid, start, end: y - 1 });
     }
-    throw new Error(
-      `missing ${fmt(target)} within ${limit}px above y=${start}. Column: ${columnDump(shot, x, Math.max(0, start - limit), yFill)}`,
-    );
-  };
-  const innerY = find(edge - 1, innerTarget);
-  const outerY = find(innerY - 1, outerTarget);
-  const outsideY = Math.max(0, outerY - Math.max(2, Math.round(2 * scale)));
-  return {
-    fill,
-    inner: pixel(shot, x, innerY),
-    outer: pixel(shot, x, outerY),
-    outside: pixel(shot, x, outsideY),
-  };
+    start = y;
+  }
+  return found;
+}
+
+/** Outer ring, then inner ring, then the control, reading from the top of the shot. */
+function measureRings(shot: Shot, x: number, outerTarget: RGB, innerTarget: RGB): Bands {
+  const column: RGB[] = [];
+  for (let y = 0; y < shot.height; y += 1) column.push(pixel(shot, x, y));
+  const found = runsOf(column);
+  for (let i = 0; i < found.length - 3; i += 1) {
+    const outside = found[i];
+    const outer = found[i + 1];
+    const inner = found[i + 2];
+    const fill = found[i + 3];
+    if (dist(outer.color, outerTarget) > 16 || dist(inner.color, innerTarget) > 16) continue;
+    return {
+      outside: column[outside.end],
+      outer: column[outer.end],
+      inner: column[inner.end],
+      fill: column[fill.start],
+    };
+  }
+  const dump = found.map((run) => `${run.start}-${run.end} ${fmt(run.color)}`).join("; ");
+  throw new Error(`ring bands not found at x=${x}. Runs: ${dump}`);
 }
 
 function expectAtLeast3(label: string, a: RGB, b: RGB): number {
@@ -204,7 +215,7 @@ function assertLightOutline(style: { outlineColor: string; outlineStyle: string;
   expect(["rgb(246, 241, 232)", "rgba(246, 241, 232, 1)"], name).toContain(style.outlineColor);
 }
 
-async function shoot(page: Page, locator: Locator, file: string): Promise<{ shot: Shot; x: number; yFill: number; scale: number }> {
+async function shoot(page: Page, locator: Locator, file: string): Promise<{ shot: Shot; x: number; scale: number }> {
   const box = await locator.boundingBox();
   if (!box) throw new Error(`no box for ${file}`);
   const viewport = page.viewportSize() ?? { width: 1280, height: 800 };
@@ -220,7 +231,6 @@ async function shoot(page: Page, locator: Locator, file: string): Promise<{ shot
   return {
     shot,
     x: Math.round((box.x - clip.x + box.width / 2) * scale),
-    yFill: Math.round((box.y - clip.y + box.height / 2) * (shot.height / clip.height)),
     scale,
   };
 }
@@ -229,7 +239,7 @@ test("P-06 top bar focus rings are light and clear 3:1", async ({ page }) => {
   writeFileSync(CONTRAST_LOG, "P-06 focus contrast (WCAG relative luminance). Fictional demo.\n");
   await startSim(page);
   await page.evaluate(() => document.fonts.ready);
-  await blurPage(page);
+  await page.locator(".brand").click();
 
   for (const name of HEADER) {
     const button = page.getByRole("button", { name, exact: true });
@@ -240,8 +250,8 @@ test("P-06 top bar focus rings are light and clear 3:1", async ({ page }) => {
     expect(style.boxShadow, name).toContain("rgb(28, 25, 23)");
     expect(style.boxShadow, name).toContain("rgb(246, 241, 232)");
     const slug = name.toLowerCase().replace(/\s+/g, "-");
-    const { shot, x, yFill, scale } = await shoot(page, button, `docs/screens/rc2/f4a-focus-${slug}.png`);
-    const bands = bandsAbove(shot, x, yFill, LIGHT, DARK, scale);
+    const { shot, x } = await shoot(page, button, `docs/screens/rc2/f4a-focus-${slug}.png`);
+    const bands = measureRings(shot, x, DARK, LIGHT);
     const fillRatio = expectAtLeast3(`${name} light ring vs fill`, bands.inner, bands.fill);
     const ringRatio = expectAtLeast3(`${name} light ring vs dark ring`, bands.inner, bands.outer);
     const pageRatio = expectAtLeast3(`${name} dark ring vs page`, bands.outer, bands.outside);
@@ -262,7 +272,7 @@ test("P-06 top bar focus rings are light and clear 3:1", async ({ page }) => {
   expect(pressed.backgroundColor).toBe("rgb(124, 45, 18)");
   expect(pressed.outlineColor).not.toBe(pressed.backgroundColor);
   const pressedShot = await shoot(page, trace, "docs/screens/rc2/f4a-focus-trace-pressed.png");
-  const pressedBands = bandsAbove(pressedShot.shot, pressedShot.x, pressedShot.yFill, LIGHT, DARK, pressedShot.scale);
+  const pressedBands = measureRings(pressedShot.shot, pressedShot.x, DARK, LIGHT);
   const pressedRatio = expectAtLeast3("Trace pressed light ring vs fill", pressedBands.inner, pressedBands.fill);
   expectAtLeast3("Trace pressed light ring vs dark ring", pressedBands.inner, pressedBands.outer);
   expectAtLeast3("Trace pressed dark ring vs page", pressedBands.outer, pressedBands.outside);
@@ -315,8 +325,8 @@ test("P-06 Retry focus ring is light on the banner and clears 3:1", async ({ pag
     assertLightOutline(style, "Retry");
     expect(style.boxShadow, "Retry").toContain("rgb(28, 25, 23)");
     expect(style.backgroundColor).toBe("rgb(255, 255, 255)");
-    const { shot, x, yFill, scale } = await shoot(page, retry, "docs/screens/rc2/f4a-focus-retry.png");
-    const bands = bandsAbove(shot, x, yFill, DARK, LIGHT, scale);
+    const { shot, x } = await shoot(page, retry, "docs/screens/rc2/f4a-focus-retry.png");
+    const bands = measureRings(shot, x, LIGHT, DARK);
     const fillRatio = expectAtLeast3("Retry dark ring vs button", bands.inner, bands.fill);
     const ringRatio = expectAtLeast3("Retry light ring vs dark ring", bands.outer, bands.inner);
     const bannerRatio = expectAtLeast3("Retry light ring vs banner", bands.outer, bands.outside);
