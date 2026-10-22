@@ -75,6 +75,26 @@ describe("planner flows on the MCP server", () => {
     expect(turn.steps.map((step) => step.tool)).toEqual(["get_upkeep_status"]);
   });
 
+  it("follows Yes, Sure, and Handle them from the briefing into the dryer vent openings", async () => {
+    for (const utterance of ["Yes", "Sure", "Handle them"]) {
+      state = emptyDialogue();
+      const brief = await say("What needs doing?");
+      expect(brief.reply).toContain("Want me to handle them?");
+      const chores = (brief.state as { pendingChores?: { item: string }[] }).pendingChores ?? [];
+      expect(chores.map((chore) => chore.item)).toEqual(["vent_cleaning", "water_filter"]);
+      const next = await say(utterance);
+      expect(next.reply).toContain("three openings");
+      expect(next.reply).toContain("Tuesday");
+      expect(next.reply).toContain("$89");
+      expect(next.reply).not.toContain("I don't have options");
+      expect(next.reply).not.toContain("I can help with home upkeep");
+      expect(next.steps.map((step) => step.tool)).toContain("find_service_slots");
+      expect(next.steps.find((step) => step.tool === "find_service_slots")?.args.item).toBe("vent_cleaning");
+      expect(next.displayUtterance).toBe(utterance);
+    }
+    state = emptyDialogue();
+  });
+
   it("F2 orders the certified fridge filter after the code", async () => {
     const offered = await say("Order a new filter for the fridge");
     expect(offered.reply).toContain("Ferngate FG-28");
