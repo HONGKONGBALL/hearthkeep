@@ -1,3 +1,20 @@
+$ git rev-parse HEAD
+ea2523cb5780cf36c17718f7c819e194af843f5d
+
+$ git status
+On branch main
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   docs/evidence/rc4/vitest.txt
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	hearthkeep-rc3.launch.pid
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+---
 
 > hearthkeep@0.1.0 test
 > vitest run --reporter=default --reporter=json --outputFile.json=docs/evidence/rc4/vitest-report.json
@@ -5,32 +22,32 @@
 
  RUN  v4.1.12 /workspace/amazon-app
 
-(node:101079) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:287552) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
- ✓ tests/protocol/qa-i.test.ts (8 tests) 360ms
- ✓ tests/protocol/qa-e.test.ts (12 tests) 336ms
- ✓ tests/planner-flows.test.ts (14 tests) 298ms
- ✓ tests/protocol/qa-b.test.ts (34 tests) 299ms
- ✓ tests/protocol/qa-d.test.ts (26 tests) 280ms
- ✓ tests/sim.test.ts (6 tests) 254ms
- ✓ tests/protocol/tools.test.ts (10 tests) 224ms
- ✓ tests/protocol/qa-c.test.ts (30 tests) 225ms
- ✓ tests/domain.test.ts (28 tests) 132ms
- ✓ tests/protocol/transport.test.ts (3 tests) 110ms
+ ✓ tests/protocol/qa-i.test.ts (8 tests) 387ms
+ ✓ tests/planner-flows.test.ts (14 tests) 308ms
+ ✓ tests/protocol/qa-e.test.ts (12 tests) 307ms
+ ✓ tests/protocol/qa-b.test.ts (34 tests) 320ms
+ ✓ tests/protocol/qa-d.test.ts (26 tests) 274ms
+ ✓ tests/sim.test.ts (6 tests) 248ms
+ ✓ tests/protocol/tools.test.ts (10 tests) 211ms
+ ✓ tests/protocol/qa-c.test.ts (30 tests) 218ms
+ ✓ tests/domain.test.ts (28 tests) 123ms
+ ✓ tests/protocol/transport.test.ts (3 tests) 107ms
  ✓ tests/healthz.test.ts (3 tests) 97ms
- ✓ tests/storage.test.ts (9 tests) 75ms
- ✓ tests/planner.test.ts (17 tests) 51ms
- ✓ tests/planner-briefing-followup.test.ts (4 tests) 39ms
- ✓ tests/planner-install.test.ts (4 tests) 23ms
- ✓ tests/cards.test.ts (5 tests) 19ms
+ ✓ tests/storage.test.ts (9 tests) 94ms
+ ✓ tests/planner.test.ts (18 tests) 54ms
+ ✓ tests/planner-briefing-followup.test.ts (4 tests) 41ms
+ ✓ tests/planner-install.test.ts (9 tests) 31ms
+ ✓ tests/cards.test.ts (6 tests) 22ms
  ✓ tests/docs-video.test.ts (2 tests) 6ms
  ✓ tests/turn-queue.test.ts (6 tests) 5ms
- ✓ tests/simulator-chrome.test.ts (3 tests) 5ms
+ ✓ tests/simulator-chrome.test.ts (3 tests) 4ms
 
  Test Files  19 passed (19)
-      Tests  224 passed (224)
-   Start at  14:49:46
-   Duration  8.69s (transform 442ms, setup 0ms, import 2.42s, tests 2.84s, environment 2ms)
+      Tests  231 passed (231)
+   Start at  16:19:38
+   Duration  8.67s (transform 462ms, setup 0ms, import 2.37s, tests 2.86s, environment 2ms)
 
 JSON report written to /workspace/amazon-app/docs/evidence/rc4/vitest-report.json
 VITEST_EXIT:0

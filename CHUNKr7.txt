@@ -1,0 +1,35 @@
+Chunk r7 — complete tests for A1/A2/A4/A5/A6/V1 and the full suite
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed. Tag rc4 was not created. BUILD-RC4.txt still records chunk r1 (A2) only.
+
+Started from 3dee77f (docs: record the V1 card-region check for rc4).
+Commits:
+  ea2523cb5780cf36c17718f7c819e194af843f5d test: check F1, F3, and F5 cards paint at 390 and 768
+This note and the rc4 full-suite logs are the next commit. Parent of that commit: ea2523cb5780cf36c17718f7c819e194af843f5d.
+
+What changed
+- tests/e2e/v1-card-paint.spec.ts: the missing V1 check. Six cases. Each flow gets a new context created at 390×800 or 768×1024, deviceScaleFactor 1. No page.setViewportSize. F1 is Start. F3 is Start, then "The hallway smoke alarm keeps chirping". F5 is the fridge filter order, the Tuesday vent booking, Approve 2468, then Next morning. The spec takes a viewport screenshot and measures the card iframe crop (18px inset). Variance is the mean of the three channel variances and must be at least 200. At least 2% of the crop must differ from #fffef8 by more than 2 levels. A blank well, variance 0 and one color, fails. The iframe text matches the flow, and the card document does not scroll inside the frame.
+- A1, A2, A4, A5, and A6 already had the checks from r1–r6. No assertion in those files was edited, weakened, or removed. No product source was edited. The V1 specs passed, so the blank 390px shots stay a screenshot artifact.
+
+Coverage already in the tree
+- A1: tests/e2e/a1-status-rows.spec.ts. F2 then F4, Next morning. Text width at least half the row, at most two lines, expectCardFits, 1280 and 390 shots.
+- A2: tests/e2e/a2-hazard-next-turn.spec.ts. "I smell gas in the kitchen", then "What needs doing?". Iframe visible, body contains "Needs attention", alert gone.
+- A4: tests/planner.test.ts "asks for approve when Confirm by voice is tapped on an over-cap quote", and tests/e2e/a4-overcap-voice.spec.ts. The F4 click reply is "Say 'approve' and your code."
+- A5: tests/e2e/a5-task-skin.spec.ts. Open and completed C5 at 1280 and 390, axe with no serious or critical violations. tests/e2e/f3-copy.spec.ts is still in the suite.
+- A6: tests/planner-install.test.ts "A6 mark done picks the named task", and tests/e2e/a6-mark-done.spec.ts. The second Mark done row closes that task.
+- V1: tests/e2e/v1-card-paint.spec.ts, added in ea2523c.
+
+Commands and exit codes
+- npm test -- --reporter=default --reporter=json --outputFile.json=docs/evidence/rc4/vitest-report.json, from /workspace/amazon-app: exit 0. Vitest 4.1.12. 19 files passed, 231 tests passed, 0 failed. Start 16:19:38 CST. Duration 8.67s. JSON success true, numPassedTests 231, numFailedTests 0. Log: docs/evidence/rc4/vitest.txt (sha256 33c38086ed5e618282114fd1239a87b258b0157408668e2ae7aa28098dec5d8a). JSON: docs/evidence/rc4/vitest-report.json (sha256 949690df2356a36c473a49052d55007cd4718166a9240acc86c59ea06f964c08).
+- PLAYWRIGHT_HTML_OPEN=never PLAYWRIGHT_HTML_OUTPUT_DIR=docs/evidence/rc4/playwright-report PLAYWRIGHT_JSON_OUTPUT_NAME=docs/evidence/rc4/playwright-report.json npm run test:e2e -- --reporter=list,html,json: exit 0. 41 passed (1.0m). Channel chrome, 1 worker. JSON expected 41, unexpected 0, skipped 0, flaky 0. Start 2026-10-23T08:20:11.994Z. playwright.config.ts retries is 0, and the command did not override it. Log: docs/evidence/rc4/playwright.txt (sha256 2e8991c2b24137145931d1e83d3f710a4434933a0049d07fbf7d68622293f1d3). JSON: docs/evidence/rc4/playwright-report.json (sha256 654ca10f9e630a229f4ef490129cfdefa623bc1f0d362954784e50ca12d7a230).
+- Counts stayed above the floor. Vitest 231 is above 224. Playwright 41 is the previous 35 plus the six V1 cases, and is above 30.
+
+Both commands ran inside `unshare -r -n` after `ip link set lo up`. On the host, 127.0.0.1:8787 was already taken by another user's Python BaseHTTP server (HTTP 404, body {"error":"not found"}). That process could not be signaled. The namespace gives the suite its own loopback, so the hearthkeep server binds 8787 and the browser talks to it there. The other process was left running. A first Vitest attempt on the host namespace failed I84 with "Server is not running" for that reason. That attempt is not the log above.
+
+Each raw log starts with the output of `git rev-parse HEAD` and `git status` taken before that command. HEAD is ea2523cb5780cf36c17718f7c819e194af843f5d. The only untracked path was hearthkeep-rc3.launch.pid. It is not part of this commit.
+
+The full Playwright run rewrote png files under docs/screens/rc2 and docs/screens/rc4. Restored with git checkout -- docs/screens. Those bytes are unchanged in this commit, so the CHUNKr6 screenshot hashes still match the files.
+
+The previous full-run logs cited by CHUNKr1 stay readable at ea2523c: docs/evidence/rc4/vitest.txt sha256 da28947c3a75213a0601e94b816ba4431ccc87bc3c32ff36e74f3708bd1ecf36, playwright.txt sha256 13db044619dbd0bec810102660aa5052164f3bd0bc4c5d1a8ca39ed7d4245cd3. This commit replaces those two paths with the r7 run.
+
+Acceptance
+Both suites exit 0. Vitest 231 and Playwright 41. A1, A2, A4, A5, A6, and V1 are covered. The raw logs under docs/evidence/rc4 start with HEAD and git status. No existing assertion was weakened or deleted.
