@@ -89,6 +89,8 @@ function listenSockets(port: number): { v4: string[]; v6: string[] } {
 
 describe("QA I server", () => {
   it("I84 localhost bind", async () => {
+    // Same variable and default as apps/mcp-server.
+    const port = Number(process.env.HK_PORT || "8787");
     const logs: string[] = [];
     const original = console.log;
     console.log = (...args: unknown[]) => {
@@ -96,7 +98,7 @@ describe("QA I server", () => {
     };
     const server = startServer({
       HK_HOST: "127.0.0.1",
-      HK_PORT: "8787",
+      HK_PORT: String(port),
       HK_DB: tempDb("i84"),
       HK_SIM_MODE: "1",
     });
@@ -106,8 +108,8 @@ describe("QA I server", () => {
         server.once("listening", () => resolve());
         server.once("error", reject);
       });
-      expect(logs.join("\n")).toContain("listening on http://127.0.0.1:8787/mcp");
-      const sockets = listenSockets(8787);
+      expect(logs.join("\n")).toContain(`listening on http://127.0.0.1:${port}/mcp`);
+      const sockets = listenSockets(port);
       expect(sockets.v4).toContain("0100007F");
       expect(sockets.v4).not.toContain("00000000");
       expect(sockets.v6).toEqual([]);

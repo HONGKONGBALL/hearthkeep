@@ -11,13 +11,15 @@ export const PID_FILE = resolve(ROOT, "tests/e2e/.servers.json");
 export const DB_FILE = resolve(ROOT, "data/e2e.db");
 /** Writable by the grokproj default ACL on tests/e2e. Do not use /tmp. */
 const LOG_DIR = resolve(ROOT, "tests/e2e/.logs");
-export const MCP_URL = "http://127.0.0.1:8787";
+/** Same variable and default as apps/mcp-server (HK_PORT, default 8787). */
+export const MCP_PORT = process.env.HK_PORT || "8787";
+export const MCP_URL = `http://127.0.0.1:${MCP_PORT}`;
 export const SIM_URL = "http://127.0.0.1:5173";
 
 export const serverEnv: NodeJS.ProcessEnv = {
   ...process.env,
   HK_HOST: "127.0.0.1",
-  HK_PORT: "8787",
+  HK_PORT: MCP_PORT,
   HK_DB: DB_FILE,
   HK_SIM_MODE: "1",
   HK_SIM_START: "2026-10-21T09:00:00-07:00",

@@ -4,6 +4,10 @@
  */
 import { PROTOCOL_LABEL, type ToolResponse } from "./planner";
 
+/** MCP port comes from HK_PORT at Vite build/serve time (see vite.config.ts), default 8787. */
+declare const __HK_PORT__: string | undefined;
+export const DEFAULT_SERVER = `http://127.0.0.1:${(typeof __HK_PORT__ === "string" && __HK_PORT__) || "8787"}`;
+
 export interface SimSnapshot {
   clock: string;
   appliances: Array<Record<string, unknown>>;
@@ -60,7 +64,7 @@ export class HearthkeepClient {
   private nextId = 1;
 
   constructor(
-    readonly baseUrl = "http://127.0.0.1:8787",
+    readonly baseUrl = DEFAULT_SERVER,
     readonly origin = "http://127.0.0.1:5173",
   ) {}
 

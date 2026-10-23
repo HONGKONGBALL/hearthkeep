@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CodeLock, Icon, Ribbon, WelcomeOverlay } from "./chrome";
-import { HearthkeepClient, type OpenedSession, type SimSnapshot } from "./mcp-client";
+import { DEFAULT_SERVER, HearthkeepClient, type OpenedSession, type SimSnapshot } from "./mcp-client";
 import {
   PROTOCOL_LABEL,
   QUICK_CHIPS,
@@ -16,7 +16,7 @@ import {
 import { acceptUtterance, isCardFrameSource, nextIntent, rememberCardWindow } from "./turn-queue";
 import { ABOUT_LICENSE, FICTIONAL_CHIP, NEXT_MORNING_LABEL, TRY_HINT } from "./ui-copy";
 
-const SERVER = "http://127.0.0.1:8787";
+const SERVER = DEFAULT_SERVER;
 const WELCOME_KEY = "hearthkeep.welcome.dismissed";
 const CARD_CSP =
   "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'";
