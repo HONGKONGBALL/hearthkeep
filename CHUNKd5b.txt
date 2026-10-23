@@ -1,0 +1,26 @@
+Chunk d5b — v4 hazard alert
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed.
+
+Started from 91eb92c (docs: record the d5a booking check and refreshed screens).
+Commits:
+  42c29be feat: restyle the hazard alert as a screen-wide berry banner
+  85bc8dc fix: keep the hazard banner on screen at 390px
+npm test, tsc, and the Playwright run below are against 85bc8dc, before this file.
+
+What changed
+- apps/simulator/src/App.tsx — Hazard only. When a visible turn carries an alert, the host renders p.alert with role="alert" across the device screen and does not render the card stage. The alert text is still the planner hazard reply. The booking slot row, checkout, and receipt are unchanged.
+- apps/simulator/src/App.css — The alert is a berry-soft bar (#FFE2E4) with berry-ink text (#B3172F), 20px / 600 Figtree, radius 20, and the info icon at the same 22px / 2.2 stroke as the booking over-limit line in 05-booking.html. On the desktop screen it sits across the bottom. Under 900px it sits under the clock so the safety line stays in the first viewport. The unreachable server banner is unchanged.
+- Server, planner, MCP, and domain logic are unchanged.
+
+Layout check
+A temporary Playwright spec (deleted after the run, not part of the suite) at 1280×800 and 390×800:
+- p.alert contains "leave the home now". There is no iframe.card-frame, no .stage, and no card placeholder.
+- At 1280 the banner is wider than the conversation column, inside the screen, and below the reply.
+- At 390 the banner is inside the screen and inside the 800px viewport.
+
+Commands and exit codes
+- npx tsc -p apps/simulator/tsconfig.json --noEmit, from /workspace/amazon-app, on 85bc8dc: exit 0.
+- npm test, from /workspace/amazon-app, on 85bc8dc: exit 0. Vitest 4.1.12. 19 files passed, 224 tests passed. Start 13:28:24. Duration 8.49s.
+- npx playwright test tests/e2e/d5b-layout.spec.ts, from /workspace/amazon-app: exit 0. 1 passed. That file was removed afterward, so the suite count stays 30.
+- npx playwright test, from /workspace/amazon-app, after the layout spec was removed: exit 0. 30 passed. Duration 42.5s. Channel chrome, 1 worker. Test 68 (booking over the cap) passed. Test 71 (gas smell) and test 72 (continuous alarm) passed.
+The Playwright suite rewrote some docs/screens/rc2/*.png. Those diffs were restored and are not part of this commit.
