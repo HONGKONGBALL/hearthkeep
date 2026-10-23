@@ -1,0 +1,35 @@
+Chunk d6 — v4 final pass
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed.
+
+Started from 39a58a1 (docs: record the d5 booking and hazard gate).
+Commits:
+  f55301e docs: record the d6 vitest and playwright logs
+  bd733ee docs: capture the five v4 simulator screens
+This note is the next commit.
+
+What changed
+- No simulator, server, planner, MCP, or domain edits. npm test and Playwright both passed on 39a58a1, so there was no d1–d5 regression to fix and no test was weakened.
+- docs/evidence/v4/vitest.txt — raw npm test output, including the exit code.
+- docs/evidence/v4/playwright.txt — raw npx playwright test output, including the exit code.
+- docs/screens/v4/01-welcome.png through 05-booking.png — 1440×900 viewport shots from the running simulator (Vite 127.0.0.1:5173, MCP 127.0.0.1:8787, fictional seed, sim clock Wed, Oct 21, 2026 · 9:00 AM). Each shot is the same screen as the same-named mockup, with the app's own copy and numbers:
+  01 welcome overlay: Start, data notice, idle frame behind the scrim.
+  02 morning briefing, status card with vitals rings, Data drawer on Schedule (6 appliances).
+  03 "Order a new filter for the fridge": Rillstone CX-28 and Ferngate FG-WF2, Data drawer on Inventory.
+  04 "Yes, the CX-28": checkout $24.99, Fri, Oct 23, within the $60 limit, purchase-code lock, Trace open, prepare_checkout raw JSON, quote q_0001.
+  05 from a fresh reset: three openings collapsed above checkout, $89.00, Tue, Oct 27, 9-11 AM, over the $60 limit by $29.00, approve lock, Data drawer on Audit, quote q_0001.
+- A temporary capture script was used and then removed. It is not in the tree.
+- Playwright rewrote some docs/screens/rc2/*.png files. Those diffs were restored and are not part of this chunk.
+
+Commands and exit codes
+- npm test, from /workspace/amazon-app: exit 0. Vitest 4.1.12. 19 files passed, 224 tests passed. Start 13:34:35. Duration 19.83s. Log: docs/evidence/v4/vitest.txt (sha256 6d422f4e769d289f6e50f4c5e7d9fde46cc04316b9be3d84924fdc123363f3ea).
+- npx playwright test, from /workspace/amazon-app: exit 0. 30 passed (53.5s). Channel chrome, 1 worker. Log: docs/evidence/v4/playwright.txt (sha256 952b6bd660695a67f8ef10b7d0ba9939448539b6ddf5bb8712a4d658545112d0).
+- npx tsx scripts/capture-v4-screens.ts, first run: exit 1. locator('.ribbon') matched the frame ribbon and the welcome ribbon. No PNG was written.
+- npx tsx scripts/capture-v4-screens.ts, after waiting on .frame .ribbon: exit 0. Five PNGs, each 1440×900.
+  01-welcome.png  sha256 92e73fe206836676252a593e6dd8f0e73296753f23a758e0bb756bd8bd015726
+  02-briefing.png  sha256 96f57b7fc2258d8c5359a59f13e373003c54c176ff557d06ce1722e4a185ac35
+  03-parts.png     sha256 61ea0ebd8229eed00db883afc53e2006b60b99f9ccf1cb4a4bcbe04fa73845c4
+  04-checkout.png sha256 ef1842ed72b9659e8a74e78c9e605c38bb8e0369f98192b1832c7efb4d75b949
+  05-booking.png  sha256 78b6cdc6e3cf78f8e0c9ecb10a1487f15c603db54c2829f9dd7c618ecfdf0932
+
+Gate
+npm test exits 0 at 224. The Playwright suite stays at 30 passing. The five v4 screens exist in docs/screens/v4/.
