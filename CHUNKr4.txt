@@ -1,0 +1,24 @@
+Chunk r4 — A6 Mark done closes the task on the clicked row
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed. Tag rc4 was not created. BUILD-RC4.txt still records chunk r1 (A2) only.
+
+Started from 2c12e9b (docs: record the A4 over-cap voice checks for rc4).
+Commits:
+  c5066a9 fix: close the Mark done task the button names
+  8d4aba5 test: close the second open task from its Mark done row
+This note and docs/evidence/rc4/a6-*.txt are the next commit. Parent of that commit: 8d4aba5445a83132196ec3459abd3582faa7ce55.
+
+What changed
+- apps/mcp-server/src/card-html.ts: each Open tasks row and the C5 Mark done button send "Done, I swapped it task <id>" and carry data-task-id. The visible label stays "Mark done".
+- apps/simulator/src/planner.ts: a task id closes that task, including when lastTask is a different one. One open task still closes on a bare Done. Several open tasks and no name ask "Which one, ...?" and keep the status card. The next reply can name the task. A missing id does not close some other task. A filter that has not arrived still waits, and does not log a different task.
+- tests/planner-install.test.ts: question, named button, spoken follow-up, not-yet-arrived install, and a missing id.
+- tests/cards.test.ts: each button's intent includes its own task id.
+- tests/e2e/a6-mark-done.spec.ts: order the fridge filter, report the chirp, two mornings, click the second Open tasks row. That row is the install. It closes. The battery task stays open. Existing assertions were not weakened. Vitest went from 225 to 231. Playwright went from 33 to 34.
+
+Commands and exit codes
+- npx vitest run --reporter=default, from /workspace/amazon-app, after 8d4aba5: exit 0. Vitest 4.1.12. 19 files passed, 231 tests passed. Start 15:39:39. Duration 8.66s. planner-install.test.ts is 9 tests. cards.test.ts is 6 tests. Log: docs/evidence/rc4/a6-vitest.txt (sha256 12c6f1aaccfd39d6b480027b4a82c2f058d80558bfd00cc691784aa1547a1c40).
+- PLAYWRIGHT_HTML_OPEN=never npx playwright test --reporter=list, after 8d4aba5: exit 0. 34 passed (49.3s). Channel chrome, 1 worker. Includes "A6 clicking the second open task closes that task" (1.8s in that run) and the previous 33 cases. Log: docs/evidence/rc4/a6-playwright.txt (sha256 1d16320b7d80242c253a125d5fdc27e40e7d04a8f876bab7f3c24b289d14f18f).
+- The full Playwright run rewrote png files in docs/screens/rc2/ and docs/screens/rc4/. Restored with git checkout -- docs/screens/rc2 docs/screens/rc4. Those files are unchanged in this chunk.
+- npx tsc --noEmit for packages/core, apps/mcp-server, and apps/simulator: exit 0. The root tsconfig still reports the existing tests/docs-video.test.ts errors for scripts/video-script.mjs. That file was not part of this chunk.
+
+Acceptance
+The planner unit tests pass. The e2e clicks the second Open tasks row after two mornings and closes the fridge install (April 2027), not the hallway battery. npm test count is 231. Playwright count is 34, all passed.

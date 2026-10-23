@@ -1,0 +1,36 @@
+HEAD 8d4aba5445a83132196ec3459abd3582faa7ce55
+STATUS
+?? hearthkeep-rc3.launch.pid
+---
+
+
+ RUN  v4.1.12 /workspace/amazon-app
+
+(node:148888) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ tests/protocol/qa-i.test.ts (8 tests) 362ms
+ ✓ tests/protocol/qa-e.test.ts (12 tests) 383ms
+ ✓ tests/planner-flows.test.ts (14 tests) 329ms
+ ✓ tests/protocol/qa-b.test.ts (34 tests) 297ms
+ ✓ tests/protocol/qa-d.test.ts (26 tests) 302ms
+ ✓ tests/sim.test.ts (6 tests) 292ms
+ ✓ tests/protocol/tools.test.ts (10 tests) 225ms
+ ✓ tests/protocol/qa-c.test.ts (30 tests) 209ms
+ ✓ tests/domain.test.ts (28 tests) 125ms
+ ✓ tests/protocol/transport.test.ts (3 tests) 107ms
+ ✓ tests/healthz.test.ts (3 tests) 94ms
+ ✓ tests/storage.test.ts (9 tests) 70ms
+ ✓ tests/planner.test.ts (18 tests) 50ms
+ ✓ tests/planner-briefing-followup.test.ts (4 tests) 38ms
+ ✓ tests/planner-install.test.ts (9 tests) 28ms
+ ✓ tests/cards.test.ts (6 tests) 20ms
+ ✓ tests/docs-video.test.ts (2 tests) 6ms
+ ✓ tests/turn-queue.test.ts (6 tests) 6ms
+ ✓ tests/simulator-chrome.test.ts (3 tests) 5ms
+
+ Test Files  19 passed (19)
+      Tests  231 passed (231)
+   Start at  15:39:39
+   Duration  8.66s (transform 453ms, setup 0ms, import 2.32s, tests 2.95s, environment 2ms)
+
+VITEST_EXIT 0

@@ -17,3 +17,5 @@ Household names, prices, and the purchase code in those runs are fictional sampl
 Chunk r2 (A1) added `a1-vitest.txt` and `a1-playwright.txt`. Those are the raw logs for the status-row fix. `CHUNKr2.txt` at the repo root cites them. The A2 files above are unchanged.
 
 Chunk r3 (A4) added `a4-vitest.txt` and `a4-playwright.txt`. Those are the raw logs for the over-cap Confirm by voice reply. `CHUNKr3.txt` at the repo root cites them. The A1 and A2 files above are unchanged.
+
+Chunk r4 (A6) added `a6-vitest.txt` and `a6-playwright.txt`. Those are the raw logs for Mark done choosing the task on the clicked row. `CHUNKr4.txt` at the repo root cites them. The A1, A2, and A4 files above are unchanged.
