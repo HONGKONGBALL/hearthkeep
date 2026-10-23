@@ -1,0 +1,12 @@
+rc4-psyche5 clean-clone verification
+Tested commit: e523db13ffc4086ab47e4ddf1cfd3084641b703a (video lines L3/L6 and close card; video-script.md key note; docs-video test updated; parent of the commit that adds this file)
+Run: 2026-10-23 18:27:09 to 18:28:37 Asia/Shanghai (UTC+8), fresh clone at /tmp/hk-rc4p5, node v20.19.2, headless (DISPLAY unset), HK_PORT=42401
+Working tree before the run: clean
+npm ci: exit 0
+npm run typecheck: exit 0, 0 errors
+npm test (vitest): 19 files, 231 passed, 0 failed
+npm run test:e2e (playwright, chrome): 41 passed, 0 failed
+Run log mentions of port 8787: 0
+Demo video: docs/demo/hearthkeep-demo.mp4 170.000 s, 1920x1080 30 fps, sha256 34b18f53cc3b18edf986845123ba331701b3bdb98731dad58cf47209428d7ed7, md5 0da4dfa4d015d15197c9dd937b84cf1b, 4398238 bytes
+Video changes: L3 "The simulator speaks first." and L6 "It places a mock booking with the pro. The limit is enforced by the server." re-synthesized with DashScope qwen3-tts-flash voice Cherry; captions for 24-40 s and 105-132 s re-burned; close card shows https://github.com/HONGKONGBALL/hearthkeep. All other narration samples are bit-identical to the previous mix; other picture frames are carried over.
+Correction: clean-clone-rc4-psyche4.txt says "18:2x"; that run was 18:15 to 18:19 Asia/Shanghai.

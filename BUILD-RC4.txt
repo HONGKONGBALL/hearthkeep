@@ -116,3 +116,4 @@ pending-owner
   - Submit Devpost before the deadline.
   rc4-psyche3: typecheck fixed (scripts/video-script.d.mts) and tests/simulator read HK_PORT (default 8787). Clean clone of 59a04bb with HK_PORT=18787: typecheck 0 errors, vitest 231/231, playwright 41/41. Record: docs/evidence/rc4/typecheck-rc4-psyche3.txt. Video unchanged.
   rc4-psyche4: scripts/narrate-demo.mjs reads DASHSCOPE_API_KEY from the environment first, then the local secrets file; README says to set DASHSCOPE_API_KEY. Clean clone of 3f4b5d2 with HK_PORT=37383: typecheck 0 errors, vitest 231/231, playwright 41/41. Record: docs/evidence/rc4/clean-clone-rc4-psyche4.txt. Video unchanged.
+  rc4-psyche5: demo L3/L6 narration and captions, close-card repo URL, video-script.md env-first key note. Clean clone of e523db1 with HK_PORT=42401: typecheck 0 errors, vitest 231/231, playwright 41/41. Record: docs/evidence/rc4/clean-clone-rc4-psyche5.txt. Video md5 0da4dfa4d015d15197c9dd937b84cf1b.
