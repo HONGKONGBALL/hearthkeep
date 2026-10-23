@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { CodeLock, WelcomeOverlay } from "./chrome";
+import { CodeLock, Icon, Ribbon, WelcomeOverlay } from "./chrome";
 import { HearthkeepClient, type OpenedSession, type SimSnapshot } from "./mcp-client";
 import {
   PROTOCOL_LABEL,
@@ -13,7 +13,7 @@ import {
   type TraceStep,
 } from "./planner";
 import { acceptUtterance, isCardFrameSource, nextIntent, rememberCardWindow } from "./turn-queue";
-import { ABOUT_LICENSE, FICTIONAL_CHIP, NEXT_MORNING_LABEL, SIMULATION_RIBBON, TRY_HINT } from "./ui-copy";
+import { ABOUT_LICENSE, FICTIONAL_CHIP, NEXT_MORNING_LABEL, TRY_HINT } from "./ui-copy";
 
 const SERVER = "http://127.0.0.1:8787";
 const WELCOME_KEY = "hearthkeep.welcome.dismissed";
@@ -64,6 +64,72 @@ function cell(value: unknown): string {
   if (value === null || value === undefined || value === "") return "—";
   if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return String(value);
   return JSON.stringify(value);
+}
+
+const WEEKDAY_LONG: Record<string, string> = {
+  Sun: "Sunday",
+  Mon: "Monday",
+  Tue: "Tuesday",
+  Wed: "Wednesday",
+  Thu: "Thursday",
+  Fri: "Friday",
+  Sat: "Saturday",
+};
+
+function hour24Of(hour12: number, ap: string): number {
+  if (ap === "AM") return hour12 === 12 ? 0 : hour12;
+  return hour12 === 12 ? 12 : hour12 + 12;
+}
+
+/** Device clock face plus the sun position on the 6 AM–6 PM arc. */
+function clockFace(iso: string): {
+  header: string;
+  time: string;
+  ap: string;
+  weekday: string;
+  monthDay: string;
+  sun: { x: number; y: number };
+} {
+  const header = formatSimHeader(iso);
+  const match = header.match(/^([A-Za-z]+), ([A-Za-z]+ \d+), \d+ · (\d+):(\d+) (AM|PM)$/);
+  let hour24 = 9;
+  let minute = 0;
+  let time = "9:00";
+  let ap = "AM";
+  let weekday = "Wednesday";
+  let monthDay = "Oct 21";
+  if (match) {
+    weekday = WEEKDAY_LONG[match[1]] ?? match[1];
+    monthDay = match[2];
+    const hour12 = Number(match[3]);
+    minute = Number(match[4]);
+    ap = match[5] ?? "AM";
+    time = `${hour12}:${String(minute).padStart(2, "0")}`;
+    hour24 = hour24Of(hour12, ap);
+  }
+  const t = Math.min(1, Math.max(0, (hour24 * 60 + minute - 6 * 60) / (12 * 60)));
+  const angle = Math.PI * (1 - t);
+  return {
+    header,
+    time,
+    ap,
+    weekday,
+    monthDay,
+    sun: { x: 32 + 26 * Math.cos(angle), y: 31 - 26 * Math.sin(angle) },
+  };
+}
+
+function DaylightArc({ x, y }: { x: number; y: number }) {
+  const cx = x.toFixed(1);
+  const cy = y.toFixed(1);
+  return (
+    <svg className="arc" viewBox="0 0 64 34" aria-hidden="true">
+      <path d="M2 31h60" stroke="#D9E2CC" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M6 31A26 26 0 0 1 58 31" fill="none" stroke="#C9D3BD" strokeWidth="2" strokeDasharray="2 4" strokeLinecap="round" />
+      <path d={`M6 31A26 26 0 0 1 ${cx} ${cy}`} fill="none" stroke="#F2B705" strokeWidth="3" strokeLinecap="round" />
+      <circle cx={cx} cy={cy} r="5.5" fill="#FFD43D" stroke="#FFFEF8" strokeWidth="2" />
+    </svg>
+  );
 }
 
 /** Show calendar dates as "Fri, Oct 23". Other values stay as stored. */
@@ -346,30 +412,47 @@ export function App() {
   const latestAlert = [...visible].reverse().find((turn) => turn.alert)?.alert ?? null;
 
   const pageClass = showTrace || showData ? "page page-panels" : "page";
+  const face = clockFace(clockIso);
+  const connectionLabel = connection === "down" ? "Server unreachable" : connection === "connecting" ? "Connecting" : "Connected";
 
   return (
     <div className={pageClass}>
       <div className="app-shell" ref={shellRef}>
       <header className="top">
-        <div className="identity">
-          <strong className="brand"><span className="mark" aria-hidden="true" />Hearthkeep</strong>
-          <span className="meta">Session {sessionPrefix || "—"}</span>
-          <span className="meta">{PROTOCOL_LABEL}</span>
-          <span className="meta">{formatSimHeader(clockIso)}</span>
-          <span className="badge">Deterministic (offline)</span>
-          <span className={`status status-${connection}`}>
-            {connection === "down" ? "Server unreachable" : connection === "connecting" ? "Connecting" : "Connected"}
-          </span>
+        <div className="hdr-1">
+          <div className="identity">
+            <strong className="brand"><span className="mark" aria-hidden="true"><Icon name="logo" /></span>Hearthkeep</strong>
+            <span className="brand-sub">Simulation host</span>
+            <span className={`status status-${connection}`}>
+              <span className="dot" aria-hidden="true" />
+              {connectionLabel}
+              <span className="sep" aria-hidden="true">·</span>
+              <span className="meta">Session {sessionPrefix || "—"}</span>
+            </span>
+            <span className="pill"><span className="k">MCP</span> <span className="mono">{PROTOCOL_LABEL}</span></span>
+            <span className="badge">Deterministic (offline)</span>
+          </div>
+          <div className="simclock">
+            <div>
+              <span className="lbl">Sim clock</span>
+              <b>{face.header}</b>
+            </div>
+            <span className="sun" aria-hidden="true"><Icon name="sun" /></span>
+          </div>
         </div>
         <div className="controls">
-          <button type="button" onClick={() => void onNewSession()} disabled={busy}>New session</button>
-          <button type="button" onClick={() => void onNextMorning()} disabled={busy}>{NEXT_MORNING_LABEL}</button>
-          <button type="button" onClick={() => void onReset()} disabled={busy}>Reset demo</button>
-          <button type="button" aria-pressed={showTrace} onClick={() => setShowTrace((value) => !value)}>Trace</button>
-          <button type="button" aria-pressed={showData} onClick={() => { setShowData((value) => !value); void refreshData(); }}>Data</button>
-          <button type="button" aria-pressed={showCards} onClick={() => setShowCards((value) => !value)}>Cards</button>
-          <button type="button" aria-pressed={voice} onClick={() => setVoice((value) => !value)}>Voice</button>
-          <button type="button" onClick={() => setAbout(true)}>About</button>
+          <span className="glabel">Session</span>
+          <button type="button" onClick={() => void onNewSession()} disabled={busy}><Icon name="plus" />New session</button>
+          <button type="button" onClick={() => void onNextMorning()} disabled={busy}><Icon name="sunrise" />{NEXT_MORNING_LABEL}</button>
+          <button type="button" onClick={() => void onReset()} disabled={busy}><Icon name="reset" />Reset demo</button>
+          <span className="spacer" />
+          <span className="glabel">View</span>
+          <button type="button" aria-pressed={showTrace} onClick={() => setShowTrace((value) => !value)}><span className="sw" aria-hidden="true" />Trace</button>
+          <button type="button" aria-pressed={showData} onClick={() => { setShowData((value) => !value); void refreshData(); }}><span className="sw" aria-hidden="true" />Data</button>
+          <button type="button" aria-pressed={showCards} onClick={() => setShowCards((value) => !value)}><span className="sw" aria-hidden="true" />Cards</button>
+          <button type="button" aria-pressed={voice} onClick={() => setVoice((value) => !value)}><span className="sw" aria-hidden="true" />Voice</button>
+          <span className="vsep" aria-hidden="true" />
+          <button className="lnk" type="button" onClick={() => setAbout(true)}><Icon name="info" />About</button>
         </div>
       </header>
 
@@ -380,18 +463,32 @@ export function App() {
         </p>
       ) : null}
 
+      <div className="main">
+      <div className="col">
       <section className="frame" aria-label="Simulated smart display">
-        <p className="ribbon">{SIMULATION_RIBBON}</p>
+        <div className="screen">
         <div className="frame-bar">
-          <span className="chip">{FICTIONAL_CHIP}</span>
-          <time className="clock" dateTime={clockIso}>{formatSimHeader(clockIso)}</time>
-          <p className="hint">{TRY_HINT}</p>
+          <Ribbon />
+          <p className="fchip"><Icon name="doc" />{FICTIONAL_CHIP}</p>
+          <div className="clockblock">
+            <DaylightArc x={face.sun.x} y={face.sun.y} />
+            <time className="clock" dateTime={clockIso}>
+              <span className="t">{face.time}<span>{face.ap}</span></span>
+              <span className="d"><b>{face.weekday}</b>{face.monthDay}</span>
+            </time>
+          </div>
         </div>
         <div className="frame-body">
           <div className="conversation">
             <h2 className="sr-only">Conversation</h2>
             <div className="transcript" aria-live="polite" tabIndex={0}>
-              {connection === "connecting" && visible.length === 0 ? <p>Connecting…</p> : null}
+              {!welcome && connection === "connecting" && visible.length === 0 ? <p>Connecting…</p> : null}
+              {visible.length === 0 && (welcome || connection !== "connecting") ? (
+                <div className="idle">
+                  <span className="eyebrow">Try</span>
+                  <p>{TRY_HINT}</p>
+                </div>
+              ) : null}
               {visible.map((turn, index) => (
                 <article key={`${turn.assistant}-${index}`}>
                   {turn.user ? <p className="user">{turn.user}</p> : null}
@@ -400,32 +497,6 @@ export function App() {
               ))}
             </div>
             {latestAlert ? <p className="alert" role="alert">{latestAlert}</p> : null}
-            <div className="chips" role="group" aria-label="Quick replies in demo order">
-              {QUICK_CHIPS.map((chip) => (
-                <button key={chip.label} type="button" disabled={busy} onClick={() => void onSend(chip.utterance)}>
-                  {chip.label}
-                </button>
-              ))}
-            </div>
-            <form
-              onSubmit={(event) => {
-                event.preventDefault();
-                void onSend(draft);
-              }}
-            >
-              <label htmlFor="say">{awaitingCode ? "Purchase code" : "Say something"}</label>
-              <div className="composer">
-                {awaitingCode ? <CodeLock /> : null}
-                <input
-                  id="say"
-                  value={draft}
-                  disabled={busy || connection === "down"}
-                  placeholder={awaitingCode ? "Say your purchase code" : "Type what you'd say..."}
-                  onChange={(event) => setDraft(event.target.value)}
-                />
-                <button type="submit" disabled={busy || connection === "down"}>Send</button>
-              </div>
-            </form>
           </div>
           <div className="stage" aria-label="Card">
             {showCards && card && cardHtml ? (
@@ -435,8 +506,48 @@ export function App() {
             )}
           </div>
         </div>
+        </div>
       </section>
+      <div className="dock">
+        <div className="chips" role="group" aria-label="Quick replies in demo order">
+          <span className="eyebrow">Try</span>
+          <div className="chiprow">
+            {QUICK_CHIPS.map((chip, index) => (
+              <button
+                key={chip.label}
+                type="button"
+                className={visible.length === 0 && index === 0 ? "next" : undefined}
+                disabled={busy}
+                onClick={() => void onSend(chip.utterance)}
+              >
+                {chip.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            void onSend(draft);
+          }}
+        >
+          <label className="sr-only" htmlFor="say">{awaitingCode ? "Purchase code" : "Say something"}</label>
+          <div className={awaitingCode ? "composer is-locked" : "composer"}>
+            {awaitingCode ? <CodeLock /> : null}
+            <input
+              id="say"
+              value={draft}
+              disabled={busy || connection === "down"}
+              placeholder={awaitingCode ? "Say your purchase code" : "Type what you'd say..."}
+              onChange={(event) => setDraft(event.target.value)}
+            />
+            <button type="submit" disabled={busy || connection === "down"}>Send</button>
+          </div>
+        </form>
+      </div>
+      </div>
 
+      {showTrace || showData ? <div className="side">
       {showTrace ? (
         <aside className="panel" aria-label="Trace">
           <h2>Trace</h2>
@@ -476,7 +587,7 @@ export function App() {
       {showData ? (
         <aside className="panel" aria-label="Data">
           <h2>Household data</h2>
-          <p className="banner">All data is fictional sample data</p>
+          <p className="data-banner">All data is fictional sample data</p>
           <div className="tabs">
             {DATA_TABS.map((tab) => (
               <button key={tab} type="button" aria-pressed={dataTab === tab} onClick={() => setDataTab(tab)}>{tab}</button>
@@ -485,9 +596,12 @@ export function App() {
           <DataView tab={dataTab} snapshot={snapshot} />
         </aside>
       ) : null}
+      </div> : null}
+      </div>
+      </div>
 
       {about ? (
-        <div className="overlay" role="dialog" aria-labelledby="about-title">
+        <div className="overlay about-sheet" role="dialog" aria-labelledby="about-title">
           <div className="sheet">
             <h2 id="about-title">About this simulation</h2>
             <p>Planner: deterministic, offline. Storage: SQLite. Payment: mock. Catalog: fictional seed.</p>
@@ -499,9 +613,15 @@ export function App() {
           </div>
         </div>
       ) : null}
-      </div>
 
-      {welcome ? <WelcomeOverlay onStart={() => void onStart()} /> : null}
+      {welcome ? (
+        <WelcomeOverlay
+          onStart={() => void onStart()}
+          onAbout={() => setAbout(true)}
+          clockLabel={face.header}
+          serverDetail={`Endpoint ${SERVER}/mcp. Protocol ${PROTOCOL_LABEL}.`}
+        />
+      ) : null}
     </div>
   );
 }
