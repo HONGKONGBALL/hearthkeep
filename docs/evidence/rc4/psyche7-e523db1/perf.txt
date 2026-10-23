@@ -1,0 +1,95 @@
+P-13 per-turn timings for cases 64, 65, 67, and 68
+Release candidate: rc4-psyche7
+Household names, prices, and the purchase code in these turns are fictional sample data.
+
+Method
+  Browser: Chrome via Playwright, viewport 1280x800, origin http://127.0.0.1:5173.
+  Server: MCP on 127.0.0.1:8787, HK_SIM_MODE=1, HK_SIM_START=2026-10-21T09:00:00-07:00, HK_JSON_RESPONSE=0 (SSE).
+  HK_PURCHASE_CODE=2468, the fictional demo code. HK_AUTH_TOKEN and HK_LLM_* are empty.
+  Each case runs 3 times. The simulator is reset and the browser context is new before every case run.
+  Clock: performance.now() in the page.
+  Start: click event, capture phase, on Start (case 64) or Send (typed turns). Filling the field is not included.
+  reply_ms: start until the new .transcript .assistant text contains the snippet.
+  settled_ms: start until that reply is showing and #say is enabled. Card rendering is inside this interval.
+  p95: nearest rank. Sort ascending, index = ceil(0.95 * n) - 1. Same rule as tests/protocol/qa-i.test.ts.
+  Acceptance uses reply_ms. Threshold is 1500 ms.
+  git HEAD at the run: e523db13ffc4086ab47e4ddf1cfd3084641b703a
+  started_at: 2026-10-23T11:02:36.057Z
+  finished_at: 2026-10-23T11:02:44.007Z
+
+Samples
+case	run	turn	utterance	snippet	reply_ms	settled_ms
+64	1	1	(Start) morning briefing	dryer vent	33.100	55.400
+65	1	1	Order a new filter for the fridge	rillstone cx-28	21.800	32.100
+65	1	2	Yes, the CX-28	purchase code	17.000	31.600
+65	1	3	2468	ordered	16.100	33.600
+67	1	1	The hallway smoke alarm keeps chirping	nothing to buy	25.300	32.700
+67	1	2	Done, I swapped it	one 9-volt left	20.300	30.500
+68	1	1	Book someone to clean the dryer vent next week	openings next week	19.100	30.700
+68	1	2	Tuesday morning	over your $60	17.200	33.600
+68	1	3	2468	that's over your limit	17.200	31.100
+68	1	4	Approve 2468	booked for	19.300	32.200
+64	2	1	(Start) morning briefing	dryer vent	32.900	48.800
+65	2	1	Order a new filter for the fridge	rillstone cx-28	18.500	31.000
+65	2	2	Yes, the CX-28	purchase code	17.800	32.200
+65	2	3	2468	ordered	17.100	31.700
+67	2	1	The hallway smoke alarm keeps chirping	nothing to buy	23.600	30.500
+67	2	2	Done, I swapped it	one 9-volt left	13.300	26.300
+68	2	1	Book someone to clean the dryer vent next week	openings next week	20.200	31.300
+68	2	2	Tuesday morning	over your $60	17.800	32.500
+68	2	3	2468	that's over your limit	18.000	30.900
+68	2	4	Approve 2468	booked for	17.100	31.900
+64	3	1	(Start) morning briefing	dryer vent	35.600	47.100
+65	3	1	Order a new filter for the fridge	rillstone cx-28	19.500	33.100
+65	3	2	Yes, the CX-28	purchase code	16.400	35.800
+65	3	3	2468	ordered	17.800	31.800
+67	3	1	The hallway smoke alarm keeps chirping	nothing to buy	24.500	33.500
+67	3	2	Done, I swapped it	one 9-volt left	19.600	30.600
+68	3	1	Book someone to clean the dryer vent next week	openings next week	19.300	30.400
+68	3	2	Tuesday morning	over your $60	17.600	32.700
+68	3	3	2468	that's over your limit	18.000	31.700
+68	3	4	Approve 2468	booked for	15.500	30.100
+
+Replies
+#64 run 1 turn 1: Good morning, the dryer vent cleaning is three weeks overdue and your fridge water filter is due today. Want me to handle them?
+#65 run 1 turn 1: Two filters fit your Ferngate FG-28, and the certified Rillstone CX-28 is $24.99, arriving Friday. Want that one?
+#65 run 1 turn 2: That's $24.99, arriving Friday, October 23. Within your $60 limit, so say your purchase code to confirm.
+#65 run 1 turn 3: Ordered. I'll remind you to swap it on Friday.
+#67 run 1 turn 1: That chirp usually means a low battery, and you have two 9-volt batteries on the garage shelf. Nothing to buy, so I added a task.
+#67 run 1 turn 2: Nice. One 9-volt left, and the next battery change is due October 2027.
+#68 run 1 turn 1: I found three openings next week. The earliest is Tuesday, 9 to 11 AM, with Ventora Home Care for $89.
+#68 run 1 turn 2: That's $89, which is $29 over your $60 limit. To book it anyway, say 'approve' and your code.
+#68 run 1 turn 3: That's over your limit. Say 'approve' and your code.
+#68 run 1 turn 4: Booked for Tuesday, October 27, 9 to 11 AM. It's on your schedule.
+#64 run 2 turn 1: Good morning, the dryer vent cleaning is three weeks overdue and your fridge water filter is due today. Want me to handle them?
+#65 run 2 turn 1: Two filters fit your Ferngate FG-28, and the certified Rillstone CX-28 is $24.99, arriving Friday. Want that one?
+#65 run 2 turn 2: That's $24.99, arriving Friday, October 23. Within your $60 limit, so say your purchase code to confirm.
+#65 run 2 turn 3: Ordered. I'll remind you to swap it on Friday.
+#67 run 2 turn 1: That chirp usually means a low battery, and you have two 9-volt batteries on the garage shelf. Nothing to buy, so I added a task.
+#67 run 2 turn 2: Nice. One 9-volt left, and the next battery change is due October 2027.
+#68 run 2 turn 1: I found three openings next week. The earliest is Tuesday, 9 to 11 AM, with Ventora Home Care for $89.
+#68 run 2 turn 2: That's $89, which is $29 over your $60 limit. To book it anyway, say 'approve' and your code.
+#68 run 2 turn 3: That's over your limit. Say 'approve' and your code.
+#68 run 2 turn 4: Booked for Tuesday, October 27, 9 to 11 AM. It's on your schedule.
+#64 run 3 turn 1: Good morning, the dryer vent cleaning is three weeks overdue and your fridge water filter is due today. Want me to handle them?
+#65 run 3 turn 1: Two filters fit your Ferngate FG-28, and the certified Rillstone CX-28 is $24.99, arriving Friday. Want that one?
+#65 run 3 turn 2: That's $24.99, arriving Friday, October 23. Within your $60 limit, so say your purchase code to confirm.
+#65 run 3 turn 3: Ordered. I'll remind you to swap it on Friday.
+#67 run 3 turn 1: That chirp usually means a low battery, and you have two 9-volt batteries on the garage shelf. Nothing to buy, so I added a task.
+#67 run 3 turn 2: Nice. One 9-volt left, and the next battery change is due October 2027.
+#68 run 3 turn 1: I found three openings next week. The earliest is Tuesday, 9 to 11 AM, with Ventora Home Care for $89.
+#68 run 3 turn 2: That's $89, which is $29 over your $60 limit. To book it anyway, say 'approve' and your code.
+#68 run 3 turn 3: That's over your limit. Say 'approve' and your code.
+#68 run 3 turn 4: Booked for Tuesday, October 27, 9 to 11 AM. It's on your schedule.
+
+Summary
+n=30
+reply_ms min=13.300 max=35.600 p95=33.100
+settled_ms min=26.300 max=55.400 p95=48.800
+case 64 n=3 reply_ms p95=35.600
+case 65 n=9 reply_ms p95=21.800
+case 67 n=6 reply_ms p95=25.300
+case 68 n=12 reply_ms p95=20.200
+p95 reply_ms < 1500 ms: PASS (33.100 ms)
+p95 settled_ms < 1500 ms: PASS (48.800 ms)
+verdict: PASS
