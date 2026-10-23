@@ -150,7 +150,7 @@ main[data-card="options"] .badges{display:flex;flex-wrap:wrap;gap:6px;margin:2px
 main[data-card="options"] .badge{max-width:100%;min-height:28px;display:inline-flex;align-items:center;padding:2px 11px;border-radius:999px;background:#EAF1DE;color:#14301F;font-size:15px;font-weight:600;line-height:1.2;letter-spacing:0}
 main[data-card="options"] .badge.cert{background:#D5F3DF;color:#0B7039}
 main[data-card="options"] .badge.limit{background:#FFE2E4;color:#B3172F}
-main[data-card="options"] .sticker{position:absolute;top:-17px;right:16px;z-index:1;height:30px;max-width:calc(100% - 32px);display:inline-flex;align-items:center;padding:0 13px;border-radius:999px;background:#FF6A2B;color:#14301F;font:700 15px/1 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:0;white-space:nowrap;transform:rotate(-4deg);box-shadow:0 6px 14px -6px rgba(255,106,43,.8);animation:hkpop 420ms cubic-bezier(.34,1.4,.64,1) 200ms both}
+main[data-card="options"] .sticker{position:absolute;top:-17px;right:16px;z-index:2;height:30px;max-width:calc(100% - 32px);display:inline-flex;align-items:center;padding:0 13px;border-radius:999px;background:#FF6A2B;color:#14301F;font:700 15px/1 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:0;white-space:nowrap;transform:rotate(-4deg);box-shadow:0 6px 14px -6px rgba(255,106,43,.8);animation:hkpop 420ms cubic-bezier(.34,1.4,.64,1) both}
 main[data-card="options"] .why{font-size:20px;line-height:1.25;font-weight:600;color:#0B7039}
 main[data-card="options"] .why.quiet{color:#4F6353;font-weight:500}
 main[data-card="options"] .act{margin-top:auto;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;border:1.5px solid #14301F;background:#FFFEF8;color:#14301F;font-size:20px;font-weight:700;letter-spacing:0;padding:0 12px}
@@ -159,7 +159,7 @@ main[data-card="options"] .tile:focus-visible{outline:none;box-shadow:0 0 0 3px 
 main[data-card="options"] .foot{margin:12px 0 0;padding:10px 16px;background:#EAF1DE;border:0;border-radius:20px;font-size:20px;line-height:1.3;color:#14301F}
 main[data-card="options"] .foot:has(+ .stock){border-radius:20px 20px 0 0;padding-bottom:2px}
 main[data-card="options"] .stock{margin:0;padding:2px 16px 10px;background:#EAF1DE;border-radius:0 0 20px 20px;font-size:20px;line-height:1.3;color:#4F6353}
-@keyframes hkpop{from{opacity:0;transform:rotate(-4deg) scale(.6)}to{opacity:1;transform:rotate(-4deg) scale(1)}}
+@keyframes hkpop{from{transform:rotate(-4deg) scale(.6)}to{transform:rotate(-4deg) scale(1)}}
 @media (prefers-reduced-motion:reduce){main[data-card="options"] .sticker{animation:none!important}}
 </style>
 <script>
