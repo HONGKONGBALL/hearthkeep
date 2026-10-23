@@ -74,4 +74,33 @@ test("A1 next morning status rows use the wide text column", async ({ page }) =>
 
   await expectCardFits(page);
   await page.locator("iframe.card-frame").screenshot({ path: "docs/screens/rc4/a1-1280-next-morning.png" });
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect.poll(async () => {
+    const fit = await childFrame(page).evaluate(() => {
+      const root = document.documentElement;
+      return root.scrollHeight <= root.clientHeight;
+    });
+    return fit;
+  }).toBe(true);
+  const narrow = await childFrame(page).evaluate(() => {
+    return [...document.querySelectorAll('main[data-card="status"] li')].map((li) => {
+      const row = li.getBoundingClientRect();
+      const span = li.querySelector("span");
+      const textBox = span ? span.getBoundingClientRect() : row;
+      const lineHeight = parseFloat(getComputedStyle(span ?? li).lineHeight);
+      return {
+        text: (span?.textContent ?? "").trim(),
+        ratio: row.width > 0 ? textBox.width / row.width : 0,
+        lines: lineHeight > 0 ? textBox.height / lineHeight : 99,
+      };
+    });
+  });
+  expect(narrow.length).toBe(rows.length);
+  for (const row of narrow) {
+    expect(row.ratio, row.text).toBeGreaterThanOrEqual(0.5);
+    expect(row.lines, row.text).toBeLessThanOrEqual(2.05);
+  }
+  await expectCardFits(page);
+  await page.locator("iframe.card-frame").screenshot({ path: "docs/screens/rc4/a1-390-next-morning.png" });
 });

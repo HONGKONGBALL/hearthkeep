@@ -63,7 +63,7 @@ body:has(main[data-card="status"]) .chip{display:inline-flex;align-items:center;
 main[data-card="status"]{padding:4px 8px 8px}
 main[data-card="status"] h2{display:flex;align-items:center;gap:8px;margin:10px 0 4px;font:600 12px/1 Figtree,Nunito,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#4F6353}
 main[data-card="status"] h2 .n{min-width:22px;height:22px;padding:0 6px;border-radius:999px;display:inline-grid;place-items:center;background:#EAF1DE;color:#14301F;font:700 12px/1 Figtree,Nunito,sans-serif;letter-spacing:0;text-transform:none}
-main[data-card="status"] ul{display:flex;flex-direction:column}
+main[data-card="status"] ul{display:flex;flex-direction:column;container-type:inline-size}
 main[data-card="status"] li{margin:0 0 12px;color:#14301F;font-size:20px;line-height:1.3}
 main[data-card="status"] li.row{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:center;padding:4px 0;background:transparent;border:0;border-radius:0}
 main[data-card="status"] li.row:has(> .hk-ring){grid-template-columns:52px minmax(0,1fr) auto}
@@ -71,6 +71,7 @@ main[data-card="status"] li:not(.row){display:grid;grid-template-columns:minmax(
 main[data-card="status"] li:not(.row):has(> .hk-ring){grid-template-columns:52px minmax(0,1fr)}
 main[data-card="status"] li > span{min-width:0}
 main[data-card="status"] .row > span{font-weight:600}
+@container (max-width:540px){main[data-card="status"] li.row:not(:has(> .hk-ring)){grid-template-columns:minmax(0,1fr)}main[data-card="status"] li.row:has(> .hk-ring){grid-template-columns:52px minmax(0,1fr)}main[data-card="status"] li.row > button{grid-column:1 / -1;grid-row:2;justify-self:start;width:auto;max-width:100%}}
 main[data-card="status"] button{background:#FFFEF8;color:#14301F;border:1.5px solid #14301F;border-radius:999px;min-height:44px;padding:6px 14px;font-weight:600}
 main[data-card="status"] .hk-ring{position:relative;width:52px;height:52px;display:grid;place-items:center}
 main[data-card="status"] .hk-ring .arc{position:absolute;inset:0;transform:rotate(-90deg)}
@@ -101,6 +102,10 @@ function ringHtml(vital){
   var icon=path?'<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="'+path+'"></path></svg>':'';
   return '<i class="hk-ring '+tone+'" role="img" aria-label="'+pct+'% of interval used"><svg class="arc" viewBox="0 0 52 52" width="52" height="52" aria-hidden="true"><circle class="trk" cx="26" cy="26" r="22"></circle><circle class="fil" cx="26" cy="26" r="22" stroke-dasharray="'+full.toFixed(1)+' '+C.toFixed(1)+'"></circle>'+ovr+'</svg>'+icon+'</i>';
 }
+function reportFit(){
+  if(!document.querySelector('main[data-card="status"]'))return;
+  parent.postMessage({source:"hearthkeep-card",type:"fit",height:document.documentElement.scrollHeight},"*");
+}
 function paint(vitals){
   var main=document.querySelector('main[data-card="status"]');
   if(!main)return;
@@ -129,6 +134,7 @@ function paint(vitals){
     badge.textContent=String(count);
     h2.appendChild(badge);
   });
+  reportFit();
 }
 window.addEventListener("message",function(event){
   var data=event.data;
@@ -137,6 +143,7 @@ window.addEventListener("message",function(event){
   var content=data.structuredContent||{};
   setTimeout(function(){paint(vitals);if(window.dressOptions)window.dressOptions(content);},0);
 });
+window.addEventListener("resize",function(){setTimeout(reportFit,0);});
 })();
 </script>`;
 
@@ -1339,10 +1346,19 @@ function CardHost({
       rememberFrame(frame);
       const live = frame.contentWindow ?? liveWindowRef.current;
       if (!isCardFrameSource(event.source, live, previousWindowRef.current)) return;
-      const data = event.data as { source?: string; type?: string; utterance?: string } | null;
+      const data = event.data as { source?: string; type?: string; utterance?: string; height?: number } | null;
       if (!data || data.source !== "hearthkeep-card") return;
       if (data.type === "ready") postResult(frame);
       if (data.type === "intent" && typeof data.utterance === "string") intentRef.current(data.utterance);
+      if (data.type === "fit" && typeof data.height === "number" && Number.isFinite(data.height)) {
+        // Below 900px the device frame grows with the card, so the morning list stays fully visible.
+        if (window.innerWidth <= 900) {
+          const next = Math.ceil(data.height);
+          if (Math.abs(frame.getBoundingClientRect().height - next) > 2) frame.style.height = `${next}px`;
+        } else if (frame.style.height !== "") {
+          frame.style.height = "";
+        }
+      }
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
