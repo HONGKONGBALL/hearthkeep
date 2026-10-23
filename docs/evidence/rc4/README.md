@@ -13,3 +13,5 @@ Household names, prices, and the purchase code in those runs are fictional sampl
 | `vitest-report.json` | Machine-readable Vitest report from that same run. |
 | `playwright-report/` | Playwright HTML report (`index.html`). |
 | `playwright-report.json` | Machine-readable Playwright JSON report from that same run. |
+
+Chunk r2 (A1) added `a1-vitest.txt` and `a1-playwright.txt`. Those are the raw logs for the status-row fix. `CHUNKr2.txt` at the repo root cites them. The A2 files above are unchanged.

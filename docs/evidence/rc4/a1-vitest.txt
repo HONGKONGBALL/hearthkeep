@@ -1,0 +1,30 @@
+
+ RUN  v4.1.12 /workspace/amazon-app
+
+(node:125524) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ tests/protocol/tools.test.ts (10 tests) 217ms
+ ✓ tests/protocol/qa-i.test.ts (8 tests) 364ms
+ ✓ tests/protocol/qa-e.test.ts (12 tests) 321ms
+ ✓ tests/protocol/qa-b.test.ts (34 tests) 292ms
+ ✓ tests/protocol/qa-d.test.ts (26 tests) 276ms
+ ✓ tests/planner-flows.test.ts (14 tests) 290ms
+ ✓ tests/sim.test.ts (6 tests) 282ms
+ ✓ tests/protocol/qa-c.test.ts (30 tests) 212ms
+ ✓ tests/protocol/transport.test.ts (3 tests) 108ms
+ ✓ tests/domain.test.ts (28 tests) 125ms
+ ✓ tests/healthz.test.ts (3 tests) 91ms
+ ✓ tests/storage.test.ts (9 tests) 73ms
+ ✓ tests/planner.test.ts (17 tests) 50ms
+ ✓ tests/planner-briefing-followup.test.ts (4 tests) 47ms
+ ✓ tests/planner-install.test.ts (4 tests) 22ms
+ ✓ tests/cards.test.ts (5 tests) 19ms
+ ✓ tests/docs-video.test.ts (2 tests) 5ms
+ ✓ tests/turn-queue.test.ts (6 tests) 5ms
+ ✓ tests/simulator-chrome.test.ts (3 tests) 4ms
+
+ Test Files  19 passed (19)
+      Tests  224 passed (224)
+   Start at  15:15:11
+   Duration  8.59s (transform 463ms, setup 0ms, import 2.27s, tests 2.80s, environment 2ms)
+

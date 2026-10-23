@@ -1,0 +1,30 @@
+Chunk r2 — A1 status-card rows stay in the wide column
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed. Tag rc4 was not created. BUILD-RC4.txt still records chunk r1 (A2) only.
+
+Started from 260ebc5 (docs: record the A2 hazard follow-up checks for rc4).
+Commits:
+  cc8c3664a1271eb2cb59f45fbe9a063f03631053 fix: keep status-card text out of the icon column
+  3c4c3b1f89fdc72e7e3cd38172269fca0ebd80a6 test: check next-morning status rows stay wide
+  2614b916c20d13301507378aaf4e4c5bc246d3ad fix: keep narrow status rows wide and fully visible
+This note, the two screenshots, and docs/evidence/rc4/a1-*.txt are the next commit. Parent of that commit: 2614b916c20d13301507378aaf4e4c5bc246d3ad.
+
+What changed
+- apps/simulator/src/App.tsx: a status row reserves the 52px column only when it has a vitals ring. Other rows put the text in the wide column and keep the button at its own width. Rings match applianceId plus item, not the visible label. Under 540px the button moves under the text. At a window of 900px or less the status frame grows to the list, so the card does not scroll inside itself.
+- apps/mcp-server/src/card-html.ts: each status row carries data-appliance-id and data-item. Order, booking, and plain upcoming lines wrap their text in a span.
+- tests/e2e/a1-status-rows.spec.ts: F2 (order the CX-28) then F4 (book Tuesday morning with approve), then Next morning. At 1280 every row's text box is at least half the row, at most two lines, and expectCardFits passes. The same bounds are checked again at 390. Order and task rows that carry an appliance and an item must show a ring. Existing assertions were not weakened. Vitest stayed at 224. Playwright went from 31 to 32.
+
+Commands and exit codes
+- npx vitest run --reporter=default, from /workspace/amazon-app, after 2614b91: exit 0. Vitest 4.1.12. 19 files passed, 224 tests passed. Start 15:15:11. Duration 8.59s. Log: docs/evidence/rc4/a1-vitest.txt (sha256 e2f87c342af44166361d6f59b25754b82ec99f98069df53b5387110f35df8b21).
+- PLAYWRIGHT_HTML_OPEN=never npx playwright test --reporter=list, after 2614b91: exit 0. 32 passed (46.5s). Channel chrome, 1 worker. Includes "A1 next morning status rows use the wide text column" (2.1s in that run) and the previous 31 cases, including test 69. Log: docs/evidence/rc4/a1-playwright.txt (sha256 145ea2b1eed6cba48dc5bca7837eefac34992c90121f623336a5c16ff1fef2fd).
+- The full Playwright run rewrote png files in docs/screens/rc2/. Restored with git checkout -- docs/screens/rc2. Those files are unchanged in this chunk.
+
+Screenshots (written by the A1 spec during the full run)
+  docs/screens/rc4/a1-1280-next-morning.png
+    sha256 d69060285b69ca2381e318522e23c9a28704645fb731ccd33ff409e15a47f5dd
+    1280×800 viewport, status frame. Observed: Rillstone CX-28 (Shipped) on one line beside a ring; Install fridge water filter on one line with Mark done as a pill at the right; hallway battery wraps onto a second line; the list ends at Open tasks.
+  docs/screens/rc4/a1-390-next-morning.png
+    sha256 3bfd7e688a09a63954db49873ba84e2cb8d5a4a29304953def69e1bb778f8049
+    390×844 viewport, status frame. Observed: the same five rows, each text block at least half the row and at most two lines; Replace battery and Mark done sit under the text at their own width; Open tasks is on the frame, and the frame does not scroll inside itself.
+
+Acceptance
+The new e2e passes at 1280 and at 390: text width at least half the row, at most two lines, expectCardFits passes, and the shipped order plus the install task show a ring. npm test count stayed at 224. Playwright count is 32, all passed.
