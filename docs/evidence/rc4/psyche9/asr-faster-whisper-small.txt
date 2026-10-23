@@ -1,0 +1,18 @@
+0.00-12.00  Upcape you all and notice when something beeps.
+12.00-14.36  A real NCP server.
+14.36-19.72  Expect the 25th on November 2025 over streamable HTTP
+19.72-24.00  behind the simulated Alexa Plus experience.
+24.00-40.01  The simulator speaks first.
+40.01-44.81  Exact fit part, policy filter, code-gated mock purchase.
+44.81-49.01  This certified CX Sierra 28 is the cheapest filter
+49.01-53.01  the rules allow and an uncertified one is filtered out.
+53.01-56.65  After a mass purchase code, a mock order is placed
+56.65-58.01  with no real payment.
+58.01-60.97  Get upkeep status, resolve appliance,
+60.97-64.01  and find parts all return 200.
+64.01-89.00  It uses what you already own.
+89.00-91.08  It places a mock booking with the pro,
+91.08-116.01  the limit is enforced by the server.
+116.01-131.01  New sessions, same memory, safety beats shopping.
+131.05-146.04  Verifiable protocol behavior and open source.
+146.04-151.52  Beep-sing-lo sample data, simulated Alexa Plus experience.
