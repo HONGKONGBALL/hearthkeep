@@ -189,6 +189,8 @@ describe("card resources", () => {
     expect(task).toContain("9V battery x2, Garage shelf");
     expect(task).toContain("Mark done");
     expect(task).toContain('aria-label="Mark done, Swap hallway smoke alarm battery"');
+    expect(task).toContain('data-intent="Done, I swapped it task t_0002"');
+    expect(task).toContain('data-task-id="t_0002"');
     expect(task).not.toMatch(/>hallway smoke alarm</);
 
     const closed = render(CARD_RESOURCES[4]?.text ?? "", {
@@ -224,6 +226,28 @@ describe("card resources", () => {
     expect(html.toLowerCase()).toContain("waiting to install");
     expect(html).toContain("Mark done");
     expect(html).toContain('aria-label="Mark done, Install fridge water filter"');
-    expect(html).toContain('data-intent="Done, I swapped it"');
+    expect(html).toContain('data-intent="Done, I swapped it task t_0001"');
+    expect(html).toContain('data-task-id="t_0001"');
+  });
+
+  it("gives each open task its own Mark done target", () => {
+    const html = render(CARD_RESOURCES[0]?.text ?? "", {
+      attention: [],
+      upcoming: [],
+      inProgress: [],
+      tasks: [
+        { taskId: "t_0002", title: "Swap hallway smoke alarm battery", applianceId: "ap_smoke_hall", item: "battery", dueDate: "2026-10-21", status: "open" },
+        { taskId: "t_0001", title: "Install fridge water filter", applianceId: "ap_fridge", item: "water_filter", dueDate: "2026-10-23", status: "open" },
+      ],
+    });
+    const intents = [...html.matchAll(/data-intent="(Done, I swapped it[^"]*)"/g)].map((match) => match[1]);
+    expect(intents).toEqual([
+      "Done, I swapped it task t_0002",
+      "Done, I swapped it task t_0001",
+    ]);
+    expect(html).toContain('data-task-id="t_0002"');
+    expect(html).toContain('data-task-id="t_0001"');
+    expect(html).toContain('aria-label="Mark done, Swap hallway smoke alarm battery"');
+    expect(html).toContain('aria-label="Mark done, Install fridge water filter"');
   });
 });

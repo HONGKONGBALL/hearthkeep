@@ -225,3 +225,166 @@ describe("P04 install task close", () => {
     expect(next.reply).not.toContain("9-volt");
   });
 });
+
+const BATTERY_TASK = {
+  taskId: "t_0002",
+  title: "Swap hallway smoke alarm battery",
+  applianceId: "ap_smoke_hall",
+  item: "battery",
+  dueDate: "2026-10-21",
+  notes: null,
+  status: "open",
+};
+
+function twoTasks(inProgress: unknown[] = []) {
+  return {
+    attention: [],
+    upcoming: [],
+    inProgress,
+    tasks: [BATTERY_TASK, FRIDGE_TASK],
+  };
+}
+
+describe("A6 mark done picks the named task", () => {
+  it("asks which task when several are open and the words do not name one", async () => {
+    const calls: string[] = [];
+    const state = emptyDialogue();
+    state.lastTask = {
+      taskId: "t_0002",
+      applianceId: "ap_smoke_hall",
+      item: "battery",
+      title: "Swap hallway smoke alarm battery",
+    };
+    const turn = await executeTurn({
+      utterance: "Done, I swapped it",
+      state,
+      clock: FRIDAY,
+      callTool: (name) => {
+        calls.push(name);
+        return Promise.resolve(tool(twoTasks()));
+      },
+    });
+    expect(calls).toEqual(["get_upkeep_status"]);
+    expect(turn.reply).toBe("Which one, the hallway smoke alarm battery or the fridge water filter?");
+    expect(turn.reply).not.toContain("9-volt");
+    expect(turn.card?.uri).toBe("ui://hearthkeep/status-card.html");
+    expect(turn.state.pendingTaskChoice?.map((choice) => choice.taskId)).toEqual(["t_0002", "t_0001"]);
+    expect(turn.state.lastTask?.taskId).toBe("t_0002");
+  });
+
+  it("closes the task named on the card button instead of lastTask", async () => {
+    const calls: Array<{ name: string; args: Record<string, unknown> }> = [];
+    const state = emptyDialogue();
+    state.lastTask = {
+      taskId: "t_0002",
+      applianceId: "ap_smoke_hall",
+      item: "battery",
+      title: "Swap hallway smoke alarm battery",
+    };
+    const turn = await executeTurn({
+      utterance: "Done, I swapped it task t_0001",
+      state,
+      clock: FRIDAY,
+      callTool: (name, args) => {
+        calls.push({ name, args });
+        if (name === "get_upkeep_status") return Promise.resolve(tool(twoTasks()));
+        if (name === "log_maintenance") {
+          return Promise.resolve(tool({
+            lastDone: "2026-10-23",
+            nextDue: "2027-04-21",
+            closedTaskIds: ["t_0001"],
+            inventoryAfter: { qty: 0, item: "water_filter", name: "Rillstone CX-28", location: "Received, not yet installed" },
+          }));
+        }
+        return Promise.resolve(tool({}));
+      },
+    });
+    expect(turn.reply).toContain("fridge water filter");
+    expect(turn.reply).toContain("April 2027");
+    expect(turn.reply).not.toContain("9-volt");
+    expect(calls.map((call) => call.name)).toEqual(["get_upkeep_status", "log_maintenance"]);
+    expect(calls.find((call) => call.name === "log_maintenance")?.args).toMatchObject({
+      applianceId: "ap_fridge",
+      item: "water_filter",
+    });
+    expect(turn.state.pendingTaskChoice).toBeNull();
+  });
+
+  it("closes the task the person names after the question", async () => {
+    const calls: Array<{ name: string; args: Record<string, unknown> }> = [];
+    const asked = await executeTurn({
+      utterance: "Done",
+      state: emptyDialogue(),
+      clock: FRIDAY,
+      callTool: (name, args) => {
+        calls.push({ name, args });
+        return Promise.resolve(tool(twoTasks()));
+      },
+    });
+    expect(asked.reply).toMatch(/which one/i);
+    const turn = await executeTurn({
+      utterance: "the fridge water filter",
+      state: asked.state,
+      clock: FRIDAY,
+      callTool: (name, args) => {
+        calls.push({ name, args });
+        if (name === "get_upkeep_status") return Promise.resolve(tool(twoTasks()));
+        return Promise.resolve(tool({
+          lastDone: "2026-10-23",
+          nextDue: "2027-04-21",
+          closedTaskIds: ["t_0001"],
+          inventoryAfter: { qty: 0, item: "water_filter", name: "Rillstone CX-28", location: "Received, not yet installed" },
+        }));
+      },
+    });
+    expect(turn.reply).toContain("April 2027");
+    expect(turn.reply).not.toContain("9-volt");
+    expect(calls.filter((call) => call.name === "log_maintenance")).toEqual([
+      { name: "log_maintenance", args: { applianceId: "ap_fridge", item: "water_filter", consumeInventory: true } },
+    ]);
+  });
+
+  it("does not log the battery when the install button is clicked before the filter arrives", async () => {
+    const calls: string[] = [];
+    const state = emptyDialogue();
+    state.lastTask = {
+      taskId: "t_0002",
+      applianceId: "ap_smoke_hall",
+      item: "battery",
+      title: "Swap hallway smoke alarm battery",
+    };
+    const turn = await executeTurn({
+      utterance: "Done, I swapped it task t_0001",
+      state,
+      clock: { iso: "2026-10-21T09:00:00-07:00", timeZone: "America/Los_Angeles" },
+      callTool: (name) => {
+        calls.push(name);
+        return Promise.resolve(tool(twoTasks([order("placed", "ap_fridge", "water_filter", "Rillstone CX-28")])));
+      },
+    });
+    expect(calls).toEqual(["get_upkeep_status"]);
+    expect(turn.reply.toLowerCase()).toContain("hasn't arrived");
+    expect(turn.reply.toLowerCase()).toContain("water filter");
+    expect(turn.reply).not.toContain("9-volt");
+  });
+
+  it("does not close a different open task when the named id is missing", async () => {
+    const calls: string[] = [];
+    const turn = await executeTurn({
+      utterance: "Done, I swapped it task t_0002",
+      state: emptyDialogue(),
+      clock: FRIDAY,
+      callTool: (name) => {
+        calls.push(name);
+        return Promise.resolve(tool({
+          attention: [],
+          upcoming: [],
+          inProgress: [],
+          tasks: [FRIDGE_TASK],
+        }));
+      },
+    });
+    expect(calls).toEqual(["get_upkeep_status"]);
+    expect(turn.reply).toBe("I don't have a task waiting to close.");
+  });
+});
