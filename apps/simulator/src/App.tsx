@@ -416,13 +416,84 @@ window.addEventListener('message',function(event){
 })();
 </script>`;
 
+/** Task-card skin. The server document stays the source of the title, labels, and Mark done button. */
+const TASK_SKIN = `<style>
+body:has(main[data-card="task"]){background:transparent;color:#14301F;font-family:Figtree,Nunito,"Segoe UI",sans-serif;position:relative}
+body:has(main[data-card="task"])>.chip{position:absolute;top:16px;right:16px;z-index:2;margin:0;height:30px;display:inline-flex;align-items:center;gap:6px;padding:0 12px 0 9px;border-radius:999px;background:#D5F3DF;color:#0B7039;font:600 13px/1 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:0;white-space:nowrap}
+body:has(main[data-card="task"])>.chip .i{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+main[data-card="task"]{padding:18px 20px 20px;overflow-wrap:anywhere}
+main[data-card="task"] h2{margin:0 0 16px;padding-right:148px;font:700 24px/1.2 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:-.015em;color:#14301F}
+main[data-card="task"] h2::before{content:"Task";display:block;margin:0 0 8px;font:600 12px/1 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#4F6353}
+main[data-card="task"] .facts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+main[data-card="task"] .facts .meta:last-child:nth-child(odd){grid-column:1 / -1}
+main[data-card="task"] .meta{margin:0;padding:12px 14px;background:#EAF1DE;border:0;border-radius:16px;font-size:20px;line-height:1.3;font-weight:600;color:#14301F;min-width:0}
+main[data-card="task"] .label{display:block;margin:0 0 4px;font:600 12px/1.2 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#4F6353}
+main[data-card="task"] #done{display:inline-flex;align-items:center;justify-content:center;margin-top:16px;height:48px;min-height:44px;padding:0 18px;border-radius:999px;border:1.5px solid #14301F;background:#FFFEF8;color:#14301F;font:700 18px/1 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:0}
+main[data-card="task"] #done:hover{background:#EAF1DE}
+main[data-card="task"] #done:focus-visible{outline:none;box-shadow:0 0 0 3px #FFFEF8,0 0 0 5px #0B7039}
+main[data-card="task"] #done:active{transform:scale(.97)}
+main[data-card="task"] .warn{display:inline-flex;align-items:center;gap:8px;margin:16px 0 0;min-height:36px;padding:4px 14px;border-radius:999px;background:#D5F3DF;color:#0B7039;font:700 18px/1 Figtree,Nunito,"Segoe UI",sans-serif;box-shadow:inset 0 0 0 1.5px #1FA85B}
+main[data-card="task"] .warn .i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+main[data-card="task"] .say{margin-top:14px;background:#FFF3BF;border-radius:20px;padding:14px 18px;box-shadow:inset 0 0 0 1.5px #F2B705}
+main[data-card="task"] .say .eyebrow{display:block;font:600 11px/1 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6E5200}
+main[data-card="task"] .say .q{margin:6px 0 0;font:700 22px/1.2 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:-.012em;color:#14301F}
+main[data-card="task"] .say .q::before{content:"“"}
+main[data-card="task"] .say .q::after{content:"”"}
+@media (max-width:520px){
+body:has(main[data-card="task"])>.chip{top:12px;right:12px}
+main[data-card="task"]{padding:14px 14px 16px}
+main[data-card="task"] h2{padding-right:128px;font-size:22px}
+main[data-card="task"] .facts{grid-template-columns:1fr}
+main[data-card="task"] .say{padding:12px 14px}
+main[data-card="task"] .say .q{font-size:20px}
+}
+@media (prefers-reduced-motion:reduce){main[data-card="task"] #done:active{transform:none}}
+</style>
+<script>
+(function(){
+var LEAF='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19c0-8.2 5.2-13.5 14-13.5 0 9-5.4 14-13.2 14"></path><path d="M5 19l7.5-7.5"></path></svg>';
+var CHECK='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>';
+function reportFit(){
+  if(!document.querySelector('main[data-card="task"]'))return;
+  parent.postMessage({source:"hearthkeep-card",type:"fit",height:document.documentElement.scrollHeight},"*");
+}
+function dressTask(){
+  var main=document.querySelector('main[data-card="task"]');
+  if(!main)return;
+  var chip=document.querySelector('body > p.chip');
+  if(chip&&!chip.querySelector('svg'))chip.insertAdjacentHTML('afterbegin',LEAF);
+  if(!main.querySelector('h2'))return;
+  var metas=[].slice.call(main.querySelectorAll('p.meta'));
+  if(metas.length&&!main.querySelector('.facts')){
+    var facts=document.createElement('div');
+    facts.className='facts';
+    metas[0].parentNode.insertBefore(facts,metas[0]);
+    metas.forEach(function(row){facts.appendChild(row);});
+  }
+  var warn=main.querySelector('p.warn');
+  if(warn&&!warn.querySelector('svg'))warn.insertAdjacentHTML('afterbegin',CHECK);
+  var button=main.querySelector('#done');
+  var say=main.querySelector('.say');
+  if(button&&!say)main.insertAdjacentHTML('beforeend','<div class="say"><span class="eyebrow">What to say</span><p class="q">Done, I swapped it</p></div>');
+  if(!button&&say)say.remove();
+}
+window.addEventListener('message',function(event){
+  var data=event.data;
+  if(!data||data.source!=='hearthkeep-host'||data.type!=='tool-result')return;
+  dressTask();
+  setTimeout(function(){dressTask();reportFit();},0);
+});
+window.addEventListener('resize',function(){setTimeout(reportFit,0);});
+})();
+</script>`;
+
 function hostDocument(html: string): string {
   const withPolicy = html.includes("Content-Security-Policy")
     ? html
     : html.replace("<head>", () => `<head><meta http-equiv="Content-Security-Policy" content="${CARD_CSP}">`);
   if (withPolicy.includes("hk-ring")) return withPolicy;
   // A string replacement treats $' as the text after the match, which rewrote price prefixes.
-  return withPolicy.replace("</body>", () => `${STATUS_SKIN}${OPTIONS_SKIN}${QUOTE_SKIN}</body>`);
+  return withPolicy.replace("</body>", () => `${STATUS_SKIN}${OPTIONS_SKIN}${QUOTE_SKIN}${TASK_SKIN}</body>`);
 }
 
 function cell(value: unknown): string {
