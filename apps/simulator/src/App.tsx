@@ -285,22 +285,34 @@ main[data-card="checkout"] button.primary{background:#FF6A2B;border-color:#FF6A2
 main[data-card="checkout"] button .i{width:20px;height:20px}
 main[data-card="checkout"] button:focus-visible{outline:none;box-shadow:0 0 0 3px #FFFEF8,0 0 0 5px #0B7039}
 main[data-card="checkout"] button:active{transform:scale(.97)}
-main[data-card="checkout"].svc .lines{margin-top:10px;padding:10px 0}
-main[data-card="checkout"].svc .sum{align-items:center;margin-top:8px;grid-template-columns:auto minmax(0,1fr)}
+main[data-card="checkout"].svc{padding:12px 16px 8px}
+main[data-card="checkout"].svc .card-h{min-height:22px}
+main[data-card="checkout"].svc .lines{margin-top:6px;padding:6px 0}
+main[data-card="checkout"].svc .nm,main[data-card="checkout"].svc .pr{font-size:20px}
+main[data-card="checkout"].svc .sum{align-items:center;margin-top:6px;grid-template-columns:auto minmax(0,1fr)}
 main[data-card="checkout"].svc .when{font-size:20px;gap:8px}
-main[data-card="checkout"].svc .ic{width:40px;height:40px}
+main[data-card="checkout"].svc .ic{width:36px;height:36px;border-radius:12px}
 main[data-card="checkout"].svc .sumline{flex-direction:row;align-items:baseline;gap:10px}
-main[data-card="checkout"].svc .tot{font-size:40px;margin-top:0}
-main[data-card="checkout"].svc .limit{margin-top:8px}
-main[data-card="checkout"].svc .say{padding:12px 18px}
-main[data-card="checkout"].svc .q{font-size:22px}
-main[data-card="checkout"].svc .saybar{margin-top:8px}
-main[data-card="checkout"].svc button{height:46px}
+main[data-card="checkout"].svc .tot{font-size:36px;margin-top:0}
+main[data-card="checkout"].svc .limit{margin-top:6px}
+main[data-card="checkout"].svc .limit.over .bar{margin-bottom:16px}
+main[data-card="checkout"].svc .say{padding:8px 14px}
+main[data-card="checkout"].svc .q{font-size:20px;margin-top:2px}
+main[data-card="checkout"].svc .saybar{margin-top:6px}
+main[data-card="checkout"].svc .acts{gap:6px}
+main[data-card="checkout"].svc button{height:40px;font-size:18px}
 main[data-card="receipt"] .oid{margin:10px 0 0;font:700 28px/1.1 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:-.02em}
 main[data-card="receipt"] .steps{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
 main[data-card="receipt"] .step{display:inline-flex;align-items:center;min-height:36px;padding:4px 12px;border-radius:999px;background:#EAF1DE;color:#14301F;font-size:20px;font-weight:600}
 main[data-card="receipt"] .step.active{background:#D5F3DF;color:#0B7039;box-shadow:inset 0 0 0 1.5px #1FA85B}
 main[data-card="receipt"] .mock{display:flex;align-items:flex-start;gap:8px;margin:16px 0 0;padding:12px 16px;border-radius:20px;background:#FFF3BF;box-shadow:inset 0 0 0 1.5px #F2B705;font-size:20px;font-weight:600;line-height:1.35}
+main[data-card="receipt"].booked{padding:12px 16px 10px}
+main[data-card="receipt"].booked .oid{margin-top:4px;font-size:24px}
+main[data-card="receipt"].booked .steps{margin-top:8px}
+main[data-card="receipt"].booked .lines{margin-top:8px;padding:8px 0}
+main[data-card="receipt"].booked .sum{margin-top:8px}
+main[data-card="receipt"].booked .tot{font-size:36px}
+main[data-card="receipt"].booked .mock{margin-top:8px;padding:8px 12px}
 main[data-card="receipt"] .mock .i{width:18px;height:18px;margin-top:3px}
 @media (max-width:480px){
 main[data-card="checkout"] .saybar,main[data-card="checkout"] .sum,main[data-card="receipt"] .sum{grid-template-columns:minmax(0,1fr)}
@@ -658,10 +670,15 @@ function bookingCard(card: CardPayload | null): boolean {
   return card.structuredContent.kind === "booking" || typeof card.structuredContent.bookingId === "string";
 }
 
+function firstLine(value: unknown): Record<string, unknown> | null {
+  if (!Array.isArray(value) || value[0] === null || typeof value[0] !== "object") return null;
+  return value[0] as Record<string, unknown>;
+}
+
 function serviceDetail(card: CardPayload | null, appliance: string): string {
-  const lines = card?.structuredContent.lines;
-  const line = Array.isArray(lines) && lines[0] !== null && typeof lines[0] === "object" ? (lines[0] as Record<string, unknown>) : null;
-  const item = line && typeof line.item === "string" ? line.item.replaceAll("_", " ") : "";
+  const line = firstLine(card?.structuredContent.lines) ?? firstLine(card?.context.lines);
+  const rawItem = line && typeof line.item === "string" ? line.item : typeof card?.context.item === "string" ? card.context.item : "";
+  const item = rawItem.replaceAll("_", " ");
   const applianceId = line && typeof line.applianceId === "string" ? line.applianceId : "";
   const names = card?.context.applianceNames;
   const spoken =
@@ -1156,7 +1173,7 @@ export function App() {
                 <div className="mini">
                   {proSlots.map((slot) => (
                     <div key={slot.id} className={slot.id === pickedId ? "mt pick" : "mt"}>
-                      <div className="l1">{slot.day}<span>{slot.price}</span></div>
+                      <div className="l1"><span className="day">{slot.day}</span><span>{slot.price}</span></div>
                       <div className="l2">{slot.windowLabel}</div>
                       <div className="l3">{slot.id === pickedId ? <Icon name="check" /> : null}{slot.provider}</div>
                       {slot.overCap ? <span className="bd">Over $60 limit</span> : null}

@@ -995,7 +995,7 @@ kbd {
   background: #fffefa;
   border-radius: 20px;
   box-shadow: var(--sh-1);
-  padding: 10px 16px 12px;
+  padding: 8px 12px 8px;
   min-width: 0;
 }
 
@@ -1009,16 +1009,17 @@ kbd {
 .slot-strip .mini {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .slot-strip .mt {
   min-width: 0;
   border: 1.5px solid var(--line);
   border-radius: 16px;
-  padding: 7px 12px;
+  padding: 6px 8px;
   background: var(--surface);
+  overflow: hidden;
 }
 
 .slot-strip .mt.pick {
@@ -1030,21 +1031,32 @@ kbd {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 8px;
-  font-size: 20px;
+  gap: 6px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 1.15;
+  white-space: nowrap;
+}
+
+.slot-strip .l1 .day {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font: 700 18px/1.15 var(--font-body);
 }
 
 .slot-strip .l1 span {
-  font: 700 20px/1 var(--font-display);
+  flex: none;
+  font: 700 18px/1 var(--font-display);
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
 
 .slot-strip .l2 {
-  font-size: 20px;
-  line-height: 1.25;
+  font-size: 18px;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .slot-strip .l3 {
@@ -1077,6 +1089,20 @@ kbd {
   color: var(--berry-ink);
   font-size: 13px;
   font-weight: 600;
+}
+
+@media (max-width: 700px) {
+  .slot-strip .mini {
+    grid-template-columns: 1fr;
+  }
+
+  .composer.is-locked.approve input:placeholder-shown {
+    padding-right: 18px;
+  }
+
+  .composer.is-locked.approve .hint {
+    display: none;
+  }
 }
 
 .side {
@@ -1655,6 +1681,16 @@ pre,
 }
 
 @media (max-width: 900px) {
+  .stage.has-slots {
+    overflow: visible;
+  }
+
+  .stage.has-slots .card-frame {
+    flex: none;
+    height: 560px;
+    min-height: 560px;
+  }
+
   .hdr-1 {
     flex-wrap: wrap;
   }
