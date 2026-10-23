@@ -127,8 +127,108 @@ window.addEventListener("message",function(event){
   var data=event.data;
   if(!data||data.source!=="hearthkeep-host"||data.type!=="tool-result")return;
   var vitals=(data.context&&data.context.vitals)||[];
-  setTimeout(function(){paint(vitals);},0);
+  var content=data.structuredContent||{};
+  setTimeout(function(){paint(vitals);if(window.dressOptions)window.dressOptions(content);},0);
 });
+})();
+</script>`;
+
+/** Options-card skin. The server document stays the source of the tiles, badges, and footer. */
+const OPTIONS_SKIN = `<style>
+body:has(main[data-card="options"]){background:transparent;color:#14301F;font-family:Figtree,Nunito,"Segoe UI",sans-serif}
+body:has(main[data-card="options"]) .chip{display:inline-flex;align-items:center;margin:0 0 4px 8px;padding:4px 12px;border-radius:999px;background:#D5F3DF;color:#0B7039;font-size:13px;font-weight:600;letter-spacing:0}
+main[data-card="options"]{padding:4px 8px 8px}
+main[data-card="options"] .tiles{display:flex;flex-flow:row nowrap;align-items:stretch;gap:16px;margin-top:22px}
+main[data-card="options"] .tile{position:relative;flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:stretch;gap:5px;text-align:left;background:#FFFEF8;color:#14301F;border:1.5px solid #D9E2CC;border-radius:20px;padding:24px 16px 14px;white-space:normal;overflow-wrap:break-word;overflow:visible}
+main[data-card="options"] .tile.rec{background:linear-gradient(180deg,#E7F8EC 0,#FFFEF8 70%);border-color:#1FA85B}
+main[data-card="options"] .tile strong{display:block;margin:0;padding:0;font:700 24px/1.15 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:-.015em}
+main[data-card="options"] .fits{font-size:20px;line-height:1.25;color:#4F6353;font-weight:400}
+main[data-card="options"] .price{font:700 40px/1 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:-.025em;margin-top:2px;color:#14301F}
+main[data-card="options"].wide .price{font-size:32px}
+main[data-card="options"] .eta{font-size:20px;line-height:1.25;font-weight:500;color:#14301F}
+main[data-card="options"] .badges{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 0;min-width:0;width:100%}
+main[data-card="options"] .badge{max-width:100%;min-height:28px;display:inline-flex;align-items:center;padding:2px 11px;border-radius:999px;background:#EAF1DE;color:#14301F;font-size:15px;font-weight:600;line-height:1.2;letter-spacing:0}
+main[data-card="options"] .badge.cert{background:#D5F3DF;color:#0B7039}
+main[data-card="options"] .badge.limit{background:#FFE2E4;color:#B3172F}
+main[data-card="options"] .sticker{position:absolute;top:-17px;right:16px;z-index:1;height:30px;max-width:calc(100% - 32px);display:inline-flex;align-items:center;padding:0 13px;border-radius:999px;background:#FF6A2B;color:#14301F;font:700 15px/1 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:0;white-space:nowrap;transform:rotate(-4deg);box-shadow:0 6px 14px -6px rgba(255,106,43,.8);animation:hkpop 420ms cubic-bezier(.34,1.4,.64,1) 200ms both}
+main[data-card="options"] .why{font-size:20px;line-height:1.25;font-weight:600;color:#0B7039}
+main[data-card="options"] .why.quiet{color:#4F6353;font-weight:500}
+main[data-card="options"] .act{margin-top:auto;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;border:1.5px solid #14301F;background:#FFFEF8;color:#14301F;font-size:20px;font-weight:700;letter-spacing:0;padding:0 12px}
+main[data-card="options"] .tile.rec .act{background:#FF6A2B;border-color:#FF6A2B;color:#14301F}
+main[data-card="options"] .tile:focus-visible{outline:none;box-shadow:0 0 0 3px #FFFEF8,0 0 0 5px #0B7039}
+main[data-card="options"] .foot{margin:12px 0 0;padding:10px 16px;background:#EAF1DE;border:0;border-radius:20px;font-size:20px;line-height:1.3;color:#14301F}
+main[data-card="options"] .foot:has(+ .stock){border-radius:20px 20px 0 0;padding-bottom:2px}
+main[data-card="options"] .stock{margin:0;padding:2px 16px 10px;background:#EAF1DE;border-radius:0 0 20px 20px;font-size:20px;line-height:1.3;color:#4F6353}
+@keyframes hkpop{from{opacity:0;transform:rotate(-4deg) scale(.6)}to{opacity:1;transform:rotate(-4deg) scale(1)}}
+@media (prefers-reduced-motion:reduce){main[data-card="options"] .sticker{animation:none!important}}
+</style>
+<script>
+(function(){
+function cents(value){var n=Number(value);return isFinite(n)?Math.round(n*100):0;}
+function reasonFor(option,list){
+  if(!option)return "";
+  if(option.recommended!==true)return option.kind==="oem"?"Maker's own part":"";
+  var price=cents(option.priceUsd);
+  for(var i=0;i<list.length;i++){if(cents(list[i]&&list[i].priceUsd)<price)return "Earliest arrival your rules allow";}
+  return "Cheapest option your rules allow";
+}
+function stockLine(data){
+  var options=data.options||[];
+  if(!options.length)return "";
+  var onHand=data.onHand;
+  if(!onHand||typeof onHand.qty!=="number")return "";
+  if(onHand.qty<=0)return "Stock checked first: 0 on hand";
+  var where=typeof onHand.location==="string"&&onHand.location?" · "+onHand.location:"";
+  return "Stock checked first: "+onHand.qty+" on hand"+where;
+}
+window.dressOptions=function(data){
+  var main=document.querySelector('main[data-card="options"]');
+  if(!main)return;
+  var options=(data&&data.options)||[];
+  var tiles=[].slice.call(main.querySelectorAll("[data-tile]"));
+  main.classList.toggle("wide",tiles.length>=3);
+  tiles.forEach(function(tile,index){
+    var option=options[index]||null;
+    if(!tile.querySelector(".sticker")){
+      var badges=tile.querySelectorAll(".badge");
+      for(var i=0;i<badges.length;i++){
+        if((badges[i].textContent||"")!=="Recommended")continue;
+        badges[i].classList.remove("badge");
+        badges[i].classList.add("sticker");
+        tile.insertBefore(badges[i],tile.firstChild);
+        break;
+      }
+    }
+    if(tile.querySelector(".sticker"))tile.classList.add("rec");
+    var plain=[];
+    [].slice.call(tile.children).forEach(function(node){
+      if(node.tagName!=="SPAN")return;
+      if(node.classList.contains("badges")||node.classList.contains("act")||node.classList.contains("why")||node.classList.contains("sticker"))return;
+      plain.push(node);
+    });
+    if(plain[0])plain[0].classList.add("fits");
+    if(plain[1])plain[1].classList.add("price");
+    if(plain[2])plain[2].classList.add("eta");
+    tile.querySelectorAll(".badge").forEach(function(node){
+      if((node.textContent||"")==="Certified")node.classList.add("cert");
+    });
+    if(!tile.querySelector(".why")){
+      var why=reasonFor(option,options);
+      if(why){
+        var line=document.createElement("span");
+        line.className="why"+(option&&option.recommended===true?"":" quiet");
+        line.textContent=why;
+        var act=tile.querySelector(".act");
+        if(act)tile.insertBefore(line,act);else tile.appendChild(line);
+      }
+    }
+  });
+  var text=stockLine(data||{});
+  var stock=main.querySelector(".stock");
+  if(!text){if(stock)stock.remove();return;}
+  if(!stock){stock=document.createElement("p");stock.className="stock";main.appendChild(stock);}
+  stock.textContent=text;
+};
 })();
 </script>`;
 
@@ -137,7 +237,7 @@ function hostDocument(html: string): string {
     ? html
     : html.replace("<head>", `<head><meta http-equiv="Content-Security-Policy" content="${CARD_CSP}">`);
   if (withPolicy.includes("hk-ring")) return withPolicy;
-  return withPolicy.replace("</body>", `${STATUS_SKIN}</body>`);
+  return withPolicy.replace("</body>", `${STATUS_SKIN}${OPTIONS_SKIN}</body>`);
 }
 
 function cell(value: unknown): string {
