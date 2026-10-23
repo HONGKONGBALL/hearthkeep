@@ -419,12 +419,8 @@ input:focus-visible {
   color: var(--muted);
 }
 
-.banner,
-.alert {
-  margin: 0 0 10px;
-}
-
 .banner {
+  margin: 0 0 10px;
   background: #7f1d1d;
   color: #fff;
   padding: 10px 12px;
@@ -446,11 +442,37 @@ input:focus-visible {
 }
 
 .alert {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 20px 16px;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
   background: var(--berry-soft);
   color: var(--berry-ink);
-  padding: 10px 12px;
-  border-radius: var(--r-sm);
-  font-weight: 600;
+  font: 600 20px/1.35 var(--font-body);
+}
+
+.alert .i {
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  stroke-width: 2.2;
+}
+
+.alert span {
+  min-width: 0;
+}
+
+.screen.has-alert .frame-body {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.screen.has-alert .conversation {
+  grid-column: 1;
+  grid-row: 1;
 }
 
 .main {

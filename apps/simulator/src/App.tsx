@@ -1051,7 +1051,7 @@ export function App() {
       <div className="main">
       <div className="col">
       <section className="frame" aria-label="Simulated smart display">
-        <div className="screen">
+        <div className={latestAlert ? "screen has-alert" : "screen"}>
         <div className="frame-bar">
           <Ribbon />
           <p className="fchip"><Icon name="doc" />{FICTIONAL_CHIP}</p>
@@ -1105,8 +1105,13 @@ export function App() {
                 );
               })}
             </div>
-            {latestAlert ? <p className="alert" role="alert">{latestAlert}</p> : null}
           </div>
+          {latestAlert ? (
+            <p className="alert" role="alert">
+              <Icon name="info" />
+              <span>{latestAlert}</span>
+            </p>
+          ) : null}
           <div className="dock">
             <div className="chips" role="group" aria-label="Quick replies in demo order">
               <span className="eyebrow">Try</span>
@@ -1166,28 +1171,30 @@ export function App() {
               </div>
             </form>
           </div>
-          <div className={showSlotStrip ? "stage has-slots" : "stage"} aria-label="Card">
-            {showSlotStrip ? (
-              <section className="slot-strip" aria-label="Earlier card: service slot options">
-                <span className="eyebrow">{slotEyebrow}</span>
-                <div className="mini">
-                  {proSlots.map((slot) => (
-                    <div key={slot.id} className={slot.id === pickedId ? "mt pick" : "mt"}>
-                      <div className="l1"><span className="day">{slot.day}</span><span>{slot.price}</span></div>
-                      <div className="l2">{slot.windowLabel}</div>
-                      <div className="l3">{slot.id === pickedId ? <Icon name="check" /> : null}{slot.provider}</div>
-                      {slot.overCap ? <span className="bd">Over $60 limit</span> : null}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ) : null}
-            {showCards && card && cardHtml ? (
-              <CardHost html={cardHtml} payload={card} onIntent={(utterance) => void onSend(utterance)} />
-            ) : (
-              <p className="card-placeholder">{showCards ? "Cards appear here." : "Cards are off. Replies stay in the transcript."}</p>
-            )}
-          </div>
+          {latestAlert ? null : (
+            <div className={showSlotStrip ? "stage has-slots" : "stage"} aria-label="Card">
+              {showSlotStrip ? (
+                <section className="slot-strip" aria-label="Earlier card: service slot options">
+                  <span className="eyebrow">{slotEyebrow}</span>
+                  <div className="mini">
+                    {proSlots.map((slot) => (
+                      <div key={slot.id} className={slot.id === pickedId ? "mt pick" : "mt"}>
+                        <div className="l1"><span className="day">{slot.day}</span><span>{slot.price}</span></div>
+                        <div className="l2">{slot.windowLabel}</div>
+                        <div className="l3">{slot.id === pickedId ? <Icon name="check" /> : null}{slot.provider}</div>
+                        {slot.overCap ? <span className="bd">Over $60 limit</span> : null}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+              {showCards && card && cardHtml ? (
+                <CardHost html={cardHtml} payload={card} onIntent={(utterance) => void onSend(utterance)} />
+              ) : (
+                <p className="card-placeholder">{showCards ? "Cards appear here." : "Cards are off. Replies stay in the transcript."}</p>
+              )}
+            </div>
+          )}
         </div>
         </div>
       </section>
