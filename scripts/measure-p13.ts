@@ -13,7 +13,9 @@ import { writeFileSync } from "node:fs";
 import { chromium, type Browser, type Page } from "@playwright/test";
 import { MCP_URL, SIM_URL, resetSim, startMcp, startSim, stopPid, waitForOk } from "../tests/e2e/servers.ts";
 
-const OUT = "docs/evidence/rc2/perf.txt";
+/** Default stays the rc2 file. Set HK_P13_OUT to write a later candidate elsewhere. */
+const OUT = process.env.HK_P13_OUT ?? "docs/evidence/rc2/perf.txt";
+const RELEASE = process.env.HK_P13_RELEASE ?? "rc2";
 const RUNS = 3;
 
 interface TurnSpec {
@@ -301,7 +303,7 @@ function render(samples: Sample[], meta: { startedAt: string; finishedAt: string
   const p95Settled = percentile95(settled);
   const lines: string[] = [];
   lines.push("P-13 per-turn timings for cases 64, 65, 67, and 68");
-  lines.push("Release candidate: rc2");
+  lines.push(`Release candidate: ${RELEASE}`);
   lines.push("Household names, prices, and the purchase code in these turns are fictional sample data.");
   lines.push("");
   lines.push("Method");

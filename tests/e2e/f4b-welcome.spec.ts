@@ -5,7 +5,7 @@
  */
 import type { APIRequestContext, Page } from "@playwright/test";
 import { MCP_URL } from "./servers";
-import { expect, openWelcome, test } from "./support";
+import { e2eShot, expect, openWelcome, test } from "./support";
 
 const SEEDED_CLOCK = "2026-10-21T09:00:00-07:00";
 
@@ -94,7 +94,7 @@ test("P-07 Tab stays in the welcome dialog and the server clock stays put", asyn
 
   expect(await serverClock(request)).toBe(SEEDED_CLOCK);
   expect(sideEffects).toEqual([]);
-  await page.screenshot({ path: "docs/screens/rc2/f4b-welcome-tab.png", fullPage: true });
+  await page.screenshot({ path: e2eShot("f4b-welcome-tab.png"), fullPage: true });
   await page.setViewportSize({ width: 390, height: 800 });
-  await page.screenshot({ path: "docs/screens/rc2/f4b-welcome-tab-390.png", fullPage: true });
+  await page.screenshot({ path: e2eShot("f4b-welcome-tab-390.png"), fullPage: true });
 });

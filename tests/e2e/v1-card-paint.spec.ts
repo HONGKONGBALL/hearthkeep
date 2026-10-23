@@ -5,7 +5,7 @@
  */
 import { inflateSync } from "node:zlib";
 import { type Page } from "@playwright/test";
-import { card, childFrame, expect, send, startSim, test } from "./support";
+import { card, childFrame, e2eShot, expect, send, startSim, test } from "./support";
 
 const SURFACE = [255, 254, 248] as const;
 /** A blank #fffef8 well measures 0. Painted cards in this suite sit well above 1000. */
@@ -223,7 +223,7 @@ for (const size of [
         expect(actual?.width).toBe(size.width);
         expect(actual?.height).toBe(size.height);
         await flow.run(page);
-        await expectCardPaints(page, `docs/screens/rc4/v1-${size.width}-${flow.id}.png`, flow.phrases);
+        await expectCardPaints(page, e2eShot(`v1-${size.width}-${flow.id}.png`), flow.phrases);
       });
     }
   });

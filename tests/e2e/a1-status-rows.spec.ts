@@ -3,7 +3,7 @@
  * text column. Household names and the purchase code are fictional sample data.
  */
 import { type Page } from "@playwright/test";
-import { card, childFrame, expect, send, startSim, test } from "./support";
+import { card, childFrame, e2eShot, expect, send, startSim, test } from "./support";
 
 async function expectCardFits(page: Page): Promise<void> {
   const fit = await childFrame(page).evaluate(() => {
@@ -73,7 +73,7 @@ test("A1 next morning status rows use the wide text column", async ({ page }) =>
   expect(task?.buttonWidth ?? 0).toBeGreaterThan(0);
 
   await expectCardFits(page);
-  await page.locator("iframe.card-frame").screenshot({ path: "docs/screens/rc4/a1-1280-next-morning.png" });
+  await page.locator("iframe.card-frame").screenshot({ path: e2eShot("a1-1280-next-morning.png") });
 
   await page.setViewportSize({ width: 390, height: 844 });
   await expect.poll(async () => {
@@ -102,5 +102,5 @@ test("A1 next morning status rows use the wide text column", async ({ page }) =>
     expect(row.lines, row.text).toBeLessThanOrEqual(2.05);
   }
   await expectCardFits(page);
-  await page.locator("iframe.card-frame").screenshot({ path: "docs/screens/rc4/a1-390-next-morning.png" });
+  await page.locator("iframe.card-frame").screenshot({ path: e2eShot("a1-390-next-morning.png") });
 });

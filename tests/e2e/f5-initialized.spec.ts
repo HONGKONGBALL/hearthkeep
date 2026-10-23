@@ -4,7 +4,7 @@
  * Fictional household data only.
  */
 import { type Locator, type Page, type Request } from "@playwright/test";
-import { expect, startSim, test } from "./support";
+import { e2eShot, expect, startSim, test } from "./support";
 
 function rpcMethod(request: Request): string | null {
   if (request.method() !== "POST" || !request.url().includes("/mcp")) return null;
@@ -69,12 +69,12 @@ test("P-12 session trace lists initialize 200 then initialized 202", async ({ pa
   await expect(firstLines.nth(opened.init)).toBeVisible();
   await expect(firstLines.nth(opened.noted)).toBeVisible();
   await expectLineFits(firstLines.nth(opened.noted));
-  await page.screenshot({ path: "docs/screens/rc2/f5-session-initialized.png", fullPage: true });
+  await page.screenshot({ path: e2eShot("f5-session-initialized.png"), fullPage: true });
 
   await page.setViewportSize({ width: 390, height: 800 });
   await expect(firstLines.nth(opened.noted)).toBeVisible();
   await expectLineFits(firstLines.nth(opened.noted));
-  await page.screenshot({ path: "docs/screens/rc2/f5-session-initialized-390.png", fullPage: true });
+  await page.screenshot({ path: e2eShot("f5-session-initialized-390.png"), fullPage: true });
 
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.getByRole("button", { name: "Next morning" }).click();

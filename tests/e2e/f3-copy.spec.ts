@@ -2,7 +2,7 @@
  * Visible copy from the rc1 review. Screenshots are the f3 review set.
  * Fictional demo data only.
  */
-import { card, expect, latestReply, send, startSim, test } from "./support";
+import { card, e2eShot, expect, latestReply, send, startSim, test } from "./support";
 
 test("P09 and P10 visible copy", async ({ page }) => {
   await startSim(page);
@@ -22,14 +22,14 @@ test("P09 and P10 visible copy", async ({ page }) => {
   await expect(task.locator(".label").nth(1)).toHaveText("Appliance");
   await expect(task.locator(".label").nth(2)).toHaveText("Supplies");
   await expect(task.locator("p.meta", { hasText: "Appliance" })).toHaveText("Appliance Hallway smoke alarm");
-  await page.screenshot({ path: "docs/screens/rc2/f3-task-card.png", fullPage: true });
+  await page.screenshot({ path: e2eShot("f3-task-card.png"), fullPage: true });
 
   await page.setViewportSize({ width: 390, height: 800 });
   await expect(task.locator(".label", { hasText: "Due" })).toBeVisible();
   await expect(task.locator(".label", { hasText: "Appliance" })).toBeVisible();
   await expect(task.locator(".label", { hasText: "Supplies" })).toBeVisible();
   await expect(task.getByRole("button", { name: "Mark done" })).toBeVisible();
-  await page.screenshot({ path: "docs/screens/rc2/f3-task-card-390.png", fullPage: true });
+  await page.screenshot({ path: e2eShot("f3-task-card-390.png"), fullPage: true });
   await page.setViewportSize({ width: 1280, height: 800 });
 
   await send(page, "Done, I swapped it");
@@ -38,7 +38,7 @@ test("P09 and P10 visible copy", async ({ page }) => {
   await expect(closed.locator(".label").nth(0)).toHaveText("Next due");
   await expect(closed.locator("p.meta").first()).toContainText("October 2027");
   await expect(closed.locator("p.meta", { hasText: "Appliance" })).toHaveText("Appliance Hallway smoke alarm");
-  await page.screenshot({ path: "docs/screens/rc2/f3-task-next-due.png", fullPage: true });
+  await page.screenshot({ path: e2eShot("f3-task-next-due.png"), fullPage: true });
 
   await page.getByRole("button", { name: "Reset demo" }).click();
   await expect(page.locator("#say")).toBeEnabled();
@@ -51,7 +51,7 @@ test("P09 and P10 visible copy", async ({ page }) => {
   expect(priced.toLowerCase()).toContain("purchase code");
   const sentences = priced.split(/(?<=[.!?])\s+/).map((part) => part.trim()).filter((part) => part !== "");
   expect(sentences.length).toBeLessThanOrEqual(2);
-  await page.screenshot({ path: "docs/screens/rc2/f3-parts-limit.png", fullPage: true });
+  await page.screenshot({ path: e2eShot("f3-parts-limit.png"), fullPage: true });
 
   await page.getByRole("button", { name: "Reset demo" }).click();
   await expect(page.locator("#say")).toBeEnabled();
@@ -63,5 +63,5 @@ test("P09 and P10 visible copy", async ({ page }) => {
   const morning = card(page).locator("body");
   await expect(morning.getByText("Fridge water filter, 1 day overdue")).toBeVisible();
   await expect(morning.getByText("1 days overdue")).toHaveCount(0);
-  await page.screenshot({ path: "docs/screens/rc2/f3-one-day-overdue.png", fullPage: true });
+  await page.screenshot({ path: e2eShot("f3-one-day-overdue.png"), fullPage: true });
 });

@@ -3,7 +3,7 @@
  * Copy, roles, and labels stay the ones f3-copy already asserts. Fictional sample data.
  */
 import { type Page } from "@playwright/test";
-import { card, childFrame, expect, expectNoSeriousAxe, send, startSim, test } from "./support";
+import { card, childFrame, e2eShot, expect, expectNoSeriousAxe, send, startSim, test } from "./support";
 
 async function expectCardFits(page: Page): Promise<void> {
   await expect.poll(async () => {
@@ -65,7 +65,7 @@ test("A5 task card open and completed states use the v4 skin", async ({ page }) 
 
   await expectCardFits(page);
   await expectNoSeriousAxe(page);
-  await page.screenshot({ path: "docs/screens/rc4/a5-1280-task-open.png" });
+  await page.screenshot({ path: e2eShot("a5-1280-task-open.png") });
 
   await page.setViewportSize({ width: 390, height: 800 });
   await expect(task.getByRole("button", { name: "Mark done" })).toBeVisible();
@@ -74,7 +74,7 @@ test("A5 task card open and completed states use the v4 skin", async ({ page }) 
   await expectNoSeriousAxe(page);
   await page.locator("iframe.card-frame").evaluate((node) => node.scrollIntoView({ block: "center", inline: "nearest" }));
   await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true)))));
-  await page.screenshot({ path: "docs/screens/rc4/a5-390-task-open.png", fullPage: true });
+  await page.screenshot({ path: e2eShot("a5-390-task-open.png"), fullPage: true });
 
   await page.setViewportSize({ width: 1280, height: 800 });
   await send(page, "Done, I swapped it");
@@ -94,7 +94,7 @@ test("A5 task card open and completed states use the v4 skin", async ({ page }) 
 
   await expectCardFits(page);
   await expectNoSeriousAxe(page);
-  await page.screenshot({ path: "docs/screens/rc4/a5-1280-task-done.png" });
+  await page.screenshot({ path: e2eShot("a5-1280-task-done.png") });
 
   await page.setViewportSize({ width: 390, height: 800 });
   await expect(closed.locator(".warn")).toContainText("Done");
@@ -103,5 +103,5 @@ test("A5 task card open and completed states use the v4 skin", async ({ page }) 
   await expectNoSeriousAxe(page);
   await page.locator("iframe.card-frame").evaluate((node) => node.scrollIntoView({ block: "center", inline: "nearest" }));
   await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true)))));
-  await page.screenshot({ path: "docs/screens/rc4/a5-390-task-done.png", fullPage: true });
+  await page.screenshot({ path: e2eShot("a5-390-task-done.png"), fullPage: true });
 });

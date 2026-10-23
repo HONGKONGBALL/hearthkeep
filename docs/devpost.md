@@ -33,15 +33,33 @@ Open http://127.0.0.1:5173. No API key is required.
 
 ## Video
 
-Public YouTube or Vimeo link, under 3:00, added when the file is uploaded. The local file produced by `npm run demo:video` is `/workspace/demo/amazon-demo.mp4`.
+Public YouTube or Vimeo link, under 3:00, added when the file is uploaded. The file in this repo is `docs/demo/hearthkeep-demo.mp4`. That path is not a public link.
 
 ## Gallery
 
-Simulator frames already in the repo, each captured with the simulation chrome:
+Current simulator frames in this repo. Household data on screen is fictional. These paths are local files, not a Devpost upload.
 
-- `docs/screens/s0-welcome.png`
-- `docs/screens/s1-briefing.png`
-- `docs/screens/s2-options.png`
+v4 captures:
+
+- `docs/screens/v4/01-welcome.png`
+- `docs/screens/v4/02-briefing.png`
+- `docs/screens/v4/03-parts.png`
+- `docs/screens/v4/04-checkout.png`
+- `docs/screens/v4/05-booking.png`
+
+rc4 running UI:
+
+- `docs/screens/rc4/a1-1280-next-morning.png` — F5 status card (C1) at 1280
+- `docs/screens/rc4/a1-390-next-morning.png` — same card at 390
+- `docs/screens/rc4/a1-768-next-morning.png` — same card at 768
+- `docs/screens/rc4/v1-390-f5.png` and `docs/screens/rc4/v1-768-f5.png` — F5 viewport at 390 and 768
+- `docs/screens/rc4/a5-1280-task-open.png` and `docs/screens/rc4/a5-1280-task-done.png` — task card (C5), open and completed
+- `docs/screens/rc4/a5-390-task-open.png` and `docs/screens/rc4/a5-390-task-done.png` — C5 at 390
+- `docs/screens/rc4/a5-768-task-open.png` and `docs/screens/rc4/a5-768-task-done.png` — C5 at 768
+- `docs/screens/rc4/a2-1280-hazard-turn.png` and `docs/screens/rc4/a2-1280-next-turn.png` — gas alert, then the next turn
+- `docs/screens/rc4/a2-390-hazard-turn.png` and `docs/screens/rc4/a2-390-next-turn.png` — same pair at 390
+- `docs/screens/rc4/a2-768-hazard-turn.png` and `docs/screens/rc4/a2-768-next-turn.png` — same pair at 768
+- `docs/screens/rc4/v1-390-f1.png` and `docs/screens/rc4/v1-768-f1.png` — morning briefing at 390 and 768
 
 The architecture diagram is the second shot of the demo video: browser simulator, MCP server on Streamable HTTP, domain rules, SQLite. There is no separate concept-art cover.
 

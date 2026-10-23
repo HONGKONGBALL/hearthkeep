@@ -3,7 +3,7 @@
  * Fictional household data only.
  */
 import { type Page } from "@playwright/test";
-import { card, childFrame, expect, send, startSim, test } from "./support";
+import { card, childFrame, e2eShot, expect, send, startSim, test } from "./support";
 
 async function cardBox(page: Page): Promise<{ scrollHeight: number; clientHeight: number }> {
   return childFrame(page).evaluate(() => {
@@ -83,7 +83,7 @@ test("P08 status, options, checkout, receipt, and task cards fit", async ({ page
   expect(grouped?.inside).toBe(true);
   expect(grouped?.gapToNext ?? 0).toBeGreaterThan(grouped?.gapToLabel ?? 0);
   await expectCardFits(page);
-  await page.screenshot({ path: "docs/screens/rc2/c1-status-card.png" });
+  await page.screenshot({ path: e2eShot("c1-status-card.png") });
 
   await send(page, "Book someone to clean the dryer vent next week");
   await expect(card(page).locator("[data-tile]")).toHaveCount(3);
@@ -117,21 +117,21 @@ test("P08 status, options, checkout, receipt, and task cards fit", async ({ page
   expect(optionNames[1]).toContain("Ferngate FG-WF2");
   expect(optionNames[0]).not.toBe(optionNames[1]);
   await expectCardFits(page);
-  await page.screenshot({ path: "docs/screens/rc2/c2-options-carousel.png" });
+  await page.screenshot({ path: e2eShot("c2-options-carousel.png") });
 
   await send(page, "Yes, the CX-28");
   const checkout = card(page).locator("body");
   await expect(checkout).toContainText("Total $24.99");
   await expect(checkout).toContainText("Within your $60 limit");
   await expectCardFits(page);
-  await page.screenshot({ path: "docs/screens/rc2/c3-checkout-card.png" });
+  await page.screenshot({ path: e2eShot("c3-checkout-card.png") });
 
   await send(page, "2468");
   const receipt = card(page).locator("body");
   await expect(receipt).toContainText("ord_0001");
   await expect(receipt).toContainText("Mock order, no real purchase or payment");
   await expectCardFits(page);
-  await page.screenshot({ path: "docs/screens/rc2/c4-receipt-card.png" });
+  await page.screenshot({ path: e2eShot("c4-receipt-card.png") });
 
   await page.getByRole("button", { name: "Reset demo" }).click();
   await expect(page.locator("#say")).toBeEnabled();
@@ -141,5 +141,5 @@ test("P08 status, options, checkout, receipt, and task cards fit", async ({ page
   await expect(card(page).getByRole("button", { name: "Mark done, Swap hallway smoke alarm battery" })).toBeVisible();
   await expect(task).toContainText("Hallway smoke alarm");
   await expectCardFits(page);
-  await page.screenshot({ path: "docs/screens/rc2/c5-task-card.png" });
+  await page.screenshot({ path: e2eShot("c5-task-card.png") });
 });

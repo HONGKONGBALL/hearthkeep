@@ -1,10 +1,10 @@
 /**
  * P-06 focus rings on the dark top-bar controls and the Retry button.
- * Screenshots land in docs/screens/rc2/. Contrast numbers land in docs/evidence/rc2/.
+ * Screenshots and the contrast log land in test-results/e2e-screens (gitignored).
  * Household names in the sim are fictional.
  */
 import { inflateSync } from "node:zlib";
-import { appendFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { MCP_URL, readPids, startMcp, waitForDown, waitForOk, writePids } from "./servers";
 import { expect, send, startSim, test } from "./support";
 import type { Locator, Page } from "@playwright/test";
@@ -12,7 +12,9 @@ import type { Locator, Page } from "@playwright/test";
 const LIGHT: RGB = [246, 241, 232];
 const DARK: RGB = [28, 25, 23];
 const BANNER: RGB = [127, 29, 29];
-const CONTRAST_LOG = "docs/evidence/rc2/f4a-focus-contrast.txt";
+const SHOTS = "test-results/e2e-screens";
+const CONTRAST_LOG = `${SHOTS}/f4a-focus-contrast.txt`;
+mkdirSync(SHOTS, { recursive: true });
 
 const HEADER = [
   "New session",
@@ -250,7 +252,7 @@ test("P-06 top bar focus rings are light and clear 3:1", async ({ page }) => {
     expect(style.boxShadow, name).toContain("rgb(28, 25, 23)");
     expect(style.boxShadow, name).toContain("rgb(246, 241, 232)");
     const slug = name.toLowerCase().replace(/\s+/g, "-");
-    const { shot, x } = await shoot(page, button, `docs/screens/rc2/f4a-focus-${slug}.png`);
+    const { shot, x } = await shoot(page, button, `${SHOTS}/f4a-focus-${slug}.png`);
     const bands = measureRings(shot, x, DARK, LIGHT);
     const fillRatio = expectAtLeast3(`${name} light ring vs fill`, bands.inner, bands.fill);
     const ringRatio = expectAtLeast3(`${name} light ring vs dark ring`, bands.inner, bands.outer);
@@ -271,7 +273,7 @@ test("P-06 top bar focus rings are light and clear 3:1", async ({ page }) => {
   assertLightOutline(pressed, "Trace pressed");
   expect(pressed.backgroundColor).toBe("rgb(124, 45, 18)");
   expect(pressed.outlineColor).not.toBe(pressed.backgroundColor);
-  const pressedShot = await shoot(page, trace, "docs/screens/rc2/f4a-focus-trace-pressed.png");
+  const pressedShot = await shoot(page, trace, `${SHOTS}/f4a-focus-trace-pressed.png`);
   const pressedBands = measureRings(pressedShot.shot, pressedShot.x, DARK, LIGHT);
   const pressedRatio = expectAtLeast3("Trace pressed light ring vs fill", pressedBands.inner, pressedBands.fill);
   expectAtLeast3("Trace pressed light ring vs dark ring", pressedBands.inner, pressedBands.outer);
@@ -325,7 +327,7 @@ test("P-06 Retry focus ring is light on the banner and clears 3:1", async ({ pag
     assertLightOutline(style, "Retry");
     expect(style.boxShadow, "Retry").toContain("rgb(28, 25, 23)");
     expect(style.backgroundColor).toBe("rgb(255, 255, 255)");
-    const { shot, x } = await shoot(page, retry, "docs/screens/rc2/f4a-focus-retry.png");
+    const { shot, x } = await shoot(page, retry, `${SHOTS}/f4a-focus-retry.png`);
     const bands = measureRings(shot, x, LIGHT, DARK);
     const fillRatio = expectAtLeast3("Retry dark ring vs button", bands.inner, bands.fill);
     const ringRatio = expectAtLeast3("Retry light ring vs dark ring", bands.outer, bands.inner);

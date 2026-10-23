@@ -1,7 +1,7 @@
 /**
  * Shared browser helpers for QA F and G. Each test starts from a reset seed.
  */
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { test as base, expect, type Frame, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -43,6 +43,14 @@ export const test = base.extend<{ monitor: Monitor }>({
 });
 
 export { expect };
+
+/** Ignored by git. End-to-end shots must not land in docs/screens. */
+export const E2E_SHOTS = "test-results/e2e-screens";
+
+export function e2eShot(name: string): string {
+  mkdirSync(E2E_SHOTS, { recursive: true });
+  return `${E2E_SHOTS}/${name}`;
+}
 
 export function card(page: Page) {
   return page.frameLocator("iframe.card-frame");
