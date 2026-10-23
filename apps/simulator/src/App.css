@@ -904,6 +904,18 @@ kbd {
   border-color: var(--lemon-deep);
 }
 
+.composer.is-locked.approve input {
+  font-weight: 600;
+}
+
+.composer.is-locked.approve input:placeholder-shown {
+  padding-right: 360px;
+}
+
+.composer.is-locked.approve .hint .mono {
+  font-size: 12.5px;
+}
+
 .composer button {
   height: 56px;
   min-height: 56px;
@@ -965,6 +977,106 @@ kbd {
   font-size: 17px;
   font-weight: 500;
   padding: 16px;
+}
+
+.stage.has-slots {
+  gap: 12px;
+}
+
+.stage.has-slots .card-frame,
+.stage.has-slots .card-placeholder {
+  flex: 1 1 0;
+  min-height: 0;
+  height: 1px;
+}
+
+.slot-strip {
+  flex: none;
+  background: #fffefa;
+  border-radius: 20px;
+  box-shadow: var(--sh-1);
+  padding: 10px 16px 12px;
+  min-width: 0;
+}
+
+.slot-strip .eyebrow {
+  font: 600 12px/1 var(--font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.slot-strip .mini {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.slot-strip .mt {
+  min-width: 0;
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  padding: 7px 12px;
+  background: var(--surface);
+}
+
+.slot-strip .mt.pick {
+  border-color: var(--leaf);
+  background: #e7f8ec;
+}
+
+.slot-strip .l1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.slot-strip .l1 span {
+  font: 700 20px/1 var(--font-display);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.slot-strip .l2 {
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.slot-strip .l3 {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.slot-strip .l3 .i {
+  width: 15px;
+  height: 15px;
+  color: var(--leaf-ink);
+  stroke-width: 2.4;
+  flex: none;
+}
+
+.slot-strip .bd {
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 4px;
+  padding: 0 9px;
+  border-radius: var(--r-pill);
+  background: var(--berry-soft);
+  color: var(--berry-ink);
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .side {

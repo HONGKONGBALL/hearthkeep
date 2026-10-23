@@ -8,6 +8,7 @@ import {
   executeTurn,
   formatShortDate,
   formatSimHeader,
+  nextWeekRange,
   type CardPayload,
   type DialogueState,
   type TraceStep,
@@ -210,7 +211,9 @@ window.dressOptions=function(data){
     if(plain[1])plain[1].classList.add("price");
     if(plain[2])plain[2].classList.add("eta");
     tile.querySelectorAll(".badge").forEach(function(node){
-      if((node.textContent||"")==="Certified")node.classList.add("cert");
+      var text=node.textContent||"";
+      if(text==="Certified")node.classList.add("cert");
+      if(text.indexOf("Over $60 limit")===0)node.classList.add("limit");
     });
     if(!tile.querySelector(".why")){
       var why=reasonFor(option,options);
@@ -347,7 +350,7 @@ window.dressCheckout=function(data,context){
   var over=data.overCap===true||limit.indexOf('Over your ')===0;
   var lineHtml=linesHtml(data.lines,context,aside);
   if(!lineHtml){var lis=[].slice.call(main.querySelectorAll('ul li')).map(function(li){return {name:li.textContent||''};});lineHtml=linesHtml(lis,context,'');}
-  var meta=held(data.expiresAt);
+  var meta=service?'· mock booking, no real payment':held(data.expiresAt);
   var eyebrow=service?'Booking · nothing booked yet':'Checkout · nothing bought yet';
   var ofText=meterOf(data);
   voice.classList.add('act','primary');
@@ -355,7 +358,7 @@ window.dressCheckout=function(data,context){
   if(!voice.querySelector('svg'))voice.insertAdjacentHTML('afterbegin',MIC);
   if(!cancel.querySelector('svg'))cancel.insertAdjacentHTML('afterbegin',XIC);
   main.classList.toggle('svc',service);
-  main.innerHTML='<div class="card-h"><span class="eyebrow">'+esc(eyebrow)+'</span>'+(meta?'<span class="meta">'+esc(meta)+'</span>':'')+'</div>'+(lineHtml?'<div class="lines">'+lineHtml+'</div>':'')+'<div class="sum'+(service?' compact':'')+'">'+sumHtml(total)+whenHtml(when,arrives?TRUCK:CAL)+'</div>'+(limit?'<div class="limit '+(over?'over':'ok')+'"><div class="lt"><span class="st">'+(over?INFO:CHECK)+esc(limit)+'</span>'+(ofText?'<span class="of">'+esc(ofText)+'</span>':'')+'</div>'+barHtml(data)+'</div>':'')+(say?'<div class="saybar"><div class="say"><span class="eyebrow">What to say</span><p class="q">'+esc(say)+'</p><p class="mock">'+INFO+esc(MOCK)+'</p></div><div class="acts"></div></div>':'');
+  main.innerHTML='<div class="card-h"><span class="eyebrow">'+esc(eyebrow)+'</span>'+(meta?'<span class="meta">'+esc(meta)+'</span>':'')+'</div>'+(lineHtml?'<div class="lines">'+lineHtml+'</div>':'')+'<div class="sum'+(service?' compact':'')+'">'+sumHtml(total)+whenHtml(when,arrives?TRUCK:CAL)+'</div>'+(limit?'<div class="limit '+(over?'over':'ok')+'"><div class="lt"><span class="st">'+(over?INFO:CHECK)+esc(limit)+'</span>'+(ofText?'<span class="of">'+esc(ofText)+'</span>':'')+'</div>'+barHtml(data)+'</div>':'')+(say?'<div class="saybar"><div class="say"><span class="eyebrow">What to say</span><p class="q">'+esc(say)+'</p>'+(service?'':'<p class="mock">'+INFO+esc(MOCK)+'</p>')+'</div><div class="acts"></div></div>':'');
   var acts=main.querySelector('.acts');
   if(acts){acts.appendChild(voice);acts.appendChild(cancel);}else{main.appendChild(voice);main.appendChild(cancel);}
 };
@@ -373,6 +376,7 @@ window.dressReceipt=function(data,context){
   var lineHtml=linesHtml(lines,context,'');
   if(!lineHtml){var lis=[].slice.call(main.querySelectorAll('ul li')).map(function(li){return {name:li.textContent||''};});lineHtml=linesHtml(lis,context,'');}
   var service=data.kind==='booking'||!!data.slot||!!data.bookingId;
+  main.classList.toggle('booked',service);
   var eyebrow=service?'Booking':'Order';
   main.innerHTML='<div class="card-h"><span class="eyebrow">'+esc(eyebrow)+'</span></div><p class="oid">'+esc(id)+'</p><div class="stepslot"></div>'+(lineHtml?'<div class="lines">'+lineHtml+'</div>':'')+'<div class="sum">'+sumHtml(total)+whenHtml(when,service?CAL:TRUCK)+'</div><p class="mock">'+INFO+esc(mock||MOCK)+'</p>';
   var slot=main.querySelector('.stepslot');
@@ -586,6 +590,95 @@ function foldJson(value: unknown, width = 34): string {
     .join("\n");
 }
 
+interface ProSlot {
+  id: string;
+  date: string;
+  day: string;
+  windowLabel: string;
+  price: string;
+  provider: string;
+  overCap: boolean;
+}
+
+function clockHour(iso: string): { hour: number; ap: "AM" | "PM" } {
+  const hour24 = Number(iso.slice(11, 13));
+  const ap = hour24 >= 12 ? "PM" : "AM";
+  let hour = hour24 % 12;
+  if (hour === 0) hour = 12;
+  return { hour: Number.isFinite(hour) ? hour : 0, ap };
+}
+
+/** Same window text as the slot tiles: "9-11 AM" or "10 AM-12 PM". */
+function slotWindow(start: string, end: string): string {
+  const open = clockHour(start);
+  const close = clockHour(end);
+  if (open.ap === close.ap) return `${open.hour}-${close.hour} ${open.ap}`;
+  return `${open.hour} ${open.ap}-${close.hour} ${close.ap}`;
+}
+
+function moneyShort(value: unknown): string {
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) return "";
+  if (Math.abs(amount - Math.round(amount)) < 0.001) return `$${Math.round(amount)}`;
+  return `$${amount.toFixed(2)}`;
+}
+
+function readProSlots(content: Record<string, unknown>): ProSlot[] {
+  if (!Array.isArray(content.slots)) return [];
+  const slots: ProSlot[] = [];
+  for (const row of content.slots.slice(0, 3)) {
+    if (row === null || typeof row !== "object") continue;
+    const slot = row as Record<string, unknown>;
+    const id = typeof slot.slotId === "string" ? slot.slotId : "";
+    const date = typeof slot.date === "string" ? slot.date.slice(0, 10) : "";
+    if (id === "" || date === "") continue;
+    slots.push({
+      id,
+      date,
+      day: formatShortDate(date),
+      windowLabel: slotWindow(String(slot.start ?? ""), String(slot.end ?? "")),
+      price: moneyShort(slot.priceUsd),
+      provider: typeof slot.provider === "string" ? slot.provider : "",
+      overCap: slot.overCap === true,
+    });
+  }
+  return slots;
+}
+
+function recordSlot(content: Record<string, unknown>): string {
+  const slot = content.slot;
+  if (slot === null || typeof slot !== "object" || Array.isArray(slot)) return "";
+  const id = (slot as Record<string, unknown>).slotId;
+  return typeof id === "string" ? id : "";
+}
+
+function bookingCard(card: CardPayload | null): boolean {
+  if (card === null) return false;
+  if (recordSlot(card.structuredContent) !== "") return true;
+  return card.structuredContent.kind === "booking" || typeof card.structuredContent.bookingId === "string";
+}
+
+function serviceDetail(card: CardPayload | null, appliance: string): string {
+  const lines = card?.structuredContent.lines;
+  const line = Array.isArray(lines) && lines[0] !== null && typeof lines[0] === "object" ? (lines[0] as Record<string, unknown>) : null;
+  const item = line && typeof line.item === "string" ? line.item.replaceAll("_", " ") : "";
+  const applianceId = line && typeof line.applianceId === "string" ? line.applianceId : "";
+  const names = card?.context.applianceNames;
+  const spoken =
+    applianceId !== "" && names !== null && typeof names === "object" && !Array.isArray(names)
+      ? String((names as Record<string, unknown>)[applianceId] ?? "")
+      : "";
+  return [spoken || appliance, item].filter((part) => part !== "").join(" ");
+}
+
+function openingsEyebrow(slots: ProSlot[], clockIso: string, detail: string): string {
+  const today = clockIso.slice(0, 10);
+  const range = /^\d{4}-\d{2}-\d{2}$/.test(today) ? nextWeekRange(today) : null;
+  const nextWeek = range !== null && slots.length > 0 && slots.every((slot) => slot.date >= range.from && slot.date <= range.to);
+  const when = nextWeek ? "Openings next week" : "Openings";
+  return detail === "" ? when : `${when} · ${detail}`;
+}
+
 export function App() {
   const clientRef = useRef<HearthkeepClient | null>(null);
   const dialogueRef = useRef<DialogueState>(emptyDialogue());
@@ -606,6 +699,9 @@ export function App() {
   const [about, setAbout] = useState(false);
   const [card, setCard] = useState<CardPayload | null>(null);
   const [cardHtml, setCardHtml] = useState("");
+  const [proSlots, setProSlots] = useState<ProSlot[]>([]);
+  const [slotAppliance, setSlotAppliance] = useState("");
+  const [approveLock, setApproveLock] = useState(false);
   const [snapshot, setSnapshot] = useState<SimSnapshot | null>(null);
   const [dataTab, setDataTab] = useState<DataTab>("Appliances");
   const [draft, setDraft] = useState("");
@@ -665,12 +761,28 @@ export function App() {
     }
   }
 
+  function rememberSlots(next: CardPayload): void {
+    const slots = readProSlots(next.structuredContent);
+    if (slots.length === 0) return;
+    const appliance = typeof next.context.fitsLine === "string" ? next.context.fitsLine : "";
+    setProSlots(slots);
+    setSlotAppliance(appliance);
+  }
+
+  function noteApproveLock(next: CardPayload | null): void {
+    if (next === null) return;
+    const service = recordSlot(next.structuredContent) !== "";
+    setApproveLock(service && next.structuredContent.overCap === true);
+  }
+
   async function showCard(next: CardPayload | null): Promise<void> {
     if (next === null) {
       setCard(null);
       setCardHtml("");
       return;
     }
+    rememberSlots(next);
+    noteApproveLock(next);
     let enriched = next;
     try {
       const state = await client().getSimState();
@@ -752,6 +864,9 @@ export function App() {
       setSessionPrefix(client().sessionPrefix);
       dialogueRef.current = emptyDialogue();
       setAwaitingCode(false);
+      setProSlots([]);
+      setSlotAppliance("");
+      setApproveLock(false);
       if (!keepTranscript) {
         setTurns([]);
         setTraces([]);
@@ -826,6 +941,9 @@ export function App() {
       setSessionPrefix(client().sessionPrefix);
       dialogueRef.current = emptyDialogue();
       setAwaitingCode(false);
+      setProSlots([]);
+      setSlotAppliance("");
+      setApproveLock(false);
       setTurns([]);
       setConnection("connected");
       await runUtterance("", false, sessionTransport(opened, [{ method: "DELETE", status: deleted, detail: "session" }]));
@@ -856,6 +974,10 @@ export function App() {
 
   const visible = turns.slice(-6);
   const latestAlert = [...visible].reverse().find((turn) => turn.alert)?.alert ?? null;
+  const showSlotStrip = showCards && proSlots.length > 0 && bookingCard(card);
+  const pickedId = recordSlot(card?.structuredContent ?? {});
+  const approveCode = awaitingCode && approveLock;
+  const slotEyebrow = openingsEyebrow(proSlots, clockIso, serviceDetail(card, slotAppliance));
 
   const pageClass = showTrace || showData ? "page page-panels" : "page";
   const face = clockFace(clockIso);
@@ -996,18 +1118,22 @@ export function App() {
               }}
             >
               <label className="sr-only" htmlFor="say">{awaitingCode ? "Purchase code" : "Say something"}</label>
-              <div className={awaitingCode ? "composer is-locked" : "composer"}>
+              <div className={awaitingCode ? `composer is-locked${approveCode ? " approve" : ""}` : "composer"}>
                 {awaitingCode ? <CodeLock /> : null}
                 <input
                   id="say"
                   value={draft}
                   disabled={busy || connection === "down"}
-                  placeholder={awaitingCode ? "Waiting for your purchase code" : "Type what you'd say..."}
+                  placeholder={approveCode ? "Waiting for “approve” and your code" : awaitingCode ? "Waiting for your purchase code" : "Type what you'd say..."}
                   onChange={(event) => setDraft(event.target.value)}
                 />
                 {draft === "" ? (
                   <span className="hint">
-                    {awaitingCode ? (
+                    {approveCode ? (
+                      <>
+                        Digits show as •••• · sent only to <span className="mono">confirm_purchase</span>
+                      </>
+                    ) : awaitingCode ? (
                       "digits show as ••••"
                     ) : (
                       <>
@@ -1023,7 +1149,22 @@ export function App() {
               </div>
             </form>
           </div>
-          <div className="stage" aria-label="Card">
+          <div className={showSlotStrip ? "stage has-slots" : "stage"} aria-label="Card">
+            {showSlotStrip ? (
+              <section className="slot-strip" aria-label="Earlier card: service slot options">
+                <span className="eyebrow">{slotEyebrow}</span>
+                <div className="mini">
+                  {proSlots.map((slot) => (
+                    <div key={slot.id} className={slot.id === pickedId ? "mt pick" : "mt"}>
+                      <div className="l1">{slot.day}<span>{slot.price}</span></div>
+                      <div className="l2">{slot.windowLabel}</div>
+                      <div className="l3">{slot.id === pickedId ? <Icon name="check" /> : null}{slot.provider}</div>
+                      {slot.overCap ? <span className="bd">Over $60 limit</span> : null}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ) : null}
             {showCards && card && cardHtml ? (
               <CardHost html={cardHtml} payload={card} onIntent={(utterance) => void onSend(utterance)} />
             ) : (
