@@ -4,9 +4,9 @@
  */
 
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { loadCues } from "./video-script.mjs";
+import { captionsAss, loadCues } from "./video-script.mjs";
 
 const OUT = "/workspace/demo/amazon-demo.mp4";
 const WORK = "/tmp/hk-video";
@@ -39,6 +39,7 @@ async function main() {
   if (!existsSync(video)) throw new Error(`missing picture: ${recorded}`);
   const audio = resolve(WORK, "narration.wav");
   const captions = resolve(WORK, "captions.ass");
+  writeFileSync(captions, captionsAss(cues));
   await run("ffmpeg", [
     "-y",
     "-i",

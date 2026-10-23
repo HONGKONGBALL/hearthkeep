@@ -5,6 +5,32 @@ import { assertCues, captionsAss, loadCues } from "../scripts/video-script.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 
+function assColour(field: string): { a: number; r: number; g: number; b: number } {
+  const hex = field.replace(/^&H/i, "");
+  return {
+    a: Number.parseInt(hex.slice(0, 2), 16),
+    b: Number.parseInt(hex.slice(2, 4), 16),
+    g: Number.parseInt(hex.slice(4, 6), 16),
+    r: Number.parseInt(hex.slice(6, 8), 16),
+  };
+}
+
+function linearChannel(channel: number): number {
+  const value = channel / 255;
+  return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+}
+
+function contrastRatio(
+  foreground: { r: number; g: number; b: number },
+  background: { r: number; g: number; b: number },
+): number {
+  const luminance = (color: { r: number; g: number; b: number }) =>
+    0.2126 * linearChannel(color.r) + 0.7152 * linearChannel(color.g) + 0.0722 * linearChannel(color.b);
+  const lighter = Math.max(luminance(foreground), luminance(background));
+  const darker = Math.min(luminance(foreground), luminance(background));
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
 describe("demo video script", () => {
   it("stays under 3:00 and keeps the narration lines in order", () => {
     const cues = loadCues();
@@ -19,6 +45,21 @@ describe("demo video script", () => {
     expect(captions).toContain("PlayResX: 1920");
     expect(captions).toContain("PlayResY: 1080");
     expect(captions).toContain("Upkeep you only notice when something beeps.");
+    const style = String(captions)
+      .split("\n")
+      .find((line) => line.startsWith("Style: Caption,"));
+    expect(style).toBeTruthy();
+    const fields = style!.slice("Style: ".length).split(",");
+    expect(fields[15]).toBe("3");
+    expect(Number(fields[16])).toBeGreaterThanOrEqual(8);
+    const primary = assColour(fields[3]);
+    const outline = assColour(fields[5]);
+    const back = assColour(fields[6]);
+    expect(primary.a).toBe(0);
+    expect(outline.a).toBe(0);
+    expect(back.a).toBe(0);
+    expect(contrastRatio(primary, outline)).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio(primary, back)).toBeGreaterThanOrEqual(4.5);
     expect(() =>
       assertCues([
         { id: "L1", start: 0, end: 10, shot: "x", narration: "y" },

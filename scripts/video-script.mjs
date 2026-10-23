@@ -60,7 +60,12 @@ function assText(narration) {
   return narration.replace(/\\/g, "\\\\").replace(/\{/g, "\\{").replace(/\}/g, "\\}").replace(/\n/g, "\\N");
 }
 
-/** Burned-in caption track. PlayRes matches the 1080p frame. */
+/**
+ * Burned-in caption track. PlayRes matches the 1080p frame.
+ * libass draws a BorderStyle=3 box only when Outline or Shadow is non-zero,
+ * and that box uses OutlineColour. Outline is the padding. Both box colours
+ * stay fully opaque so the white glyphs are not blended with the page.
+ */
 export function captionsAss(cues) {
   const events = cues
     .map(
@@ -77,7 +82,7 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Caption,DejaVu Sans,40,&H00FFFFFF,&H000000FF,&H00111111,&H96000000,-1,0,0,0,100,100,0,0,3,0,0,2,80,80,36,1
+Style: Caption,DejaVu Sans,40,&H00FFFFFF,&H000000FF,&H00111111,&H00111111,-1,0,0,0,100,100,0,0,3,12,0,2,80,80,48,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
