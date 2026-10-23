@@ -314,7 +314,7 @@ var CAL='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.
 var MIC='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11.5" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"></path></svg>';
 var XIC='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg>';
 var MOCK='Mock order, no real purchase or payment';
-function esc(value){return String(value==null?'':value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function esc(value){return String(value==null?'':value).split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;');}
 function money(value,force){var n=Number(value);if(!isFinite(n))return '';if(!force&&Math.abs(n-Math.round(n))<0.001)return '$'+Math.round(n);return '$'+n.toFixed(2);}
 function usd(value){var n=Number(value);return isFinite(n)?'$'+n.toFixed(2):'';}
 function wholeCap(value){var text=usd(value);return text.slice(-3)==='.00'?text.slice(0,-3):text;}
@@ -388,9 +388,10 @@ window.addEventListener('message',function(event){
 function hostDocument(html: string): string {
   const withPolicy = html.includes("Content-Security-Policy")
     ? html
-    : html.replace("<head>", `<head><meta http-equiv="Content-Security-Policy" content="${CARD_CSP}">`);
+    : html.replace("<head>", () => `<head><meta http-equiv="Content-Security-Policy" content="${CARD_CSP}">`);
   if (withPolicy.includes("hk-ring")) return withPolicy;
-  return withPolicy.replace("</body>", `${STATUS_SKIN}${OPTIONS_SKIN}${QUOTE_SKIN}</body>`);
+  // A string replacement treats $' as the text after the match, which rewrote price prefixes.
+  return withPolicy.replace("</body>", () => `${STATUS_SKIN}${OPTIONS_SKIN}${QUOTE_SKIN}</body>`);
 }
 
 function cell(value: unknown): string {
