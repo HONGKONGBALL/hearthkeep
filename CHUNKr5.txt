@@ -1,0 +1,26 @@
+Chunk r5 — A5 task card C5 uses the v4 skin
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed. Tag rc4 was not created. BUILD-RC4.txt still records chunk r1 (A2) only.
+
+Started from d8f520e (docs: record the A6 Mark done checks for rc4).
+Commits:
+  c17c1c611d0cc26f2c4ba2576eb3f3f9813559aa fix: give the task card the v4 skin
+This note and docs/evidence/rc4/a5-playwright.txt are the next commit. Parent of that commit: c17c1c611d0cc26f2c4ba2576eb3f3f9813559aa.
+
+What changed
+- apps/simulator/src/App.tsx: the host now injects a task-card skin with the status, options, and checkout skins. Open and completed C5 use Figtree, a mint (#D5F3DF) Fictional data chip with leaf-ink (#0B7039) text and a leaf icon, an uppercase Task eyebrow, surface-2 fact wells, an ink outline Mark done pill, and a mint Done pill. The spoken line sits in the same lemon well as checkout. The server document still owns the title, Due / Next due, Appliance, Supplies, and the Mark done button.
+- tests/e2e/a5-task-skin.spec.ts: open and completed states at 1280 and 390. Checks the f3 copy (Due, Appliance, Supplies, Hallway smoke alarm, Next due, October 2027), the Mark done role, chip and label colors, card fit, and axe with no serious or critical violations. Existing assertions were not weakened.
+
+Screenshots
+- docs/screens/rc4/a5-1280-task-open.png sha256 f91c8f4c9cd2931c38046ce47df6da6c4072f9baa356b48f82a11c8a5f3dfacb
+- docs/screens/rc4/a5-1280-task-done.png sha256 8c84cd226f137c5342816d0b005228af4141ae46e2e896f2800d672c3fc0e7c7
+- docs/screens/rc4/a5-390-task-open.png sha256 0255f276f98f7a2bd825157b008879f054740846cdd05910de73923bea6cec80
+- docs/screens/rc4/a5-390-task-done.png sha256 a3fec231246703fc72d729a39a66f8260a5da0dfd2ae0f9550ceea958a63f346
+
+Commands and exit codes
+- npx tsc -p apps/simulator/tsconfig.json --noEmit, after the skin edit: exit 0.
+- npx playwright test tests/e2e/a5-task-skin.spec.ts tests/e2e/f3-copy.spec.ts tests/e2e/f4c-cards.spec.ts --reporter=list, on the committed skin: exit 0. 3 passed (10.6s). Channel chrome, 1 worker. A5 includes four axe scans (open and completed, 1280 and 390) with no serious or critical violations. f3-copy (P09 and P10 visible copy) passed. P08 still fits status, options, checkout, receipt, and task. Log: docs/evidence/rc4/a5-playwright.txt (sha256 b80dda3e4d4971f5082ee0000c6719a422fee87a21f0dc3f977677b96fa08b7b).
+- That Playwright run rewrote png files in docs/screens/rc2/. Restored with git checkout -- docs/screens/rc2. Those files are unchanged in this chunk.
+- Full vitest and the full Playwright file were not re-run in this chunk.
+
+Acceptance
+C5 open and completed states match the v4 card chrome at 1280 and 390. axe reported no serious or critical violations on those four scans. f3-copy assertions passed.
