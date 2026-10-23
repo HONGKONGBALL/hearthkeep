@@ -1,0 +1,29 @@
+Chunk d4 — v4 checkout and receipt cards
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed.
+
+Started from 3e1bc30 (docs: record the d3 parts options check and refreshed screens).
+Commits:
+  2ccf54f feat: restyle checkout and receipt cards for v4
+  a3273f2 fix: keep checkout prices intact when the card skin is injected
+  537a103 fix: fit the booking checkout and wrap trace slot lines
+npm test, tsc, and the final Playwright run below are against 537a103, before this file.
+
+What changed
+- apps/simulator/src/App.tsx — The server checkout and receipt documents are unchanged. The host skins them after render. Checkout shows the line, 46px total, arrival, the $60 meter, and the purchase-code step (Confirm by voice and Cancel, no code field). A part line uses the spoken appliance, for example "Water filter for your fridge". A service line is "Dryer vent cleaning · Ventora Home Care" with the slot date and, when over the cap, the berry overflow and "$60 limit" tick. The mock sentence is "Mock order, no real purchase or payment". Receipt shows the id, the existing step text (Placed or Booked stays the active step), the same line and total, and the mock label. Raw JSON in the trace is folded to 34 characters and the panel wraps.
+- apps/simulator/src/App.css — Trace JSON and slot lines wrap inside the panel. Nothing is clipped on the right.
+- String.replace was treating $' in the skin as the text after </body>, so each price prefix became </html> and the card script did not parse. The skin is inserted with a function replacement. A provider already printed on the line is not repeated as a subtitle. The purchase-code row stays beside the quote until the card is under 480px, so opening Trace does not push Cancel below the frame.
+- Server, planner, MCP, and domain logic are unchanged.
+
+Layout check
+A temporary Playwright spec (deleted after the run, not part of the suite) at 390, 1280, and 1440:
+- Part checkout text: "Total $24.99", "Arrives Fri, Oct 23", "Within your $60 limit", "Say your purchase code", "Mock order, no real purchase or payment", "Rillstone CX-28", "$24.99 of $60.00", "Water filter for your fridge", "price held until 9:15 AM". Total is 46px. Confirm by voice and Cancel are visible. No code field.
+- Raw JSON lines are at most 34 characters. The pre and the trace panel do not scroll horizontally, including the booking slot line.
+- Receipt ord_0001, active step "Placed", and the mock sentence fit in the card.
+- Over-cap booking: "Total $89.00", "Over your $60 limit by $29.00", "Say 'approve' and your code", "Tue, Oct 27, 9-11 AM", "$89.00 vs $60.00", "Ventora Home Care". Active step after approve is "Booked". The card fits with Trace open at 1280×800.
+
+Commands and exit codes
+- npx tsc -p apps/simulator/tsconfig.json --noEmit, from /workspace/amazon-app: exit 0.
+- npm test, from /workspace/amazon-app: exit 0. Vitest 4.1.12. 19 files passed, 224 tests passed. Start 12:13:48. Duration 9.61s.
+- npx playwright test tests/e2e/d4-layout.spec.ts, from /workspace/amazon-app: exit 0. 1 passed. That file was removed afterward, so the suite count stays 30.
+- npx playwright test, from /workspace/amazon-app, after the layout spec was removed: exit 0. 30 passed. Duration 46.8s. Channel chrome, 1 worker.
+The Playwright suite rewrote docs/screens/rc2/*.png. Those files are committed with this note.
