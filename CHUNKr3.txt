@@ -1,0 +1,22 @@
+Chunk r3 — A4 Confirm by voice on an over-cap quote asks for approve
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed. Tag rc4 was not created. BUILD-RC4.txt still records chunk r1 (A2) only.
+
+Started from d2fe4e2 (docs: record the A1 status-row checks for rc4).
+Commits:
+  f6d3d9a fix: ask for approve when Confirm by voice is over the cap
+  f447bb6 test: cover Confirm by voice on an over-cap quote
+  a2a8114 test: click Confirm by voice on the F4 over-cap checkout
+This note and docs/evidence/rc4/a4-*.txt are the next commit. Parent of that commit: a2a8114b9cc4c66318e8f2b3b7cd0c7c0062466d.
+
+What changed
+- apps/simulator/src/planner.ts: a Confirm by voice click still has no code and still does not call confirm_purchase. When the pending quote is over the cap, the reply is "Say 'approve' and your code." A quote inside the cap still gets "Say your purchase code to confirm." The quote stays pending. Attempt counts and the lock path are unchanged.
+- tests/planner.test.ts: over-cap click, within-cap click, and a click with no quote. The over-cap case asserts the approve sentence, an empty tool list, and the same quote id.
+- tests/e2e/a4-overcap-voice.spec.ts: F4 (book the dryer vent, Tuesday morning), click the C3 Confirm by voice button, assert the reply is "Say 'approve' and your code." The trace has no confirm_purchase and no OVER_CAP_APPROVAL_REQUIRED. Orders and bookings stays empty. Existing assertions were not weakened. Vitest went from 224 to 225. Playwright went from 32 to 33.
+
+Commands and exit codes
+- npx vitest run --reporter=default, from /workspace/amazon-app, after a2a8114: exit 0. Vitest 4.1.12. 19 files passed, 225 tests passed. Start 15:22:20. Duration 8.48s. planner.test.ts is 18 tests. Log: docs/evidence/rc4/a4-vitest.txt (sha256 c35fe513c77c4ec48343cee38cf514d088ae41505a3781274676b83a0a3769e9).
+- PLAYWRIGHT_HTML_OPEN=never npx playwright test --reporter=list, after a2a8114: exit 0. 33 passed (47.3s). Channel chrome, 1 worker. Includes "A4 Confirm by voice on the over-cap checkout asks for approve" (1.2s in that run) and the previous 32 cases, including test 68. Log: docs/evidence/rc4/a4-playwright.txt (sha256 e84e92704f83a60085ed5707dbd8521a2131b8634a2a7fae75c3a68f3776c9a5).
+- The full Playwright run rewrote png files in docs/screens/rc2/ and docs/screens/rc4/. Restored with git checkout -- docs/screens/rc2 docs/screens/rc4. Those files are unchanged in this chunk.
+
+Acceptance
+The planner unit test passes, and the F4 e2e clicks the C3 Confirm by voice button and the reply contains "approve". The click does not confirm the booking. npm test count is 225. Playwright count is 33, all passed.

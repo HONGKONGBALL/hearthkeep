@@ -15,3 +15,5 @@ Household names, prices, and the purchase code in those runs are fictional sampl
 | `playwright-report.json` | Machine-readable Playwright JSON report from that same run. |
 
 Chunk r2 (A1) added `a1-vitest.txt` and `a1-playwright.txt`. Those are the raw logs for the status-row fix. `CHUNKr2.txt` at the repo root cites them. The A2 files above are unchanged.
+
+Chunk r3 (A4) added `a4-vitest.txt` and `a4-playwright.txt`. Those are the raw logs for the over-cap Confirm by voice reply. `CHUNKr3.txt` at the repo root cites them. The A1 and A2 files above are unchanged.
