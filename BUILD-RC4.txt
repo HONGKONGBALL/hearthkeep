@@ -1,0 +1,73 @@
+Hearthkeep — rc4 verification record (chunk r1, A2 only)
+Status: A2 is implemented on b75aadb and the listed checks passed. This file does not close the rest of the rc3 review. Tag rc4 is not created in this chunk.
+Household names, prices, and the purchase code in the product are fictional sample data. This file stores no secrets.
+
+Bind
+  Release tag name reserved for this round: rc4
+  This file: BUILD-RC4.txt at the repo root
+  Screenshots (A2): docs/screens/rc4/
+  Raw outputs and reports: docs/evidence/rc4/ (list in docs/evidence/rc4/README.md)
+  Fill rule: the hash below is the parent of the commit that contains this file. That parent is the product commit this record describes. A commit cannot store its own hash.
+  Tag rc2 stays on f60bfaac63c97f692e92a21d848e39a05b116717. Tag rc3 stays on ff934b8. This chunk does not create, move, or delete a tag.
+
+Described commit
+  command: git rev-parse HEAD
+  value: b75aadb3c8128c971f044f178721a5bb3af6ef5c
+  captured_at: 2026-10-23, after the A2 fix and its e2e, before this file
+  what it contains: aec9777 limits the hazard banner and card suppression to the latest turn; b75aadb adds tests/e2e/a2-hazard-next-turn.spec.ts. This file, docs/screens/rc4/, and docs/evidence/rc4/ are the next commit.
+
+Scope of this record
+  A2 only. Alert text and the hidden card stage apply to the turn that raised the alert. The next turn renders its card. Other rc3 findings (A1, A3–A7, V1, V2) are outside this chunk.
+
+Commands and exit codes (this record)
+  command: npm test -- --reporter=default --reporter=json --outputFile.json=docs/evidence/rc4/vitest-report.json
+  purpose: Vitest unit and protocol tests on the described commit
+  run_as: grok-build
+  exit_code: 0
+  result: 19 files passed, 224 tests passed, start 14:49:46 Asia/Shanghai, duration 8.69s. numPassedTests 224, numFailedTests 0, success true in the JSON report.
+  raw_output: docs/evidence/rc4/vitest.txt
+  report: docs/evidence/rc4/vitest-report.json
+  sha256: da28947c3a75213a0601e94b816ba4431ccc87bc3c32ff36e74f3708bd1ecf36
+
+  command: PLAYWRIGHT_HTML_OPEN=never PLAYWRIGHT_HTML_OUTPUT_DIR=docs/evidence/rc4/playwright-report PLAYWRIGHT_JSON_OUTPUT_NAME=docs/evidence/rc4/playwright-report.json npm run test:e2e -- --reporter=list,html,json
+  purpose: Playwright end-to-end run in Chrome, including the new A2 spec and the existing suite
+  run_as: grok-build
+  exit_code: 0
+  result: 31 passed, 0 failed, duration 46.1s. JSON stats: expected 31, unexpected 0, skipped 0, flaky 0, start 2026-10-23T06:50:18.386Z. Includes the previous 30 cases plus "A2 the next turn after a gas alert shows the status card". Test 71 (gas smell hides the card on that turn) passed.
+  raw_output: docs/evidence/rc4/playwright.txt
+  report: docs/evidence/rc4/playwright-report/
+  json_report: docs/evidence/rc4/playwright-report.json
+  sha256: 13db044619dbd0bec810102660aa5052164f3bd0bc4c5d1a8ca39ed7d4245cd3
+
+  command: npx playwright test tests/e2e/a2-hazard-next-turn.spec.ts --reporter=list
+  purpose: first isolated check of the new spec, before the full suite
+  exit_code: 0
+  result: 1 passed (3.6s). The retained log is the full-suite playwright.txt, which runs the same spec.
+
+  command: NODE_PATH=/workspace/amazon-app/node_modules npx tsx /tmp/capture-a2-rc4.ts
+  purpose: frame screenshots of the hazard turn and the next briefing
+  exit_code: 0
+  result: four PNGs under docs/screens/rc4/. The temporary script was removed and is not in the tree.
+  earlier attempts: exit 1 resolving @playwright/test from /tmp (no PNG). exit 1 on a case-sensitive "Needs attention" check against CSS-uppercased innerText, after one viewport shot that was deleted and replaced by the successful frame shots.
+
+Screenshot list (A2)
+  1280×800 viewport, frame element 1048×624:
+    docs/screens/rc4/a2-1280-hazard-turn.png
+      sha256 f7152ba1a7c6852507a7301997691c7fc5a3904bdedf0c59c8f763bbf1353d46
+      Observed: gas reply in the transcript, berry banner "If you smell gas…", no status card.
+    docs/screens/rc4/a2-1280-next-turn.png
+      sha256 42cbce3537caa79c5564eb68b60a65d0ef99de8c2ef8fe7b90ddf0dee4bd8354
+      Observed: "What needs doing?" reply, status card with "NEEDS ATTENTION" and Handle it, berry banner absent. The earlier gas reply remains in the transcript.
+  390×844 viewport, frame element:
+    docs/screens/rc4/a2-390-hazard-turn.png  342×917
+      sha256 61556ab6475ed0b4deeed641fcd3011d29ecc56d1c4e3ce492c606ba643f32ee
+      Observed: berry banner at the top of the screen, no status card.
+    docs/screens/rc4/a2-390-next-turn.png  342×1277
+      sha256 9762ca6a575031e7bd430837d3099fb52a13909df7a86cf1c506d656102a9fcb
+      Observed: status card with "NEEDS ATTENTION", berry banner absent.
+
+Side effect restored
+  The full Playwright run rewrote 16 files under docs/screens/rc2/. Those bytes were restored with git checkout -- docs/screens/rc2 before this record. They are not part of the A2 commit.
+
+Unverified in this chunk
+  Fresh clone, P-13 UI timing, demo video, and findings other than A2.

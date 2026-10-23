@@ -1,0 +1,28 @@
+Chunk r1 — A2 hazard suppresses cards for one turn
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed. Tag rc4 was not created.
+
+Started from ff934b8 (docs: add rc3 verification record, demo video, and test evidence).
+Commits:
+  aec9777 fix: drop the hazard banner after the turn that raised it
+  b75aadb test: show the status card on the turn after a gas alert
+This note, BUILD-RC4.txt, docs/screens/rc4/, and docs/evidence/rc4/ are the next commit.
+
+What changed
+- apps/simulator/src/App.tsx: the banner and the hidden card stage now use only the latest turn's alert. They no longer scan the last six turns. On the hazard turn the berry banner still shows and the card stage stays unmounted. The next turn renders its own card.
+- tests/e2e/a2-hazard-next-turn.spec.ts: say "I smell gas in the kitchen", then "What needs doing?". The spec expects the gas banner and no iframe on the first turn, then a visible iframe whose body contains "Needs attention" and no p.alert on the second turn.
+- Existing test files and assertions were left as they are. Vitest stayed at 224. Playwright went from 30 to 31 because of the new spec. Test 71 still expects no iframe on the gas turn itself.
+
+Commands and exit codes
+- npm test -- --reporter=default --reporter=json --outputFile.json=docs/evidence/rc4/vitest-report.json, from /workspace/amazon-app: exit 0. Vitest 4.1.12. 19 files passed, 224 tests passed. Start 14:49:46 Asia/Shanghai. Duration 8.69s. Log: docs/evidence/rc4/vitest.txt (sha256 da28947c3a75213a0601e94b816ba4431ccc87bc3c32ff36e74f3708bd1ecf36). JSON success true, numPassedTests 224, numFailedTests 0.
+- npx playwright test tests/e2e/a2-hazard-next-turn.spec.ts --reporter=list: exit 0. 1 passed (3.6s). Log was not kept. The full suite below runs the same spec.
+- PLAYWRIGHT_HTML_OPEN=never PLAYWRIGHT_HTML_OUTPUT_DIR=docs/evidence/rc4/playwright-report PLAYWRIGHT_JSON_OUTPUT_NAME=docs/evidence/rc4/playwright-report.json npm run test:e2e -- --reporter=list,html,json: exit 0. 31 passed (46.1s). Channel chrome, 1 worker. JSON expected 31, unexpected 0. Log: docs/evidence/rc4/playwright.txt (sha256 13db044619dbd0bec810102660aa5052164f3bd0bc4c5d1a8ca39ed7d4245cd3).
+- NODE_PATH=/workspace/amazon-app/node_modules npx tsx /tmp/capture-a2-rc4.ts: exit 0. Four frame shots:
+  a2-1280-hazard-turn.png  sha256 f7152ba1a7c6852507a7301997691c7fc5a3904bdedf0c59c8f763bbf1353d46
+  a2-1280-next-turn.png    sha256 42cbce3537caa79c5564eb68b60a65d0ef99de8c2ef8fe7b90ddf0dee4bd8354
+  a2-390-hazard-turn.png   sha256 61556ab6475ed0b4deeed641fcd3011d29ecc56d1c4e3ce492c606ba643f32ee
+  a2-390-next-turn.png     sha256 9762ca6a575031e7bd430837d3099fb52a13909df7a86cf1c506d656102a9fcb
+- Two earlier capture attempts exited 1 (module path from /tmp, then a case-sensitive text check). The successful run replaced those shots. The script is not in the tree.
+- The full Playwright run rewrote 16 png files in docs/screens/rc2/. Restored with git checkout -- docs/screens/rc2. Those files are unchanged in this chunk.
+
+Acceptance
+The e2e path passes: gas turn has the banner and no card; "What needs doing?" shows the iframe with Needs attention and the banner is gone. Same observation on the 1280 and 390 frame shots. npm test count stayed at 224.
