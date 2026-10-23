@@ -1,0 +1,11 @@
+rc4-psyche4 clean-clone verification
+Tested commit: 3f4b5d2b43fb4be9a5bef946ec1e18849708ceba (narrate-demo reads DASHSCOPE_API_KEY from the environment first; parent of the commit that adds this file)
+Run: 2026-10-23 18:2x Asia/Shanghai (UTC+8), fresh clone at /tmp/hk-rc4p4, node v20.19.2, headless (DISPLAY unset), HK_PORT=37383
+Working tree before the run: clean
+npm ci: exit 0
+npm run typecheck: exit 0, 0 errors
+npm test (vitest): 19 files, 231 passed, 0 failed
+npm run test:e2e (playwright, chrome): 41 passed, 0 failed
+Run log mentions of port 8787: 0
+Demo video unchanged: docs/demo/hearthkeep-demo.mp4 md5 a12c58bb3b6d81830a2cb9589a2a8575
+Key loading checked with a local harness: env value is used when set; the secrets-file fallback still works; a missing file still exits 1.
