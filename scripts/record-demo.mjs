@@ -99,15 +99,26 @@ function card(title, body) {
 </html>`;
 }
 
-async function clickChip(page, name) {
-  const before = await page.locator(".transcript").innerText();
-  await page.getByRole("button", { name, exact: true }).click();
+async function waitForTurn(page, before) {
   await page.waitForFunction((prev) => {
     const transcript = document.querySelector(".transcript");
     const input = document.querySelector("#say");
     if (!(input instanceof HTMLInputElement) || input.disabled) return false;
     return Boolean(transcript && transcript.innerText !== prev);
   }, before, { timeout: 20000 });
+}
+
+async function clickChip(page, name) {
+  const before = await page.locator(".transcript").innerText();
+  await page.getByRole("button", { name, exact: true }).click();
+  await waitForTurn(page, before);
+}
+
+async function sayLine(page, text) {
+  const before = await page.locator(".transcript").innerText();
+  await page.locator("#say").fill(text);
+  await page.getByRole("button", { name: "Send" }).click();
+  await waitForTurn(page, before);
 }
 
 async function main() {
@@ -213,6 +224,11 @@ async function main() {
     await clickChip(page, "The hallway smoke alarm keeps chirping");
     await pause(6000, endAt.L5);
     await clickChip(page, "Done, I swapped it");
+    const afterDone = await page.locator(".transcript .assistant").last().innerText();
+    if (/which one/i.test(afterDone)) {
+      console.log("naming the hallway battery after the task question");
+      await sayLine(page, "the hallway smoke alarm battery");
+    }
     await holdUntil(endAt.L5);
 
     await clickChip(page, "Book someone to clean the dryer vent next week");
