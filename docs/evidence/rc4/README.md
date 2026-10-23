@@ -21,3 +21,5 @@ Chunk r3 (A4) added `a4-vitest.txt` and `a4-playwright.txt`. Those are the raw l
 Chunk r4 (A6) added `a6-vitest.txt` and `a6-playwright.txt`. Those are the raw logs for Mark done choosing the task on the clicked row. `CHUNKr4.txt` at the repo root cites them. The A1, A2, and A4 files above are unchanged.
 
 Chunk r7 replaced `vitest.txt`, `vitest-report.json`, `playwright.txt`, `playwright-report.json`, and `playwright-report/index.html` with the full `npm test` and `npm run test:e2e` run. Both logs start with `git rev-parse HEAD` and `git status`. `CHUNKr7.txt` cites them. The earlier per-fix logs (`a1-*`, `a4-*`, `a5-playwright.txt`, `a6-*`) are unchanged. The previous full-run bytes, which `CHUNKr1.txt` hashes, remain at commit `ea2523cb5780cf36c17718f7c819e194af843f5d`.
+
+Chunk r8 (A3) added `a3-caption-contrast.txt` and `a3-frames/L1.png` through `L9.png`. Those are the per-cue contrast samples for `docs/demo/hearthkeep-demo.mp4`. `CHUNKr8.txt` cites them. The test logs above are unchanged.

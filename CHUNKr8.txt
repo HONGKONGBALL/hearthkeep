@@ -1,0 +1,52 @@
+Chunk r8 — A3 demo captions and the re-composited video
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed. Tag rc4 was not created.
+
+Started from 3e670cc (docs: record the rc4 full-suite checks).
+Commits before this note:
+  1ac3f20 fix: give demo captions an opaque box
+  e056026 fix: name the battery when the demo closes a task
+This note, docs/demo/hearthkeep-demo.mp4, and docs/evidence/rc4/a3-* are the next commit. Parent of that commit: e0560263f9ffc570005b94511cd681a9929f733c.
+
+What changed
+- scripts/video-script.mjs: the Caption style is BorderStyle 3 with Outline 12 and Shadow 0. OutlineColour and BackColour are opaque #111111 (&H00111111). PrimaryColour stays opaque white. libass 0.17.3 returns before drawing a BorderStyle 3 box when Outline and Shadow are both 0, which is why the rc3 cues were bare white type. Outline is the box padding.
+- scripts/assemble-demo.mjs: writes captions.ass from captionsAss() before ffmpeg, so a stale track cannot be burned.
+- tests/docs-video.test.ts: the Caption style must be BorderStyle 3, Outline at least 8, and both box colours fully opaque with WCAG contrast at least 4.5:1 against the glyph colour.
+- scripts/record-demo.mjs: after "Done, I swapped it", if the reply asks which task, the shot says "the hallway smoke alarm battery". Two open tasks now ask. The F3 shot still logs the battery.
+- Picture re-recorded at 1920x1080 after r1–r7. Narration text was not changed, so narration.wav was reused.
+
+Video
+  path: docs/demo/hearthkeep-demo.mp4
+  md5: 36b9800b34f6a407094dec9c339f6dbf
+  size_bytes: 4560744
+  duration_s: 170.000000
+  video: h264 1920x1080
+  audio: aac 48000 Hz stereo
+  max_volume_dB: -8.7
+  Under 180 seconds.
+
+Contrast
+  9 of 9 cues PASS. Lowest median 18.41:1 (L3). Lowest sampled pair 15.69:1 (L7). Floor is 4.5:1.
+  On the product frames the page at (24,24) is #F3F4EA (243,244,234). Glyph against that page is 1.08:1 to 1.11:1, the same failure rc3 measured. Glyph against the opaque box is the pass number.
+  Proof: docs/evidence/rc4/a3-caption-contrast.txt and docs/evidence/rc4/a3-frames/L1.png through L9.png.
+
+Narration
+  Reused. wav md5 07aee66cd06116336f09efd6e2120def, 170.000s, qwen3-tts-flash, voice Cherry, from the rc3 narration.json. DashScope was not called again. edge-tts was not used. The 44.562s–80.083s silence is still in the mux (35.521s). Captions stay on screen for the whole cue, including that gap.
+
+Commands and exit codes
+- npx vitest run tests/docs-video.test.ts: exit 0. 2 passed. This was before 1ac3f20.
+- npx playwright install ffmpeg: exit 0. The first node scripts/record-demo.mjs exited 1 because Playwright had no ffmpeg at ~/.cache/ms-playwright/ffmpeg-1013. Ports 8787 and 5173 were free. No server was left listening.
+- node scripts/record-demo.mjs: exit 0. Printed "naming the hallway battery after the task question" and /tmp/hk-video/page.webm. The webm is 177.880s; the mux trims to the script end, 170s. Shot checks on the webm: title at 6s, architecture at 18s, briefing at 30s, checkout at 50s, receipt and trace at 70s, battery task closed at 92s, booking receipt at 125s, next-morning status rows on one line at 134s, gas alert at 138s, MIT card at 158s, close card at 166s.
+- node scripts/assemble-demo.mjs: exit 1. ffmpeg exited 243. Error opening output /workspace/demo/amazon-demo.mp4: Permission denied. That directory is owned by another user and is not writable here. The filter graph below is the one in scripts/assemble-demo.mjs.
+- Captions were written with captionsAss(), then:
+  ffmpeg -y -i /tmp/hk-video/page.webm -i /tmp/hk-video/narration.wav -filter_complex "[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0xe7dfd2,fps=30,subtitles=/tmp/hk-video/captions.ass:fontsdir=/usr/share/fonts[v]" -map "[v]" -map 1:a:0 -t 170 -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p -c:a aac -b:a 160k -ar 48000 -ac 2 -movflags +faststart /tmp/hk-video/amazon-demo.mp4
+  exit 0. libass API 0x1703000, font DejaVuSans-Bold.
+- cp /tmp/hk-video/amazon-demo.mp4 docs/demo/hearthkeep-demo.mp4
+  The two paths have the same md5. /workspace/demo/amazon-demo.mp4 was not replaced.
+- ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 docs/demo/hearthkeep-demo.mp4
+  170.000000
+- ffmpeg -i docs/demo/hearthkeep-demo.mp4 -af volumedetect -f null -
+  mean_volume -31.9 dB, max_volume -8.7 dB
+- Per-cue frames were taken with ffmpeg select at frames 180, 540, 960, 1800, 2760, 3540, 4200, 4650, and 4980. Pillow measured the ratios in docs/evidence/rc4/a3-caption-contrast.txt.
+
+Acceptance
+New mp4 is 170s. Every cue's sampled contrast is at least 4.5:1. This file records the md5 and the commands.

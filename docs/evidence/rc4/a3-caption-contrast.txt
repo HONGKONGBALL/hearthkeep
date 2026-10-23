@@ -1,0 +1,154 @@
+A3 caption contrast
+Recorded 2026-10-23 after the r1–r7 product fixes. Picture from node scripts/record-demo.mjs. Narration reused. Captions burned by the ffmpeg subtitles filter (libass 0.17.3).
+
+Video
+  path: docs/demo/hearthkeep-demo.mp4
+  md5: 36b9800b34f6a407094dec9c339f6dbf
+  size_bytes: 4560744
+  duration_s: 170.000000
+  video: h264 1920x1080 yuv420p 30 fps
+  audio: aac 48000 Hz stereo
+  max_volume_dB: -8.7
+  mean_volume_dB: -31.9
+
+Style burned into the file
+  Style: Caption,DejaVu Sans,40,&H00FFFFFF,&H000000FF,&H00111111,&H00111111,-1,0,0,0,100,100,0,0,3,12,0,2,80,80,48,1
+  BorderStyle 3, Outline 12. libass draws that box only when Outline or Shadow is non-zero. OutlineColour and BackColour are opaque #111111. PrimaryColour is opaque white.
+
+Method
+  One frame from the encoded mp4, inside each cue, at 30 fps. Frame number is time_s * 30.
+  The caption box is the neutral near-black region in the bottom band (y >= 900): max channel <= 40, chroma <= 14, relative luminance < 0.02.
+  Glyph pixels inside that box have every channel >= 230 and relative luminance >= 0.90.
+  median_contrast is WCAG 2.1 between the median glyph RGB and the median box RGB.
+  sample_contrast is one glyph pixel and a box pixel 8 to 14 px above it.
+  glyph_vs_page is the same glyph median against pixel (24,24), which is the page or title card with no box. That is the old failure (about 1.11:1 on #F3F4EA). The pass number is the glyph against the box behind it.
+  Relative luminance uses the sRGB linearization in WCAG 2.1. Pass means both ratios are at least 4.5:1.
+
+Result
+  9 of 9 cues PASS. Lowest median contrast 18.41:1 (L3). Lowest sample contrast 15.69:1 (L7). Duration 170s, under 180s.
+
+L1 PASS
+  time_s: 6.0  frame: 180  narration: Upkeep you only notice when something beeps.
+  box_bbox: x=484..1435 y=980..1043  glyph_pixels: 7880  box_pixels: 49598
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  sample_glyph: x=586 y=1014 rgb=255,255,255
+  sample_box: x=586 y=1004 rgb=17,17,17
+  sample_contrast: 18.88:1
+  page_outside_box_rgb: 229,221,208  glyph_vs_page: 1.35:1
+  frame_md5: 219bd4719205ecbda4a8c6e6d0080153
+  frame_path: docs/evidence/rc4/a3-frames/L1.png
+
+L2 PASS
+  time_s: 18.0  frame: 540  narration: A real MCP server, spec 2025-11-25 over Streamable HTTP, behind a simulated Alexa+ experience.
+  box_bbox: x=436..1483 y=940..1043  glyph_pixels: 15506  box_pixels: 80823
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  sample_glyph: x=1034 y=982 rgb=255,255,255
+  sample_box: x=1034 y=974 rgb=16,16,16
+  sample_contrast: 19.03:1
+  page_outside_box_rgb: 229,221,208  glyph_vs_page: 1.35:1
+  frame_md5: 54633fd9914075a396f64d000cb63ad3
+  frame_path: docs/evidence/rc4/a3-frames/L2.png
+
+L3 PASS
+  time_s: 32.0  frame: 960  narration: It speaks first, from memory.
+  box_bbox: x=665..1255 y=980..1043  glyph_pixels: 4453  box_pixels: 31256
+  glyph_median_rgb: 252,252,252
+  box_median_rgb: 17,17,17
+  median_contrast: 18.41:1
+  sample_glyph: x=1122 y=1013 rgb=253,253,253
+  sample_box: x=1122 y=1003 rgb=17,17,17
+  sample_contrast: 18.56:1
+  page_outside_box_rgb: 243,244,234  glyph_vs_page: 1.08:1
+  frame_md5: acb7a34a1ce93aafc12f98326c744de7
+  frame_path: docs/evidence/rc4/a3-frames/L3.png
+
+L4 PASS
+  time_s: 60.0  frame: 1800  narration: Exact-fit part, policy filter, code-gated mock purchase.
+  box_bbox: x=417..1502 y=980..1043  glyph_pixels: 8823  box_pixels: 56824
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  sample_glyph: x=1470 y=1013 rgb=255,255,255
+  sample_box: x=1470 y=1003 rgb=17,17,17
+  sample_contrast: 18.88:1
+  page_outside_box_rgb: 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: 981e093bdd429ccc9e0c4e5d8b542afa
+  frame_path: docs/evidence/rc4/a3-frames/L4.png
+
+L5 PASS
+  time_s: 92.0  frame: 2760  narration: It uses what you already own.
+  box_bbox: x=657..1262 y=980..1043  glyph_pixels: 4576  box_pixels: 32130
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  sample_glyph: x=793 y=1014 rgb=255,255,255
+  sample_box: x=793 y=1004 rgb=20,20,20
+  sample_contrast: 18.42:1
+  page_outside_box_rgb: 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: 878daeacd59b92abdf09ab18d7ddfe85
+  frame_path: docs/evidence/rc4/a3-frames/L5.png
+
+L6 PASS
+  time_s: 118.0  frame: 3540  narration: It books the pro. The limit is enforced by the server.
+  box_bbox: x=440..1479 y=980..1043  glyph_pixels: 8067  box_pixels: 54889
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  sample_glyph: x=925 y=1013 rgb=244,244,244
+  sample_box: x=925 y=1005 rgb=17,17,17
+  sample_contrast: 17.17:1
+  page_outside_box_rgb: 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: 61a537c109534dd00831fc751ab166cc
+  frame_path: docs/evidence/rc4/a3-frames/L6.png
+
+L7 PASS
+  time_s: 140.0  frame: 4200  narration: New session, same memory. Safety beats shopping.
+  box_bbox: x=443..1476 y=980..1043  glyph_pixels: 8343  box_pixels: 53955
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  sample_glyph: x=557 y=1014 rgb=252,252,252
+  sample_box: x=557 y=1004 rgb=33,33,33
+  sample_contrast: 15.69:1
+  page_outside_box_rgb: 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: 2e19b51179ade081cb0e61dd87cbefe2
+  frame_path: docs/evidence/rc4/a3-frames/L7.png
+
+L8 PASS
+  time_s: 155.0  frame: 4650  narration: Verifiable protocol behaviour, and open source.
+  box_bbox: x=485..1434 y=980..1043  glyph_pixels: 7720  box_pixels: 49702
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  sample_glyph: x=1391 y=1013 rgb=250,250,250
+  sample_box: x=1391 y=1005 rgb=13,13,13
+  sample_contrast: 18.62:1
+  page_outside_box_rgb: 229,221,208  glyph_vs_page: 1.35:1
+  frame_md5: 0385c030c076e43dda34372e5c042b08
+  frame_path: docs/evidence/rc4/a3-frames/L8.png
+
+L9 PASS
+  time_s: 166.0  frame: 4980  narration: Fictional sample data. Simulated Alexa+ experience.
+  box_bbox: x=436..1483 y=980..1043  glyph_pixels: 8555  box_pixels: 54643
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  sample_glyph: x=1326 y=1013 rgb=253,253,253
+  sample_box: x=1326 y=1003 rgb=17,17,17
+  sample_contrast: 18.56:1
+  page_outside_box_rgb: 229,221,208  glyph_vs_page: 1.35:1
+  frame_md5: b7030635eba74cc790b97f447f993c48
+  frame_path: docs/evidence/rc4/a3-frames/L9.png
+
+Narration
+  Reused the rc3 Cherry take. docs/video-script.md narration lines were not edited.
+  wav_md5: 07aee66cd06116336f09efd6e2120def
+  wav_duration_s: 170.000000
+  model: qwen3-tts-flash
+  voice: Cherry
+  source note: /tmp/hk-video/narration.json from the 2026-10-23 13:52 take
+  The mixed track still has the 44.562s–80.083s silence (35.521s). No second voice and no music were added. DashScope was not called again. edge-tts was not used.
