@@ -272,7 +272,7 @@ async function main() {
         "Close",
         `<p class="kicker">Hearthkeep</p>
          <h1>See the repository</h1>
-         <p class="lead">Public GitHub URL is added at publish time.</p>
+         <p class="lead">https://github.com/HONGKONGBALL/hearthkeep</p>
          <p class="fine">Fictional sample data. Simulated Alexa+ experience.</p>`,
       ),
     );

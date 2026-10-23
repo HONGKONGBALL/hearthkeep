@@ -37,7 +37,7 @@ describe("demo video script", () => {
     expect(cues.map((cue) => cue.id)).toEqual(["L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "L9"]);
     expect(cues[0].start).toBe(0);
     expect(cues[cues.length - 1].end).toBe(170);
-    expect(cues[2].narration).toContain("speaks first, from memory");
+    expect(cues[2].narration).toContain("The simulator speaks first");
     expect(cues[6].narration).toContain("Safety beats shopping");
     expect(cues[8].narration).toContain("Fictional sample data");
     expect(cues[8].narration).toContain("Simulated Alexa+ experience");
@@ -72,6 +72,7 @@ describe("demo video script", () => {
     const narrate = readFileSync(resolve(root, "scripts/narrate-demo.mjs"), "utf8");
     const record = readFileSync(resolve(root, "scripts/record-demo.mjs"), "utf8");
     const assemble = readFileSync(resolve(root, "scripts/assemble-demo.mjs"), "utf8");
+    expect(narrate).toContain("process.env.DASHSCOPE_API_KEY");
     expect(narrate).toContain("/etc/grok-secrets/dashscope.env");
     expect(narrate).toContain("qwen3-tts-flash");
     expect(narrate).toContain("Cherry");
