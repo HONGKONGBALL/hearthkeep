@@ -114,3 +114,4 @@ pending-owner
   - Run CI on main and keep the Actions URL.
   - Upload the demo to YouTube or Vimeo and put that URL on the close card and the Devpost form.
   - Submit Devpost before the deadline.
+  rc4-psyche3: typecheck fixed (scripts/video-script.d.mts) and tests/simulator read HK_PORT (default 8787). Clean clone of 59a04bb with HK_PORT=18787: typecheck 0 errors, vitest 231/231, playwright 41/41. Record: docs/evidence/rc4/typecheck-rc4-psyche3.txt. Video unchanged.

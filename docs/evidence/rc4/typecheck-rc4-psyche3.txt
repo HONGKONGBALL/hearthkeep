@@ -1,0 +1,11 @@
+rc4-psyche3 clean-clone verification
+Tested commit: 59a04bb3c31eaabf95491859d0b43b4ca14e0eda (code fix; parent of the commit that adds this file)
+Run: 2026-10-23 17:43 Asia/Shanghai (UTC+8), fresh clone at /tmp/hk-rc4p3, node v20.19.2, headless (DISPLAY unset), HK_PORT=18787
+npm ci: exit 0
+npm run typecheck: exit 0, 0 errors (core, mcp-server, simulator, root tests)
+  previously 2 errors in tests/docs-video.test.ts (TS7016, TS7006); fixed by scripts/video-script.d.mts
+npm test (vitest): 19 files, 231 passed, 0 failed
+npm run test:e2e (playwright, chrome): 41 passed, 0 failed
+MCP server log: "listening on http://127.0.0.1:18787/mcp"; 1 s poll of sockets on port 8787 during the run: 0 hits
+Port: tests/e2e/servers.ts, tests/protocol/qa-i.test.ts and the simulator (vite define __HK_PORT__) read HK_PORT, default 8787 when unset.
+Demo video unchanged: docs/demo/hearthkeep-demo.mp4 md5 a12c58bb3b6d81830a2cb9589a2a8575
