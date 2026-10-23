@@ -14,7 +14,7 @@ Hearthkeep is two local processes. The browser host turns a spoken line into too
 
 ## Request path
 
-1. The planner in `apps/simulator/src/planner.ts` reads the utterance and chooses the next tool call. Hazard phrases stop before any tool call.
+1. The planner in `apps/simulator/src/planner.ts` reads the utterance and chooses the next tool call. Hazard phrases stop before any shopping or booking tool runs.
 2. The MCP client sends one JSON-RPC message to `http://127.0.0.1:8787/mcp`.
 3. The server checks Origin, `Content-Type`, `Accept`, and the session header, then runs the tool.
 4. The tool calls `packages/core`. The repository reads and writes SQLite.

@@ -13,7 +13,7 @@ Times are seconds. The picture ends at 170 seconds.
 | L5 | 80 | 105 | F3 chirping hallway alarm, then the battery already on the shelf | It uses what you already own. |
 | L6 | 105 | 132 | F4 dryer-vent booking, Tuesday morning, server cap | It places a mock booking with the pro. The limit is enforced by the server. |
 | L7 | 132 | 147 | F5 next morning, then F7 gas smell | New session, same memory. Safety beats shopping. |
-| L8 | 147 | 162 | Trace raw JSON, test summary, MIT license | Verifiable protocol behaviour, and open source. |
+| L8 | 147 | 162 | Trace raw JSON, test commands, MIT license | Verifiable protocol behaviour, and open source. |
 | L9 | 162 | 170 | Close card with the repository URL and the simulation disclosure | Fictional sample data. Simulated Alexa+ experience. |
 
 Household names, prices, and the demo purchase code are fictional sample data.
