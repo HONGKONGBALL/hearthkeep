@@ -1,0 +1,37 @@
+0.00-2.30  Upkeep you all and notice the beeps.
+5.76-7.62  A real NCP server.
+8.06-12.72  Spec the 25th on November 2025 over streamable HTTP
+13.28-16.00  behind the simulated Alexa Plus experience.
+17.44-19.34  The simulator speaks first.
+20.10-22.62  DryerVent cleaning is 21 days overdue
+22.62-24.46  and the FridgeWater filter is due today.
+27.56-28.80  Exact fit part.
+29.26-30.08  Policy filter.
+30.50-32.04  Code mod purchase.
+32.04-36.36  This certified CX Sierra 28 is the cheapest filter.
+36.78-40.08  The rules allow and an uncertified one is filtered out.
+40.70-43.90  After a mass purchase code, a mock order is placed
+43.90-48.18  with no real payment, upkeep status, resolve appliance,
+48.80-50.54  and find parts all return 200.
+51.62-54.02  It uses what you already own.
+54.54-57.62  Two nine-volt batteries are already on the grot shelf
+57.62-60.16  so nothing is bought in a swap task.
+61.32-64.48  After the swap, one nine-volt is left
+64.48-67.48  and the next change is due October 2027.
+68.26-70.52  It places a mock booking with the pro,
+70.86-72.44  the limit is enforced by the server.
+72.88-76.86  The earliest opening is Tuesday 9 to 11 for $89.
+77.74-79.68  That is over the $60 limit
+79.68-83.08  so it needs approval and the purchase code.
+83.64-85.42  The mock booking for Tuesday morning
+85.42-89.06  is confirmed with no real purchase or payment.
+90.18-93.78  New session, same memory, safety beats shopping.
+94.34-96.68  The next morning, the filter has shipped
+96.68-99.34  and the vent cleaning is still booked for Tuesday.
+100.14-102.46  For a gas smell, it tells you to leave the home
+102.46-104.08  and call your local emergency number.
+105.56-108.92  Verifiable protocol behavior and open source.
+109.56-112.16  The trace shows the raw JSON for this session.
+112.72-116.16  It is MIT licensed with NPM test
+116.16-119.06  and NPM run test E2E.
+120.44-125.34  Big-Sing-Lo sample data simulated Alexa plus experience.
