@@ -22,7 +22,7 @@ The MCP server is local code in `apps/mcp-server`. `@modelcontextprotocol/sdk` i
 
 ## Try it out
 
-Public GitHub repository, MIT. The URL is added at publish time. Until then, from a clone:
+Public GitHub repository, MIT: https://github.com/HONGKONGBALL/hearthkeep. From a clone:
 
 ```bash
 npm ci
@@ -101,7 +101,7 @@ A demo server left on port 8787 failed one health case until that process was st
 
 `initialize` had to advertise the five card resources, and the sim clock had to advance a shipment, before those checks matched the QA cases (FL-03). Sessions are in memory and do not survive a process restart.
 
-FL-05 recorded that the README and the two early docs lagged the shipped server and simulator. The narration file `/etc/grok-secrets/dashscope.env` was not on this machine, so the Cherry track could not be synthesized from the documented path (FL-06).
+FL-05 recorded that the README and the two early docs lagged the shipped server and simulator. At that time the local key file was not on this machine, so the Cherry track could not be synthesized (FL-06). The script now reads `DASHSCOPE_API_KEY` from the environment first and falls back to a local secrets file only when the variable is unset.
 
 What shipped and was checked in `BUILD.txt`: a local MCP 2025-11-25 server, ten tools, five cards, the deterministic host, SQLite seed v1, and passing Vitest and Chrome suites, with fictional data labelled on the device.
 
