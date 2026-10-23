@@ -1,0 +1,31 @@
+Chunk d1 — v4 simulator shell and welcome
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed.
+
+Started from 6fd9e46 (docs: record the rc2 evidence and tag chunk).
+Commits:
+  6aeb874 docs: add the approved v4 design spec, mockups, and renders
+  c366fa1 feat: restyle the simulator shell and welcome for v4
+  fbf8e6f fix: keep the simulator frame on the v4 grid
+npm test, Playwright, and the simulator build below ran at fbf8e6f1779b7a52ce19ef51f14cd800bd9a9ed6, before this file.
+
+What changed
+- docs/design/v4 — Approved design spec, PRD, mockups, and reference renders.
+- apps/simulator/index.html — Title and leaf favicon. Fonts load from the stylesheet.
+- apps/simulator/public/fonts — Self-hosted Bricolage Grotesque, Figtree, and JetBrains Mono.
+- apps/simulator/src/App.css — v4 color, radius, spacing, and shadow tokens. Shell, header, 1048×624 device frame, and welcome dialog follow mockups/01-welcome.html. Header focus rings stay the cream and ink colors the P-06 checks sample. An unfocused pressed toggle stays a light pill with a green switch. The welcome sheet scrolls on a narrow screen so the rings stay reachable.
+- apps/simulator/src/chrome.tsx — Welcome dialog, ribbon, and code lock. Copy comes from the existing ui-copy strings: "Hearthkeep simulation", the simulation ribbon, the fictional-data notice, and the three welcome facts. The rings column is decorative and marked aria-hidden.
+- apps/simulator/src/App.tsx — Header rows, daylight arc, and welcome wiring. The quick replies and the say field sit in the DOM before the card frame, and are painted under the device, so Tab from Trace still reaches the say field. Server, planner, MCP, and domain logic are unchanged.
+- docs/evidence/rc2/f4a-focus-contrast.txt and docs/screens/rc2/*.png — Rewritten by the Playwright suite against this shell. The sampled page color is rgb(243, 245, 234).
+
+Visual check
+Playwright (channel chrome) opened http://127.0.0.1:5174/. No browser MCP was available, so the check is these screenshots plus the computed styles below.
+- Welcome at 1440×900: sheet 1040×700. Title "Hearthkeep simulation" in Bricolage Grotesque. Body font Figtree, Nunito, sans-serif. Ribbon, fictional-data chip, three facts, sim clock "Wed, Oct 21, 2026 · 9:00 AM", About, and the orange Start button. Right column shows the leaf, lemon, and berry rings. Start carries the green focus ring because it is the focused control.
+- Shell at 1440×900 with the welcome dismissed: device frame measured 1048×624 at x=24. Cards, pressed and not focused, is surface rgb(255, 254, 248) with ink text. Chips and the composer sit under the bezel.
+- Welcome at 390×800: the sheet is one column, 342px wide, and scrolls to the rings.
+
+Commands and exit codes
+- npx vite build, from /workspace/amazon-app: exit 1. Rollup could not resolve entry module "index.html". The simulator app lives in apps/simulator.
+- npx vite build, from /workspace/amazon-app/apps/simulator, at fbf8e6f: exit 0. Built in 699ms. dist/index.html 0.58 kB, dist/assets/index-GABYD7t5.css 17.29 kB, dist/assets/index-B1W2_HLr.js 207.95 kB. dist/ is gitignored.
+- npm test, from /workspace/amazon-app, while Playwright still held port 8787: exit 1. 223 passed, 1 failed. tests/protocol/qa-i.test.ts I84 localhost bind: "Server is not running."
+- npm test, from /workspace/amazon-app, after that port was free, at fbf8e6f: exit 0. Vitest 4.1.12. 19 files passed, 224 tests passed. Start 10:47:35. Duration 8.98s.
+- npx playwright test, from /workspace/amazon-app, at fbf8e6f: exit 0. 30 passed. Duration 42.9s. Channel chrome, 1 worker.
