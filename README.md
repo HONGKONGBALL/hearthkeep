@@ -83,7 +83,7 @@ Chrome has to be installed. The suite uses Playwright's `chrome` channel. It wal
 | `HK_JSON_RESPONSE` | `0` | Implemented | `1` switches MCP POST responses from one SSE `message` event to `application/json`. |
 | `HK_AUTH_TOKEN` | unset | Not implemented | Listed for a future static bearer token. The server does not read this variable. Localhost has no auth. |
 | `HK_LLM_BASE_URL`, `HK_LLM_API_KEY`, `HK_LLM_MODEL` | unset | Not implemented | Listed for a future planner model. The host always uses the deterministic offline planner. Setting these variables does not call a model. |
-| `DASHSCOPE_API_KEY` | unset | Video script only | Read by `scripts/narrate-demo.mjs` from `/etc/grok-secrets/dashscope.env`. Never needed to run or test the product. |
+| `DASHSCOPE_API_KEY` | unset | Video script only | Set the environment variable `DASHSCOPE_API_KEY` before running `scripts/narrate-demo.mjs`. Never needed to run or test the product. |
 
 ## Demo script
 

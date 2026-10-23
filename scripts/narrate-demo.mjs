@@ -1,6 +1,7 @@
 /**
  * Speak docs/video-script.md with DashScope qwen3-tts-flash, voice Cherry.
- * The key is read from /etc/grok-secrets/dashscope.env at runtime and is never printed.
+ * The key comes from the DASHSCOPE_API_KEY environment variable; if that is unset,
+ * it falls back to a local secrets file. The key is never printed.
  */
 
 import { spawn } from "node:child_process";
@@ -23,12 +24,14 @@ function scrub(text) {
 }
 
 function loadKey() {
+  const fromEnv = (process.env.DASHSCOPE_API_KEY || "").trim();
+  if (fromEnv) return fromEnv;
   let text;
   try {
     text = readFileSync(SECRET_PATH, "utf8");
   } catch (error) {
     const code = error && error.code ? error.code : "error";
-    console.error(`Cannot read ${SECRET_PATH} (${code}). Narration stops. The key is not read from the repo.`);
+    console.error(`Cannot read ${SECRET_PATH} (${code}). Set DASHSCOPE_API_KEY. Narration stops. The key is not read from the repo.`);
     process.exit(1);
   }
   for (const line of text.split("\n")) {
