@@ -1,0 +1,22 @@
+Clean-clone verification for rc4-psyche6 (times Asia/Shanghai, UTC+8)
+Clone: /tmp/hk-rc4p6 from local repo, checkout c112bd4c9ac822b7f751ca6aa13156b3c51aaf93 (docs commit)
+DISPLAY unset; port 8787 not used
+git diff e523db1 c112bd4 -- apps packages tests scripts: 0 files (empty)
+start 2026-10-23 18:31:46
+HEAD c112bd4c9ac822b7f751ca6aa13156b3c51aaf93 status-lines 0
+HK_PORT=33031 node v20.19.2
+diff e523db1..HEAD apps tests scripts: []
+diff e523db1..HEAD files: BUILD-RC4.txt docs/devpost.md docs/evidence/rc4/clean-clone-rc4-psyche5.txt docs/product-feedback.md docs/spec-notes.md 
+npm ci exit 0
+> hearthkeep@0.1.0 typecheck
+> tsc -p packages/core/tsconfig.json --noEmit && tsc -p apps/mcp-server/tsconfig.json --noEmit && tsc -p apps/simulator/tsconfig.json --noEmit && tsc -p tsconfig.json --noEmit
+
+typecheck exit 0
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+docs test exit 0
+ Test Files  19 passed (19)
+      Tests  231 passed (231)
+vitest exit 0
+end 2026-10-23 18:32:06
+Playwright e2e not rerun (no app/test change since rc4-psyche5 run, which passed 41/41).
