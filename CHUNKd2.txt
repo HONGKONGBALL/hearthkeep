@@ -1,0 +1,29 @@
+Chunk d2 — v4 briefing view
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed.
+
+Started from 0f6ccb3 (docs: record the d1 shell check and refreshed screens).
+Commits:
+  2a2bfef feat: restyle the briefing view for v4
+npm test and the final Playwright run below are against 2a2bfef, before this file.
+
+What changed
+- apps/simulator/src/App.tsx — Briefing transcript uses the latest spoken reply at 26px with the "Hearthkeep · speaking" eyebrow and the four-bar pulse. Quick replies stay on one row and fade at the right edge, so they do not wrap onto the input. The input keeps "Type what you'd say..." and shows the Enter hint; a code wait uses the lemon lock state. The status card document from the server is unchanged. The host adds vitals rings after it renders: fill is days since last done divided by the interval from /sim/state. On the seed clock that is 106% berry (dryer vent), 100% lemon (fridge water filter), 98% leaf (hallway battery), and 90% leaf (furnace filter). The Data drawer keeps the same tabs and table text the tests read. The Schedule tab lists every appliance, including the item code and the stored due date, with a status tag from the sim clock. The heading reads "Schedule · 6 appliances".
+- apps/simulator/src/App.css — Briefing type, chip row, composer, and data drawer follow mockups/02-briefing.html and the v4 tokens. Chip row is nowrap, 40px, overflow hidden. The data panel does not clip row text.
+- apps/simulator/src/chrome.tsx — Check and lock icons for a used chip and a code turn.
+- Server, planner, MCP, and domain logic are unchanged. Card button names, the fictional-data chip, and the data tables stay in place for the existing tests.
+
+Layout check
+A temporary Playwright spec (deleted after the run, not part of the suite) at 1440×900 and 1280×800:
+- All quick-reply chips share one y position. The chip row ends above #say (no overlap).
+- Status rings expose aria-labels 106%, 100%, 98%, and 90% of interval used.
+- Schedule tab: 6 rows, none with scrollWidth past the cell. Visible names: dryer, fridge, hallway smoke alarm, furnace, bedroom smoke alarm, porch light.
+- Appliances tab: 6 rows, none clipped.
+
+Commands and exit codes
+- npx tsc -p apps/simulator/tsconfig.json --noEmit, from /workspace/amazon-app: exit 0.
+- npm test, from /workspace/amazon-app: exit 0. Vitest 4.1.12. 19 files passed, 224 tests passed. Start 11:07:49. Duration 8.56s.
+- npx playwright test, from /workspace/amazon-app: exit 1. 29 passed, 1 failed. tests/e2e/f4a-focus.spec.ts P-06 Retry: #say stayed disabled for 15s after the suite stopped the server during the opening turn. Duration about 1.0m.
+- npx playwright test tests/e2e/f4a-focus.spec.ts -g "Retry", from /workspace/amazon-app: exit 0. 1 passed.
+- npx playwright test tests/e2e/d2-layout.spec.ts, from /workspace/amazon-app: exit 0. 1 passed. That file was removed afterward, so the suite count stays 30.
+- npx playwright test, from /workspace/amazon-app, after the layout spec was removed: exit 0. 30 passed. Duration 45.0s. Channel chrome, 1 worker.
+The Playwright suite rewrote docs/screens/rc2/*.png. Those files are committed with this note.
