@@ -81,11 +81,12 @@ Screenshots present under docs/screens/rc4/
 
 Demo file checked in this record
   path: docs/demo/hearthkeep-demo.mp4
-  md5: 36b9800b34f6a407094dec9c339f6dbf
-  size_bytes: 4560744
+  md5: a12c58bb3b6d81830a2cb9589a2a8575
+  size_bytes: 4427473
   ffprobe: h264 1920x1080, aac 48000 Hz stereo, duration 170.000000
   volumedetect: mean_volume -31.9 dB, max_volume -8.7 dB
   The md5 matches docs/evidence/rc4/a3-caption-contrast.txt. That file records 9 of 9 cues at or above 4.5:1. Lowest sample there is 15.69:1. This chunk did not recompute those pixels. It confirmed the file bytes are the ones that record measured.
+  rc4-psyche: video re-encoded (libx264 crf20, audio copied) to replace the license card at frames 4561-4857 only. Pre-splice file was md5 36b9800b34f6a407094dec9c339f6dbf, 4560744 bytes; the contrast record was measured on that file. Outside the card PSNR avg 54.7 dB, min 49.1 dB; subtitle strip min 57.7 dB.
   /workspace/demo/amazon-demo.mp4 is a different, older file (4308129 bytes). It is not the candidate.
 
 Frame sample of that mp4

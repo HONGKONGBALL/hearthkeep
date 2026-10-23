@@ -3,8 +3,9 @@ Recorded 2026-10-23 after the r1–r7 product fixes. Picture from node scripts/r
 
 Video
   path: docs/demo/hearthkeep-demo.mp4
-  md5: 36b9800b34f6a407094dec9c339f6dbf
-  size_bytes: 4560744
+  md5: a12c58bb3b6d81830a2cb9589a2a8575
+  size_bytes: 4427473
+  note: md5/size above are the rc4-psyche re-encode. Contrast samples and frame_md5 values below were measured on the pre-splice file (md5 36b9800b34f6a407094dec9c339f6dbf, 4560744 bytes); re-encoding changes frame bytes, and the subtitle strip min PSNR vs pre-splice is 57.7 dB.
   duration_s: 170.000000
   video: h264 1920x1080 yuv420p 30 fps
   audio: aac 48000 Hz stereo
