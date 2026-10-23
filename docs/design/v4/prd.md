@@ -336,7 +336,7 @@ Error turns: tool errors are spoken from their message with one next step (for e
 | Cards | Self-contained HTML, CSS and JS per template | Sandbox-safe and portable to other MCP Apps hosts |
 | Tests | Vitest (unit and protocol over real HTTP), Playwright in Chrome with @axe-core/playwright (E2E, accessibility scan, video capture) | Brief lists Chrome and Playwright |
 | CI | GitHub Actions on the public repo | Runs qa.md A to G on every push |
-| Video | Playwright page recording of a scripted run; DashScope TTS `qwen3-tts-flash`, voice Cherry, key read from `/etc/grok-secrets/dashscope.env` by the video script only; ffmpeg to mux narration and captions; no music | Reproducible takes, brief-approved voice |
+| Video | Playwright page recording of a scripted run; DashScope TTS `qwen3-tts-flash`, voice Cherry, key read from the `DASHSCOPE_API_KEY` environment variable by the video script only; ffmpeg to mux narration and captions; no music | Reproducible takes, brief-approved voice |
 | Concept art | Google Flow, Devpost cover only, no logos, labelled concept art | Allowed by the brief |
 | Build tool | Grok Build (AI coding CLI) on Ubuntu | Per brief |
 
