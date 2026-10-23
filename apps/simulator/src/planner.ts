@@ -1369,7 +1369,11 @@ export async function executeTurn(input: {
     if (!parsed.slots.code) {
       if (state.pendingQuote !== null) {
         state.awaitingCode = true;
-        return finish(parsed, state, "Say your purchase code to confirm.", { displayUtterance, steps: [] });
+        // A click on Confirm by voice has no code. Over the cap, the next words must include approve.
+        const reply = state.pendingQuote.overCap
+          ? "Say 'approve' and your code."
+          : "Say your purchase code to confirm.";
+        return finish(parsed, state, reply, { displayUtterance, steps: [] });
       }
       return finish(parsed, state, NO_CODE_REPLY, { displayUtterance, steps: [] });
     }
