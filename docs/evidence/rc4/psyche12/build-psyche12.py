@@ -1,10 +1,10 @@
 import json,subprocess
 import os
-REC='/tmp/hk-video/page.webm'  # uncaptioned page recording (rc4-psyche8 take)
-CAP='/tmp/amz-psyche9-bak/repo/hearthkeep-demo.mp4'  # rc4-psyche8 170 s file: L1-L9 audio taken from here
+REC='/tmp/hk-video/page.webm'  # uncaptioned page recording; only rows 920-1079 (the caption band) are taken from it
+CAP='/tmp/amz-psyche9-bak/repo/hearthkeep-demo.mp4'  # rc4-psyche8 170 s file: rows 0-919 (incl. the corrected MIT and closing cards) and the L1-L9 audio come from here; its burned captions sit at y>=940 and are dropped
 SRC='base-nocap.mp4'
 if not os.path.exists(SRC):
-  subprocess.run(['ffmpeg','-v','error','-y','-i',REC,'-i',CAP,'-filter_complex','[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0xe7dfd2,fps=30,trim=0:170,setpts=PTS-STARTPTS[v]','-map','[v]','-map','1:a:0','-t','170','-c:v','libx264','-preset','veryfast','-crf','8','-pix_fmt','yuv420p','-c:a','copy',SRC],check=True)
+  subprocess.run(['ffmpeg','-v','error','-y','-i',REC,'-i',CAP,'-filter_complex','[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0xe7dfd2,fps=30,trim=0:170,setpts=PTS-STARTPTS,crop=1920:160:0:920[bot];[1:v]crop=1920:920:0:0[top];[top][bot]vstack[v]','-map','[v]','-map','1:a:0','-t','170','-c:v','libx264','-preset','veryfast','-crf','8','-pix_fmt','yuv420p','-c:a','copy',SRC],check=True)
 segs=[('S',0,5.5),('S',11.8,33),('S',39,45.0),('F',45.0,7.64),('S',45.0,64.0),('S',80,96.5),('S',104.5,110.0),('F',110.0,4.08),('S',110.0,125.0),('S',131.5,135.9),('F',135.9,5.54),('S',135.9,141.0),('S',145.5,152.0),('F',151.95,2.2),('S',152.0,170)]
 starts=[];t=0
 for s in segs:
