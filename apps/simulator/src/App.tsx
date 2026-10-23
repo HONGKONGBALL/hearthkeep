@@ -990,7 +990,8 @@ export function App() {
   }
 
   const visible = turns.slice(-6);
-  const latestAlert = [...visible].reverse().find((turn) => turn.alert)?.alert ?? null;
+  // The banner and the hidden card stage last only for the turn that raised the alert.
+  const latestAlert = visible.at(-1)?.alert ?? null;
   const showSlotStrip = showCards && proSlots.length > 0 && bookingCard(card);
   const pickedId = recordSlot(card?.structuredContent ?? {});
   const approveCode = awaitingCode && approveLock;
