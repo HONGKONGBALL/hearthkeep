@@ -83,12 +83,14 @@ const STATUS_RENDER = [
   "function handleIntent(row){const spoken=row.spokenName||'it';if(row.item==='water_filter'||row.item==='air_filter')return 'Order a new filter for the '+spoken;if(row.item==='vent_cleaning')return 'Book someone to clean the '+spoken+' vent';if(row.item==='battery')return 'Replace the '+spoken+' battery';return 'Handle the '+spoken;}",
   "function actionLabel(intent){return /^Replace the .+ battery$/.test(intent)?'Replace battery':'Handle it';}",
   "function namedButton(intent,item,label){var access=(label+', '+item).replaceAll('\"','');return '<button type=\"button\" data-intent=\"'+intent.replaceAll('\"','')+'\" aria-label=\"'+access+'\">'+label+'</button>';}",
+  "function taskToken(row){return String((row&&(row.taskId||row.id))||'').replace(/[^A-Za-z0-9_]/g,'');}",
+  "function doneButton(row,title){var id=taskToken(row);var intent=id?'Done, I swapped it task '+id:'Done, I swapped it';var access=('Mark done, '+title).replaceAll('\"','');var idAttr=id?' data-task-id=\"'+id+'\"':'';return '<button type=\"button\" data-intent=\"'+intent.replaceAll('\"','')+'\"'+idAttr+' aria-label=\"'+access+'\">Mark done</button>';}",
   "function rowAttrs(row){var id=row&&row.applianceId?String(row.applianceId):'';var item=row&&row.item?String(row.item):'';var attrs='';if(id)attrs+=' data-appliance-id=\"'+id.replaceAll('\"','')+'\"';if(item)attrs+=' data-item=\"'+item.replaceAll('\"','')+'\"';return attrs;}",
   "function render(data,context){const attention=data.attention||[];const upcoming=data.upcoming||[];const progress=data.inProgress||[];const tasks=data.tasks||[];if(!attention.length&&!upcoming.length&&!progress.length&&!tasks.length){main.innerHTML='<p class=\"empty\">All caught up</p>';return;}let html='';",
   "if(attention.length){html+='<section><h2>Needs attention</h2><ul>';attention.forEach(function(row){var intent=handleIntent(row);html+='<li class=\"row\"'+rowAttrs(row)+'><span>'+attentionLine(row,context)+'</span>'+namedButton(intent,labelFor(row,context),actionLabel(intent))+'</li>';});html+='</ul></section>';}",
   "if(upcoming.length){html+='<section><h2>Coming up</h2><ul>';upcoming.forEach(function(row){var line=labelFor(row,context)+', '+shortDate(row.due);if(row.item==='battery'){var intent=handleIntent(row);html+='<li class=\"row\"'+rowAttrs(row)+'><span>'+line+'</span>'+namedButton(intent,labelFor(row,context),actionLabel(intent))+'</li>';}else{html+='<li'+rowAttrs(row)+'><span>'+line+'</span></li>';}});html+='</ul></section>';}",
   "if(progress.length){html+='<section><h2>On the way / Booked</h2><ul>';progress.forEach(function(row){html+='<li'+rowAttrs(row)+'><span>'+progressLine(row,context)+'</span></li>';});html+='</ul></section>';}",
-  "if(tasks.length){html+='<section><h2>Open tasks</h2><ul>';tasks.forEach(function(row){var note=taskReady(row,progress)?' has arrived, waiting to install':'';var title=sentence(row.title||'Task');html+='<li class=\"row\"'+rowAttrs(row)+'><span>'+title+(row.dueDate?', '+shortDate(row.dueDate):'')+note+'</span>'+namedButton('Done, I swapped it',title,'Mark done')+'</li>';});html+='</ul></section>';}",
+  "if(tasks.length){html+='<section><h2>Open tasks</h2><ul>';tasks.forEach(function(row){var note=taskReady(row,progress)?' has arrived, waiting to install':'';var title=sentence(row.title||'Task');html+='<li class=\"row\"'+rowAttrs(row)+'><span>'+title+(row.dueDate?', '+shortDate(row.dueDate):'')+note+'</span>'+doneButton(row,title)+'</li>';});html+='</ul></section>';}",
   "main.innerHTML=html;main.querySelectorAll('button').forEach(function(button){button.addEventListener('click',function(){postIntent(button.getAttribute('data-intent')||'');});});}",
 ].join("");
 
@@ -130,8 +132,10 @@ const TASK_RENDER = [
   "const dateLabel=done&&nextDue?'Next due':'Due';const dateValue=done?(nextDue||dueDate):dueDate;const printed=done&&nextDue?monthYear(nextDue):(dateValue?shortDate(dateValue):'');",
   "let html='<h2>'+sentence(title)+'</h2>';if(printed)html+='<p class=\"meta\"><span class=\"label\">'+dateLabel+'</span> '+printed+'</p>';if(appliance)html+='<p class=\"meta\"><span class=\"label\">Appliance</span> '+sentence(appliance)+'</p>';",
   "const stock=onHand||data.inventoryAfter;if(stock&&stock.name)html+='<p class=\"meta\"><span class=\"label\">Supplies</span> '+stock.name+' x'+stock.qty+', '+(stock.location||'')+'</p>';",
-  "if(done){html+='<p class=\"warn\">Done</p>';}else{html+='<button type=\"button\" id=\"done\" aria-label=\"Mark done, '+sentence(title).replaceAll('\"','')+'\">Mark done</button>';}",
-  "main.innerHTML=html;const button=main.querySelector('#done');if(button)button.addEventListener('click',function(){postIntent('Done, I swapped it');});}",
+  "var taskId=String((data&&data.taskId)||(task&&(task.taskId||task.id))||'').replace(/[^A-Za-z0-9_]/g,'');",
+  "var intent=taskId?'Done, I swapped it task '+taskId:'Done, I swapped it';",
+  "if(done){html+='<p class=\"warn\">Done</p>';}else{html+='<button type=\"button\" id=\"done\" data-intent=\"'+intent+'\"'+(taskId?' data-task-id=\"'+taskId+'\"':'')+' aria-label=\"Mark done, '+sentence(title).replaceAll('\"','')+'\">Mark done</button>';}",
+  "main.innerHTML=html;const button=main.querySelector('#done');if(button)button.addEventListener('click',function(){postIntent(button.getAttribute('data-intent')||'Done, I swapped it');});}",
 ].join("");
 
 export function statusCardHtml(): string {

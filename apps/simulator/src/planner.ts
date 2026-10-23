@@ -94,6 +94,7 @@ export interface Slots {
   location?: string;
   product?: string;
   range?: "next_week" | "today" | "tomorrow";
+  taskId?: string;
 }
 
 export interface ParsedUtterance {
@@ -150,6 +151,7 @@ export interface DialogueState {
     location: string;
   } | null;
   lastTask: { taskId: string; applianceId: string | null; item: string | null; title: string } | null;
+  pendingTaskChoice: Array<{ taskId: string; title: string; label: string }> | null;
   lastOnHand: { name: string; qty: number; location: string | null; item: string } | null;
   clarify: { stage: "sound" | "appliance"; symptom: string } | null;
   awaitingCode: boolean;
@@ -216,6 +218,7 @@ export function emptyDialogue(): DialogueState {
     pendingQuote: null,
     lastAppliance: null,
     lastTask: null,
+    pendingTaskChoice: null,
     lastOnHand: null,
     clarify: null,
     awaitingCode: false,
@@ -647,7 +650,8 @@ export function parseUtterance(utterance: string, state: DialogueState = emptyDi
     return { intent: "cancel", slots: {}, codeTurn: false, guard: null };
   }
   if (/\bswapped\b/.test(lower) || /^(done|all done|mark done|finished)\b/.test(lower)) {
-    return { intent: "done", slots: {}, codeTurn: false, guard: null };
+    const taskId = taskIdIn(text);
+    return { intent: "done", slots: taskId ? { taskId } : {}, codeTurn: false, guard: null };
   }
 
   const registered = parseRegister(text);
@@ -689,6 +693,15 @@ export function parseUtterance(utterance: string, state: DialogueState = emptyDi
   if (/coming up|upcoming/.test(lower)) return { intent: "upcoming", slots: {}, codeTurn: false, guard: null };
   if (isBriefing(lower) || lower === "") return { intent: "briefing", slots: {}, codeTurn: false, guard: null };
   if (/^(help|what can you|how does this work)\b/.test(lower)) return { intent: "help", slots: {}, codeTurn: false, guard: null };
+  if ((state.pendingTaskChoice?.length ?? 0) > 1) {
+    const explicit = taskIdIn(text);
+    if (explicit) return { intent: "done", slots: { taskId: explicit }, codeTurn: false, guard: null };
+    const named = namedTasks(text, state.pendingTaskChoice ?? []);
+    if (named.length === 1 && named[0]) {
+      return { intent: "done", slots: { taskId: named[0].taskId }, codeTurn: false, guard: null };
+    }
+    return { intent: "done", slots: {}, codeTurn: false, guard: null };
+  }
   return { intent: "out_of_scope", slots: {}, codeTurn: false, guard: "scope" };
 }
 
@@ -895,16 +908,58 @@ function taskLabel(task: Record<string, unknown>): string {
   return humanItem(textOf(task.item));
 }
 
+type NamedTask = NonNullable<DialogueState["pendingTaskChoice"]>[number];
+
+const TASK_ANSWER_STOP = new Set([
+  "the", "a", "an", "it", "one", "please", "close", "mark", "done", "swapped",
+  "i", "my", "that", "this", "task", "finished", "all", "have", "just", "already", "you",
+]);
+
+function taskIdIn(text: string): string | undefined {
+  const match = /\btask\s+(t_[a-z0-9]+)\b/i.exec(text);
+  return match?.[1]?.toLowerCase();
+}
+
+function namedTasks(text: string, tasks: NamedTask[]): NamedTask[] {
+  const tokens = words(text).filter((token) => !TASK_ANSWER_STOP.has(token) && token.length > 1);
+  if (tokens.length === 0) return [];
+  return tasks.filter((task) => {
+    const hay = new Set(words(`${task.label} ${task.title}`));
+    return tokens.every((token) => hay.has(token));
+  });
+}
+
+function whichTaskQuestion(tasks: Record<string, unknown>[]): string {
+  const labels = tasks.map((task) => taskLabel(task)).filter((label) => label !== "");
+  const shown = labels.slice(0, 3);
+  if (shown.length === 0) return "Which task should I close?";
+  if (shown.length === 1) return `Which one, the ${shown[0]}?`;
+  if (labels.length > 3) {
+    return `Which one, ${shown.map((label) => `the ${label}`).join(", ")}, or another open task?`;
+  }
+  if (shown.length === 2) return `Which one, the ${shown[0]} or the ${shown[1]}?`;
+  const last = shown[shown.length - 1] ?? "";
+  const rest = shown.slice(0, -1).map((label) => `the ${label}`).join(", ");
+  return `Which one, ${rest}, or the ${last}?`;
+}
+
 function pickOpenTask(
   tasks: Record<string, unknown>[],
-  lastTask: DialogueState["lastTask"],
-): Record<string, unknown> | null {
-  if (lastTask?.taskId) {
-    const match = tasks.find((task) => textOf(task.taskId) === lastTask.taskId);
-    if (match) return match;
-  }
+  taskId: string | undefined,
+  utterance: string,
+): Record<string, unknown> | "ask" | null {
+  if (taskId) return tasks.find((task) => textOf(task.taskId) === taskId) ?? null;
+  if (tasks.length === 0) return null;
   if (tasks.length === 1) return tasks[0] ?? null;
-  return null;
+  const named = namedTasks(
+    utterance,
+    tasks.map((task) => ({ taskId: textOf(task.taskId), title: textOf(task.title), label: taskLabel(task) })),
+  );
+  if (named.length === 1) {
+    const id = named[0]?.taskId ?? "";
+    return tasks.find((task) => textOf(task.taskId) === id) ?? null;
+  }
+  return "ask";
 }
 
 function rememberBriefingChores(state: DialogueState, structured: Record<string, unknown>, reply: string): void {
@@ -1285,6 +1340,7 @@ export async function executeTurn(input: {
   };
 
   if (parsed.intent !== "requote") state.requote = null;
+  if (parsed.intent !== "done") state.pendingTaskChoice = null;
 
   if (parsed.guard === "hazard") {
     state.clarify = null;
@@ -1460,10 +1516,25 @@ export async function executeTurn(input: {
     const status = await callTool(ctx, "get_upkeep_status", { horizonDays: 14 });
     if (status === null) return unreachableResult(parsed, state, ctx, displayUtterance);
     if (status.isError) return finish(parsed, state, failureReply(status), { displayUtterance, steps: ctx.steps });
-    const task = pickOpenTask(openInstallTasks(status.structuredContent), state.lastTask);
-    if (task === null) {
+    const open = openInstallTasks(status.structuredContent);
+    const picked = pickOpenTask(open, parsed.slots.taskId, input.utterance);
+    if (picked === "ask") {
+      state.pendingTaskChoice = open.map((row) => ({
+        taskId: textOf(row.taskId),
+        title: textOf(row.title),
+        label: taskLabel(row),
+      }));
+      return finish(parsed, state, whichTaskQuestion(open), {
+        displayUtterance,
+        steps: ctx.steps,
+        card: { uri: CARD_URIS.status, tool: "get_upkeep_status", structuredContent: status.structuredContent, context: {} },
+      });
+    }
+    state.pendingTaskChoice = null;
+    if (picked === null) {
       return finish(parsed, state, "I don't have a task waiting to close.", { displayUtterance, steps: ctx.steps });
     }
+    const task = picked;
     const applianceId = textOf(task.applianceId);
     const item = textOf(task.item);
     const label = taskLabel(task);
