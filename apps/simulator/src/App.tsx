@@ -65,9 +65,12 @@ main[data-card="status"] h2{display:flex;align-items:center;gap:8px;margin:10px 
 main[data-card="status"] h2 .n{min-width:22px;height:22px;padding:0 6px;border-radius:999px;display:inline-grid;place-items:center;background:#EAF1DE;color:#14301F;font:700 12px/1 Figtree,Nunito,sans-serif;letter-spacing:0;text-transform:none}
 main[data-card="status"] ul{display:flex;flex-direction:column}
 main[data-card="status"] li{margin:0 0 12px;color:#14301F;font-size:20px;line-height:1.3}
-main[data-card="status"] li.row{display:grid;grid-template-columns:52px minmax(0,1fr) auto;column-gap:8px;align-items:center;padding:4px 0;background:transparent;border:0;border-radius:0}
-main[data-card="status"] li:not(.row){display:grid;grid-template-columns:52px minmax(0,1fr);column-gap:8px;align-items:center}
-main[data-card="status"] .row span{min-width:0;font-weight:600}
+main[data-card="status"] li.row{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:center;padding:4px 0;background:transparent;border:0;border-radius:0}
+main[data-card="status"] li.row:has(> .hk-ring){grid-template-columns:52px minmax(0,1fr) auto}
+main[data-card="status"] li:not(.row){display:grid;grid-template-columns:minmax(0,1fr);column-gap:8px;align-items:center}
+main[data-card="status"] li:not(.row):has(> .hk-ring){grid-template-columns:52px minmax(0,1fr)}
+main[data-card="status"] li > span{min-width:0}
+main[data-card="status"] .row > span{font-weight:600}
 main[data-card="status"] button{background:#FFFEF8;color:#14301F;border:1.5px solid #14301F;border-radius:999px;min-height:44px;padding:6px 14px;font-weight:600}
 main[data-card="status"] .hk-ring{position:relative;width:52px;height:52px;display:grid;place-items:center}
 main[data-card="status"] .hk-ring .arc{position:absolute;inset:0;transform:rotate(-90deg)}
@@ -105,10 +108,13 @@ function paint(vitals){
   main.querySelectorAll("h2 .n").forEach(function(node){node.remove();});
   var list=vitals||[];
   main.querySelectorAll("li").forEach(function(li){
-    var text=li.textContent||"";
+    var id=li.getAttribute("data-appliance-id")||"";
+    var item=li.getAttribute("data-item")||"";
     var vital=null;
-    for(var i=0;i<list.length;i++){
-      if(list[i]&&list[i].label&&text.indexOf(list[i].label)!==-1){vital=list[i];break;}
+    if(id&&item){
+      for(var i=0;i<list.length;i++){
+        if(list[i]&&list[i].applianceId===id&&list[i].item===item){vital=list[i];break;}
+      }
     }
     if(!vital)return;
     li.insertAdjacentHTML("afterbegin",ringHtml(vital));
@@ -516,6 +522,7 @@ function sentence(value: string): string {
 }
 
 interface Vital {
+  applianceId: string;
   label: string;
   ratio: number;
   tone: "leaf" | "lemon" | "berry";
@@ -532,13 +539,14 @@ function vitalsFrom(snapshot: SimSnapshot): Vital[] {
     const every = Number(row.everyDays);
     const last = ymd(row.lastDone);
     if (!Number.isFinite(every) || every <= 0 || last === "") continue;
-    const spoken = names.get(String(row.applianceId ?? "")) ?? "";
+    const applianceId = String(row.applianceId ?? "");
+    const spoken = names.get(applianceId) ?? "";
     const item = String(row.item ?? "");
     const label = sentence(spoken && item ? `${spoken} ${humanItem(item)}` : spoken || humanItem(item));
-    if (label === "") continue;
+    if (applianceId === "" || item === "" || label === "") continue;
     const ratio = Math.max(0, daysBetween(last, today) / every);
     const tone = ratio > 1.004 ? "berry" : ratio >= 0.996 ? "lemon" : "leaf";
-    vitals.push({ label, ratio, tone, item });
+    vitals.push({ applianceId, label, ratio, tone, item });
   }
   return vitals;
 }
