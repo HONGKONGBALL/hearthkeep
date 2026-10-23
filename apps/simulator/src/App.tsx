@@ -55,9 +55,89 @@ interface TraceRow {
 
 let bootStarted = false;
 
+/** Status-card skin. The server document stays the source of the rows and buttons. */
+const STATUS_SKIN = `<style>
+body:has(main[data-card="status"]){background:transparent;color:#14301F;font-family:Figtree,Nunito,"Segoe UI",sans-serif}
+body:has(main[data-card="status"]) .chip{display:inline-flex;align-items:center;margin:0;padding:4px 12px;border-radius:999px;background:#D5F3DF;color:#0B7039;font-size:13px;font-weight:600;letter-spacing:0}
+main[data-card="status"]{padding:4px 8px 8px}
+main[data-card="status"] h2{display:flex;align-items:center;gap:8px;margin:10px 0 4px;font:600 12px/1 Figtree,Nunito,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#4F6353}
+main[data-card="status"] h2 .n{min-width:22px;height:22px;padding:0 6px;border-radius:999px;display:inline-grid;place-items:center;background:#EAF1DE;color:#14301F;font:700 12px/1 Figtree,Nunito,sans-serif;letter-spacing:0;text-transform:none}
+main[data-card="status"] ul{display:flex;flex-direction:column}
+main[data-card="status"] li{margin:0 0 12px;color:#14301F;font-size:20px;line-height:1.3}
+main[data-card="status"] li.row{display:grid;grid-template-columns:52px minmax(0,1fr) auto;column-gap:8px;align-items:center;padding:4px 0;background:transparent;border:0;border-radius:0}
+main[data-card="status"] li:not(.row){display:grid;grid-template-columns:52px minmax(0,1fr);column-gap:8px;align-items:center}
+main[data-card="status"] .row span{min-width:0;font-weight:600}
+main[data-card="status"] button{background:#FFFEF8;color:#14301F;border:1.5px solid #14301F;border-radius:999px;min-height:44px;padding:6px 14px;font-weight:600}
+main[data-card="status"] .hk-ring{position:relative;width:52px;height:52px;display:grid;place-items:center}
+main[data-card="status"] .hk-ring .arc{position:absolute;inset:0;transform:rotate(-90deg)}
+main[data-card="status"] .hk-ring circle{fill:none;stroke-width:6;stroke-linecap:round}
+main[data-card="status"] .hk-ring .trk{stroke:#EAF1DE}
+main[data-card="status"] .hk-ring.leaf .fil{stroke:#1FA85B}
+main[data-card="status"] .hk-ring.lemon .fil{stroke:#F2B705}
+main[data-card="status"] .hk-ring.berry .fil{stroke:#EE4258}
+main[data-card="status"] .hk-ring .ovr{stroke:#A3122A}
+main[data-card="status"] .hk-ring .ico{width:20px;height:20px;fill:none;stroke:#14301F;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+main[data-card="status"] .hk-ring .fil,main[data-card="status"] .hk-ring .ovr{animation:hkdraw 700ms cubic-bezier(.2,.8,.2,1) both}
+@keyframes hkdraw{from{stroke-dasharray:0 200}}
+@media (prefers-reduced-motion:reduce){main[data-card="status"] .hk-ring .fil,main[data-card="status"] .hk-ring .ovr{animation:none!important}}
+</style>
+<script>
+(function(){
+var PATHS={vent_cleaning:"M3 8.5h10.5a2.75 2.75 0 1 0-2.75-2.75M3 12.5h15a3 3 0 1 1-3 3M3 16.5h7",water_filter:"M12 3.5s-6 6.4-6 10.6a6 6 0 0 0 12 0C18 9.9 12 3.5 12 3.5z",air_filter:"M4 4h16v16H4zM4 9.4h16M4 14.6h16M9.4 4v16M14.6 4v16",battery:"M3 8h16v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM21 11v3M7 11v4M11 11v4",bulb:"M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2h5c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"};
+function ringHtml(vital){
+  var ratio=Number(vital.ratio);
+  if(!isFinite(ratio)||ratio<0)ratio=0;
+  var tone=vital.tone==="berry"||vital.tone==="lemon"||vital.tone==="leaf"?vital.tone:(ratio>1.004?"berry":(ratio>=0.996?"lemon":"leaf"));
+  var pct=Math.round(ratio*100);
+  var C=2*Math.PI*22;
+  var full=Math.min(ratio,1)*C;
+  var over=Math.max(0,ratio-1)*C;
+  var ovr=over>0.4?'<circle class="ovr" cx="26" cy="26" r="22" stroke-dasharray="'+over.toFixed(1)+' '+C.toFixed(1)+'"></circle>':'';
+  var path=PATHS[vital.item]||"";
+  var icon=path?'<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="'+path+'"></path></svg>':'';
+  return '<i class="hk-ring '+tone+'" role="img" aria-label="'+pct+'% of interval used"><svg class="arc" viewBox="0 0 52 52" width="52" height="52" aria-hidden="true"><circle class="trk" cx="26" cy="26" r="22"></circle><circle class="fil" cx="26" cy="26" r="22" stroke-dasharray="'+full.toFixed(1)+' '+C.toFixed(1)+'"></circle>'+ovr+'</svg>'+icon+'</i>';
+}
+function paint(vitals){
+  var main=document.querySelector('main[data-card="status"]');
+  if(!main)return;
+  main.querySelectorAll(".hk-ring").forEach(function(node){node.remove();});
+  main.querySelectorAll("h2 .n").forEach(function(node){node.remove();});
+  var list=vitals||[];
+  main.querySelectorAll("li").forEach(function(li){
+    var text=li.textContent||"";
+    var vital=null;
+    for(var i=0;i<list.length;i++){
+      if(list[i]&&list[i].label&&text.indexOf(list[i].label)!==-1){vital=list[i];break;}
+    }
+    if(!vital)return;
+    li.insertAdjacentHTML("afterbegin",ringHtml(vital));
+  });
+  main.querySelectorAll("section").forEach(function(section){
+    var h2=section.querySelector("h2");
+    if(!h2)return;
+    var count=section.querySelectorAll("li").length;
+    if(!count)return;
+    var badge=document.createElement("span");
+    badge.className="n";
+    badge.textContent=String(count);
+    h2.appendChild(badge);
+  });
+}
+window.addEventListener("message",function(event){
+  var data=event.data;
+  if(!data||data.source!=="hearthkeep-host"||data.type!=="tool-result")return;
+  var vitals=(data.context&&data.context.vitals)||[];
+  setTimeout(function(){paint(vitals);},0);
+});
+})();
+</script>`;
+
 function hostDocument(html: string): string {
-  if (html.includes("Content-Security-Policy")) return html;
-  return html.replace("<head>", `<head><meta http-equiv="Content-Security-Policy" content="${CARD_CSP}">`);
+  const withPolicy = html.includes("Content-Security-Policy")
+    ? html
+    : html.replace("<head>", `<head><meta http-equiv="Content-Security-Policy" content="${CARD_CSP}">`);
+  if (withPolicy.includes("hk-ring")) return withPolicy;
+  return withPolicy.replace("</body>", `${STATUS_SKIN}</body>`);
 }
 
 function cell(value: unknown): string {
@@ -138,6 +218,79 @@ function when(value: unknown): string {
   const ymd = text.slice(0, 10);
   if (/^\d{4}-\d{2}-\d{2}$/.test(ymd) && (text.length === 10 || text[10] === "T")) return formatShortDate(ymd);
   return text;
+}
+
+function ymd(value: unknown): string {
+  const text = cell(value);
+  const date = text.slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : "";
+}
+
+function daysBetween(fromDate: string, toDate: string): number {
+  const [fy, fm, fd] = fromDate.split("-").map(Number);
+  const [ty, tm, td] = toDate.split("-").map(Number);
+  return Math.round((Date.UTC(ty, tm - 1, td) - Date.UTC(fy, fm - 1, fd)) / 86_400_000);
+}
+
+function humanItem(item: string): string {
+  if (item === "air_filter") return "filter";
+  return item.replaceAll("_", " ");
+}
+
+function sentence(value: string): string {
+  const text = value.trim();
+  if (text === "") return "";
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+interface Vital {
+  label: string;
+  ratio: number;
+  tone: "leaf" | "lemon" | "berry";
+  item: string;
+}
+
+/** Ring fill is days since last done divided by the interval. */
+function vitalsFrom(snapshot: SimSnapshot): Vital[] {
+  const today = ymd(snapshot.clock);
+  if (today === "") return [];
+  const names = new Map(snapshot.appliances.map((row) => [String(row.id ?? ""), String(row.spokenName ?? "")]));
+  const vitals: Vital[] = [];
+  for (const row of snapshot.schedule) {
+    const every = Number(row.everyDays);
+    const last = ymd(row.lastDone);
+    if (!Number.isFinite(every) || every <= 0 || last === "") continue;
+    const spoken = names.get(String(row.applianceId ?? "")) ?? "";
+    const item = String(row.item ?? "");
+    const label = sentence(spoken && item ? `${spoken} ${humanItem(item)}` : spoken || humanItem(item));
+    if (label === "") continue;
+    const ratio = Math.max(0, daysBetween(last, today) / every);
+    const tone = ratio > 1.004 ? "berry" : ratio >= 0.996 ? "lemon" : "leaf";
+    vitals.push({ label, ratio, tone, item });
+  }
+  return vitals;
+}
+
+function chipClass(index: number, history: VisibleTurn[]): string | undefined {
+  const used = new Set<number>();
+  for (const turn of history) {
+    if (!turn.user) continue;
+    const match = QUICK_CHIPS.findIndex((chip) => chip.utterance === turn.user || chip.label === turn.user);
+    if (match >= 0) used.add(match);
+  }
+  if (history.some((turn) => !turn.user && turn.assistant.trim() !== "")) used.add(0);
+  if (used.has(index)) return "used";
+  const next = QUICK_CHIPS.findIndex((_, chipIndex) => !used.has(chipIndex));
+  return next === index ? "next" : undefined;
+}
+
+function scheduleTone(nextDue: string, today: string): { label: string; tone: string } {
+  if (nextDue === "" || today === "") return { label: "—", tone: "none" };
+  const delta = daysBetween(today, nextDue);
+  if (delta < 0) return { label: `${-delta} d overdue`, tone: "over" };
+  if (delta === 0) return { label: "Due today", tone: "today" };
+  if (delta <= 14) return { label: `In ${delta} d`, tone: "soon" };
+  return { label: "Later", tone: "ok" };
 }
 
 export function App() {
@@ -233,7 +386,7 @@ export function App() {
         const id = String(appliance.id ?? "");
         if (id !== "") applianceNames[id] = String(appliance.spokenName ?? "");
       }
-      enriched = { ...next, context: { ...next.context, applianceNames } };
+      enriched = { ...next, context: { ...next.context, applianceNames, vitals: vitalsFrom(state) } };
       setSnapshot(state);
     } catch {
       enriched = next;
@@ -489,12 +642,36 @@ export function App() {
                   <p>{TRY_HINT}</p>
                 </div>
               ) : null}
-              {visible.map((turn, index) => (
-                <article key={`${turn.assistant}-${index}`}>
-                  {turn.user ? <p className="user">{turn.user}</p> : null}
-                  <p className={index === visible.length - 1 && speaking ? "assistant speaking" : "assistant"}>{turn.assistant}</p>
-                </article>
-              ))}
+              {visible.some((turn) => !turn.user) ? (
+                <p className="sys">Session {sessionPrefix || "—"} opened · briefing from memory</p>
+              ) : null}
+              {visible.map((turn, index) => {
+                const latest = index === visible.length - 1;
+                return (
+                  <article key={`${turn.assistant}-${index}`}>
+                    {turn.user ? (
+                      <p className={turn.user === "••••" ? "user code" : "user"}>
+                        {turn.user === "••••" ? <Icon name="lock" /> : null}
+                        {turn.user}
+                      </p>
+                    ) : null}
+                    {latest ? (
+                      <div className="who">
+                        {speaking ? (
+                          <span className="pulse" aria-hidden="true">
+                            <i />
+                            <i />
+                            <i />
+                            <i />
+                          </span>
+                        ) : null}
+                        <span className="eyebrow">Hearthkeep · speaking</span>
+                      </div>
+                    ) : null}
+                    <p className={latest && speaking ? "assistant speaking" : "assistant"}>{turn.assistant}</p>
+                  </article>
+                );
+              })}
             </div>
             {latestAlert ? <p className="alert" role="alert">{latestAlert}</p> : null}
           </div>
@@ -502,17 +679,21 @@ export function App() {
             <div className="chips" role="group" aria-label="Quick replies in demo order">
               <span className="eyebrow">Try</span>
               <div className="chiprow">
-                {QUICK_CHIPS.map((chip, index) => (
-                  <button
-                    key={chip.label}
-                    type="button"
-                    className={visible.length === 0 && index === 0 ? "next" : undefined}
-                    disabled={busy}
-                    onClick={() => void onSend(chip.utterance)}
-                  >
-                    {chip.label}
-                  </button>
-                ))}
+                {QUICK_CHIPS.map((chip, index) => {
+                  const state = chipClass(index, turns);
+                  return (
+                    <button
+                      key={chip.label}
+                      type="button"
+                      className={state}
+                      disabled={busy}
+                      onClick={() => void onSend(chip.utterance)}
+                    >
+                      {state === "used" ? <Icon name="check" /> : null}
+                      {chip.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
             <form
@@ -528,10 +709,24 @@ export function App() {
                   id="say"
                   value={draft}
                   disabled={busy || connection === "down"}
-                  placeholder={awaitingCode ? "Say your purchase code" : "Type what you'd say..."}
+                  placeholder={awaitingCode ? "Waiting for your purchase code" : "Type what you'd say..."}
                   onChange={(event) => setDraft(event.target.value)}
                 />
-                <button type="submit" disabled={busy || connection === "down"}>Send</button>
+                {draft === "" ? (
+                  <span className="hint">
+                    {awaitingCode ? (
+                      "digits show as ••••"
+                    ) : (
+                      <>
+                        <kbd>Enter</kbd> sends · a leading “Alexa,” is ignored
+                      </>
+                    )}
+                  </span>
+                ) : null}
+                <button type="submit" disabled={busy || connection === "down"}>
+                  Send
+                  <Icon name="arrow" />
+                </button>
               </div>
             </form>
           </div>
@@ -585,15 +780,20 @@ export function App() {
       ) : null}
 
       {showData ? (
-        <aside className="panel" aria-label="Data">
-          <h2>Household data</h2>
-          <p className="data-banner">All data is fictional sample data</p>
+        <aside className="panel data-panel" aria-label="Data">
+          <div className="panel-h">
+            <h2>Data</h2>
+            <span className="panel-meta">GET /sim/state · read-only</span>
+          </div>
           <div className="tabs">
             {DATA_TABS.map((tab) => (
               <button key={tab} type="button" aria-pressed={dataTab === tab} onClick={() => setDataTab(tab)}>{tab}</button>
             ))}
           </div>
-          <DataView tab={dataTab} snapshot={snapshot} />
+          <p className="data-banner"><Icon name="doc" />All data is fictional sample data</p>
+          <div className="plist">
+            <DataView tab={dataTab} snapshot={snapshot} />
+          </div>
         </aside>
       ) : null}
       </div> : null}
@@ -717,15 +917,49 @@ function DataView({ tab, snapshot }: { tab: DataTab; snapshot: SimSnapshot | nul
     );
   }
   if (tab === "Schedule") {
+    const today = ymd(snapshot.clock);
+    const names = new Map(snapshot.appliances.map((row) => [String(row.id ?? ""), String(row.spokenName ?? "")]));
+    const rows = [...snapshot.schedule].sort((a, b) => {
+      const rank = (row: Record<string, unknown>): number => {
+        const due = ymd(row.nextDue);
+        if (due === "" || today === "") return 4;
+        const delta = daysBetween(today, due);
+        if (delta < 0) return 0;
+        if (delta === 0) return 1;
+        if (delta <= 14) return 2;
+        return 3;
+      };
+      return rank(a) - rank(b) || ymd(a.nextDue).localeCompare(ymd(b.nextDue)) || cell(a.applianceId).localeCompare(cell(b.applianceId));
+    });
     return (
-      <table>
-        <thead><tr><th>Appliance</th><th>Item</th><th>Next due</th></tr></thead>
-        <tbody>
-          {snapshot.schedule.map((row) => (
-            <tr key={cell(row.applianceId) + cell(row.item)}><td>{cell(row.applianceId)}</td><td>{cell(row.item)}</td><td>{cell(row.nextDue)}</td></tr>
-          ))}
-        </tbody>
-      </table>
+      <>
+        <p className="psec">Schedule · {snapshot.appliances.length} appliances</p>
+        <table className="schedule-table">
+          <thead><tr><th>Appliance</th><th>Item</th><th>Next due</th><th>Status</th></tr></thead>
+          <tbody>
+            {rows.map((row) => {
+              const due = ymd(row.nextDue);
+              const status = scheduleTone(due, today);
+              const spoken = names.get(String(row.applianceId ?? "")) ?? cell(row.applianceId);
+              const item = cell(row.item);
+              const every = typeof row.everyDays === "number" && row.everyDays > 0 ? `every ${row.everyDays} d` : cell(row.trigger);
+              const spec = typeof row.spec === "string" && row.spec !== "" ? row.spec : cell(row.how);
+              return (
+                <tr key={cell(row.applianceId) + item}>
+                  <td>
+                    <span className="dtitle">{sentence(spoken)} · {humanItem(item)}</span>
+                    <span className="dsub">{spec} · {every}</span>
+                    <span className="mono">{cell(row.applianceId)}</span>
+                  </td>
+                  <td>{item}</td>
+                  <td>{due || "no fixed date"}</td>
+                  <td><span className={`tagp ${status.tone}`}>{status.label}</span></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </>
     );
   }
   if (tab === "Inventory") {

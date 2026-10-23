@@ -658,6 +658,73 @@ input:focus-visible {
   font-weight: 500;
 }
 
+.user.code {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin-left: auto;
+  letter-spacing: 0.2em;
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 10px;
+}
+
+.who .eyebrow {
+  color: var(--leaf-ink);
+}
+
+.pulse {
+  display: inline-flex;
+  gap: 3px;
+  height: 16px;
+  align-items: center;
+}
+
+.pulse i {
+  width: 3.5px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--leaf);
+  display: block;
+  transform-origin: center;
+  animation: speak 0.9s ease-in-out infinite;
+}
+
+.pulse i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.pulse i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.pulse i:nth-child(4) {
+  animation-delay: 0.45s;
+}
+
+.sys {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.sys::before,
+.sys::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
 .assistant {
   align-self: flex-start;
   background: transparent;
@@ -675,7 +742,7 @@ input:focus-visible {
 }
 
 .speaking {
-  animation: pulse 0.9s ease-in-out infinite;
+  animation: none;
 }
 
 .idle .eyebrow {
@@ -691,15 +758,21 @@ input:focus-visible {
 
 .dock {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: -12px;
+  right: -12px;
   top: calc(100% + 12px);
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .chips {
   height: 40px;
+  min-height: 40px;
+  max-height: 40px;
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 10px;
   max-width: 100%;
@@ -708,19 +781,29 @@ input:focus-visible {
   padding-bottom: 0;
 }
 
+.chips .eyebrow {
+  flex: none;
+}
+
 .chiprow {
-  flex: 1;
+  flex: 1 1 auto;
   display: flex;
+  flex-wrap: nowrap;
   gap: 8px;
-  overflow-x: auto;
+  overflow: hidden;
   min-width: 0;
+  height: 40px;
+  align-items: center;
+  -webkit-mask-image: linear-gradient(to right, #000 88%, transparent);
+  mask-image: linear-gradient(to right, #000 88%, transparent);
 }
 
 .chips button {
   height: 40px;
-  flex: none;
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
+  gap: 7px;
   padding: 0 16px;
   border-radius: var(--r-pill);
   background: var(--surface);
@@ -731,6 +814,19 @@ input:focus-visible {
   box-shadow: var(--sh-1);
   white-space: nowrap;
   min-height: 40px;
+  max-height: 40px;
+}
+
+.chips button .i {
+  width: 15px;
+  height: 15px;
+}
+
+.chips button.used {
+  color: var(--muted);
+  box-shadow: none;
+  background: transparent;
+  border-color: transparent;
 }
 
 .chips button.next {
@@ -746,13 +842,17 @@ input:focus-visible {
 }
 
 .dock form {
-  margin: 8px 0 0;
+  margin: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .composer {
+  position: relative;
   display: flex;
   gap: 10px;
   align-items: center;
+  min-width: 0;
 }
 
 .composer input {
@@ -768,6 +868,37 @@ input:focus-visible {
   box-shadow: var(--sh-1);
 }
 
+.composer .hint {
+  position: absolute;
+  right: 128px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.composer input:not(:placeholder-shown) {
+  padding-right: 18px;
+}
+
+.composer:not(.is-locked) input:placeholder-shown {
+  padding-right: 300px;
+}
+
+kbd {
+  font: 500 11.5px/1 var(--font-mono);
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
 .composer.is-locked input {
   background: var(--lemon-soft);
   border-color: var(--lemon-deep);
@@ -776,7 +907,7 @@ input:focus-visible {
 .composer button {
   height: 56px;
   min-height: 56px;
-  padding: 0 26px;
+  padding: 0 22px 0 18px;
   border-radius: var(--r-md);
   background: var(--ink);
   color: #fff;
@@ -784,6 +915,10 @@ input:focus-visible {
   font-size: 17px;
   font-weight: 600;
   box-shadow: var(--sh-1);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
 }
 
 .lock {
@@ -852,10 +987,36 @@ input:focus-visible {
   border: 1px solid rgba(20, 48, 31, 0.06);
 }
 
+.data-panel {
+  max-height: none;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  padding: 18px 20px 12px;
+}
+
+.panel-h {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.panel-h h2,
 .panel h2 {
   margin: 0 0 8px;
   font: 700 20px/1 var(--font-display);
   letter-spacing: -0.01em;
+}
+
+.panel-h h2 {
+  margin: 0;
+}
+
+.panel-meta {
+  font: 500 11.5px/1.3 var(--font-mono);
+  color: var(--muted);
 }
 
 .data-banner {
@@ -866,6 +1027,87 @@ input:focus-visible {
   color: var(--leaf-ink);
   font-size: 13px;
   font-weight: 600;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.data-banner .i {
+  width: 16px;
+  height: 16px;
+}
+
+.plist {
+  overflow: visible;
+}
+
+.psec {
+  margin: 4px 0 6px;
+  font: 600 11px/1 var(--font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.schedule-table .dtitle,
+.schedule-table .dsub,
+.schedule-table .mono {
+  display: block;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.schedule-table .dtitle {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.schedule-table .dsub,
+.schedule-table .mono {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.schedule-table .mono {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+.tagp {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.tagp.over {
+  background: var(--berry-soft);
+  color: var(--berry-ink);
+}
+
+.tagp.today {
+  background: var(--lemon-soft);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--lemon-deep);
+}
+
+.tagp.soon {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.tagp.ok {
+  background: var(--mint);
+  color: var(--leaf-ink);
 }
 
 .tabs {
@@ -904,8 +1146,61 @@ th,
 td {
   text-align: left;
   border-bottom: 1px solid var(--line);
-  padding: 6px 4px;
+  padding: 8px 4px;
   vertical-align: top;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.schedule-table,
+.schedule-table tbody {
+  display: block;
+  width: 100%;
+}
+
+.schedule-table {
+  position: relative;
+}
+
+.schedule-table thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.schedule-table tr {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  align-items: center;
+  width: 100%;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.schedule-table td {
+  display: block;
+  width: auto;
+  border: 0;
+  padding: 0;
+}
+
+.schedule-table td:first-child {
+  flex: 1 1 100%;
+}
+
+.schedule-table td:nth-child(n + 2) {
+  flex: none;
+  white-space: nowrap;
 }
 
 pre {
@@ -1322,6 +1617,16 @@ pre {
   }
 }
 
+@media (max-width: 900px) {
+  .composer .hint {
+    display: none;
+  }
+
+  .composer:not(.is-locked) input:placeholder-shown {
+    padding-right: 18px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -1329,14 +1634,18 @@ pre {
     animation: none !important;
     transition: none !important;
   }
+
+  .pulse i {
+    transform: scaleY(0.6);
+  }
 }
 
-@keyframes pulse {
+@keyframes speak {
   0%,
   100% {
-    opacity: 0.55;
+    transform: scaleY(0.35);
   }
   50% {
-    opacity: 1;
+    transform: scaleY(1);
   }
 }
