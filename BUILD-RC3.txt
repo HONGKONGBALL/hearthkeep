@@ -1,0 +1,117 @@
+Hearthkeep — rc3 verification record
+Status: Vitest and Playwright for HEAD were re-run into docs/evidence/rc3/. v4 screenshots and the Bailian-narrated demo are recorded. The lightweight tag rc3 points at the commit that adds this file.
+Household names, prices, and the purchase code in the product are fictional sample data. This file stores no secrets.
+
+Bind
+  Release tag: rc3
+  This file: BUILD-RC3.txt at the repo root
+  Screenshots (v4 UI): docs/screens/v4/
+  Demo: docs/demo/hearthkeep-demo.mp4 (identical to /workspace/demo/amazon-demo.mp4)
+  Raw outputs and reports: docs/evidence/rc3/ (list in docs/evidence/rc3/README.md)
+  Fill rule: the hash below is the parent of the commit that contains this file. The rc3 tag points at that child commit. A commit cannot store its own hash, so this record describes its parent commit. After the tag exists, git rev-parse 'rc3^{commit}^' equals the value below, and git show rc3:BUILD-RC3.txt contains that value and the raw output paths.
+  Do not move, delete, or recreate tag rc2. Tag rc2 remains on f60bfaac63c97f692e92a21d848e39a05b116717.
+
+Described commit
+  command: git rev-parse HEAD
+  value: 6a7109f8abac18704e31c96e0fcee933a5e628ea
+  captured_at: 2026-10-23 13:54 Asia/Shanghai (北京时间), after v4 UI chunks d1–d6, before this file
+  what it contains: product sources after the v4 restyle (d1–d6), docs/screens/v4/*.png, CHUNKd6.txt, and earlier evidence under docs/evidence/v4/. This file, docs/demo/hearthkeep-demo.mp4, and docs/evidence/rc3/ are the next commit.
+
+Start
+  npm run demo
+
+Ports
+  MCP server   http://127.0.0.1:8787   (GET /healthz, POST /mcp, POST /sim/reset)
+  Simulator    http://127.0.0.1:5173
+
+Env used by the demo and by npm run test:e2e
+  HK_HOST=127.0.0.1
+  HK_PORT=8787
+  HK_DB=./data/hearthkeep.db for npm run demo; tests/e2e uses data/e2e.db and deletes it
+  HK_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+  HK_SIM_MODE=1
+  HK_SIM_START=2026-10-21T09:00:00-07:00
+  HK_PURCHASE_CODE=2468
+  HK_JSON_RESPONSE=0
+  HK_AUTH_TOKEN empty
+  HK_LLM_BASE_URL empty
+  HK_LLM_API_KEY empty
+  HK_LLM_MODEL empty
+  DASHSCOPE_API_KEY empty in the product env (demo narration was produced separately with Bailian TTS)
+  No .env file is required. .env.example holds those placeholders.
+
+What changed since rc2 (factual)
+  Frontend restyle chunks d1–d6 against the fixed v4 design (welcome, briefing, parts, checkout/receipt, booking, danger alert). Product behavior and test suite size unchanged: Vitest 224, Playwright 30. Demo video produced with Alibaba Cloud Bailian DashScope TTS (qwen3-tts-flash, Cherry, English), duration 170s, 1080p.
+
+Commands and exit codes (this record)
+  command: npm test -- --reporter=default --reporter=json --outputFile.json=docs/evidence/rc3/vitest-report.json
+  purpose: Vitest unit and protocol tests on described commit sources
+  run_as: grok-build
+  exit_code: 0
+  result: 19 files passed, 224 tests passed, start 13:54:02 Asia/Shanghai, duration 8.45s
+  raw_output: docs/evidence/rc3/vitest.txt
+  report: docs/evidence/rc3/vitest-report.json
+
+  command: PLAYWRIGHT_HTML_OPEN=never PLAYWRIGHT_HTML_OUTPUT_DIR=docs/evidence/rc3/playwright-report PLAYWRIGHT_JSON_OUTPUT_NAME=docs/evidence/rc3/playwright-report.json npm run test:e2e -- --reporter=list,html,json
+  purpose: Playwright end-to-end run in Chrome
+  run_as: grok-build
+  exit_code: 0
+  result: 30 passed, duration 43.5s. Includes P-02 through P-10, P-12, P-14 About, and QA cases 58-76 and 83.
+  raw_output: docs/evidence/rc3/playwright.txt
+  report: docs/evidence/rc3/playwright-report/
+  json_report: docs/evidence/rc3/playwright-report.json
+
+Raw output
+  vitest: docs/evidence/rc3/vitest.txt
+  vitest report: docs/evidence/rc3/vitest-report.json
+  playwright: docs/evidence/rc3/playwright.txt
+  playwright report: docs/evidence/rc3/playwright-report/
+  playwright json: docs/evidence/rc3/playwright-report.json
+  Household names, prices, and the purchase code in the logs are fictional sample data.
+
+Screenshot list (v4)
+  01 welcome: docs/screens/v4/01-welcome.png
+  02 briefing: docs/screens/v4/02-briefing.png
+  03 parts: docs/screens/v4/03-parts.png
+  04 checkout: docs/screens/v4/04-checkout.png
+  05 booking: docs/screens/v4/05-booking.png
+  Captured on the described commit lineage (bd733ee docs: capture the five v4 simulator screens; product sources unchanged through 6a7109f).
+
+Demo
+  path: docs/demo/hearthkeep-demo.mp4
+  also: /workspace/demo/amazon-demo.mp4 (same md5 d0224cfc4446c199e1e42143cec7071e)
+  duration_s: 170
+  resolution: 1080p
+  narration: Alibaba Cloud Bailian DashScope TTS, qwen3-tts-flash, voice Cherry, English
+  size_bytes: 4308129
+
+Review items P-01–P-14 (evidence from this run unless noted)
+  P-01 evidence and tag. PASS once rc3 is on the commit that adds this file and the parent check above holds. v4 screens 01–05, Vitest and Playwright raw paths listed above. Demo path listed above.
+  P-02 briefing follow-up. PASS. tests/e2e/briefing-yes.spec.ts in playwright.txt (this run).
+  P-03 inventory before reorder. PASS. tests/e2e/p03-inventory.spec.ts in playwright.txt (this run).
+  P-04 install task close. PASS. tests/e2e/p04-install.spec.ts in playwright.txt (this run).
+  P-05 locked quote recovery. PASS. tests/e2e/p05-locked-quote.spec.ts in playwright.txt (this run).
+  P-06 focus rings. PASS. tests/e2e/f4a-focus.spec.ts in playwright.txt (this run). Older focus PNGs remain under docs/screens/rc2/; not re-captured for rc3.
+  P-07 welcome isolation. PASS. tests/e2e/f4b-welcome.spec.ts in playwright.txt (this run).
+  P-08 card layout. PASS. tests/e2e/f4c-cards.spec.ts in playwright.txt (this run). v4 visual frames: docs/screens/v4/03-parts.png, 04-checkout.png, 05-booking.png.
+  P-09 visible copy. PASS. tests/e2e/f3-copy.spec.ts in playwright.txt (this run).
+  P-10 limit sentence on parts checkout. PASS. Same f3 run, plus QA case 63 in tests/e2e/qa-f.spec.ts (this run).
+  P-11 docs phrase check. Not re-run in this record. Prior rc2 evidence: docs/evidence/rc2/ and BUILD-RC2.txt. Product docs phrase status was PASS on rc2; no claim made here beyond that prior record.
+  P-12 notifications/initialized. PASS. tests/e2e/f5-initialized.spec.ts in playwright.txt (this run).
+  P-13 reply timing. Not re-measured in this record. Prior measurement cited in BUILD-RC2.txt (docs/evidence/rc2/perf.txt). Product protocol sources unchanged since that measurement through the described commit.
+  P-14 release prep, local parts. PASS for the in-app line License: MIT (tests/e2e/f9-about-license.spec.ts in this run). Owner publish/Devpost steps remain pending-owner.
+
+QA checklist items (this chunk's npm test and npm run test:e2e)
+  The full numbered list lives in BUILD.txt. Status below for items covered by the suites that just ran. Items 78–82 remain NOT SHIPPED as in BUILD.txt / BUILD-RC2.txt.
+  Vitest 224 PASS (docs/evidence/rc3/vitest.txt): protocol B–E and I, planner, storage, healthz, cards, docs-video, turn-queue, simulator-chrome, domain, sim.
+  Playwright 30 PASS (docs/evidence/rc3/playwright.txt): cases 58–76, 83, and P-02–P-10, P-12, P-14 About, f3/f4/f5 specs listed above.
+  89 PASS. docs/demo/hearthkeep-demo.mp4 is present (170s). Same file as /workspace/demo/amazon-demo.mp4.
+  90 PASS. docs/video-script.md and docs/devpost.md are in the tree (unchanged claim; files present on described commit).
+  91 PASS. Demo mp4 includes Bailian English narration mixed into the video (produced for this candidate; file paths above).
+  94 pending-owner. No Devpost submission timestamp. This record does not push, deploy, or submit.
+
+pending-owner
+  Nothing was pushed. The repository was not made public. Devpost was not opened.
+  - Publish the repository and set the GitHub About license to MIT if submitting.
+  - Devpost: paste the repository link, video, and check each claim.
+  - Deadline for this hackathon track: 2026-10-24 03:00 Asia/Shanghai (北京时间).
