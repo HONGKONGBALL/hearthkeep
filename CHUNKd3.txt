@@ -1,0 +1,25 @@
+Chunk d3 — v4 parts options view
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed.
+
+Started from 95d02a2 (docs: record the d2 briefing check).
+Commits:
+  14bf818 feat: restyle the parts options card for v4
+  90c3348 fix: keep the Recommended sticker visible while it pops
+npm test, tsc, and the final Playwright run below are against 90c3348, before this file.
+
+What changed
+- apps/simulator/src/App.tsx — The options carousel document from the server is unchanged. The host skins it after render. Up to 3 tiles stay in one row. The recommended part gets a mint wash, a tangerine Choose button, and a tangerine Recommended sticker rotated −4° that hangs 17px above the tile. Tile padding is 24px, so the sticker clears the title. The reason comes from the find_parts payload: the recommended part says "Cheapest option your rules allow" when its price is the lowest, otherwise "Earliest arrival your rules allow". An OEM part that is not recommended says "Maker's own part". The stock line reads onHand.qty. For the fridge filter that is "Stock checked first: 0 on hand". The "Not shown" footer text is unchanged. Service slot tiles keep the same card, including the Over $60 limit badge.
+- Server, planner, MCP, and domain logic are unchanged.
+
+Layout check
+A temporary Playwright spec (deleted after the run, not part of the suite) at 390, 1280, and 1440:
+- The Recommended sticker does not intersect the title. The gap under the sticker is greater than 0. The sticker hangs more than 8px above the tile.
+- Two part tiles. Reason "Cheapest option your rules allow". Stock "Stock checked first: 0 on hand".
+- The suite's P08 check still fits the 2 part tiles and the 3 service slots in the card. The footer text is "Not shown: Bargo ZX-28, not certified (your rules)".
+
+Commands and exit codes
+- npx tsc -p apps/simulator/tsconfig.json --noEmit, from /workspace/amazon-app: exit 0.
+- npm test, from /workspace/amazon-app: exit 0. Vitest 4.1.12. 19 files passed, 224 tests passed. Start 11:32:05. Duration 8.10s.
+- npx playwright test tests/e2e/d3-layout.spec.ts, from /workspace/amazon-app: exit 0. 3 passed. That file was removed afterward, so the suite count stays 30.
+- npx playwright test, from /workspace/amazon-app, after the layout spec was removed: exit 0. 30 passed. Duration 43.9s. Channel chrome, 1 worker.
+The Playwright suite rewrote docs/screens/rc2/*.png. Those files are committed with this note.
