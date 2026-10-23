@@ -1240,6 +1240,8 @@ pre,
   min-width: 0;
 }
 
+.trace-turn h3,
+.trace-turn p,
 .trace-turn li {
   min-width: 0;
   max-width: 100%;
