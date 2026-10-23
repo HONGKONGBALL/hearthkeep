@@ -1,6 +1,6 @@
 # Hearthkeep — Product Requirements (PRD)
 
-Version 1.0 · 2026-10-20 · Owner: Zhenhua Liu (solo) · Track: Alexa+ · MIT License, Copyright 2026 Zhenhua Liu
+Version 1.0 · 2026-10-20 · Owner: Psyche (solo) · Track: Alexa+ · MIT License, Copyright 2026 Psyche
 
 Inputs: brief.md only. Items marked **[verify D0]** are MCP wire details to confirm against the 2025-11-25 spec and the MCP Apps text on Day 0 and record in `docs/spec-notes.md`. If the text differs, the spec wins and this PRD and qa.md are updated the same day.
 
@@ -353,7 +353,7 @@ Error turns: tool errors are spoken from their message with one next step (for e
       docs/                architecture, spec-notes, data-notice, video-script,
                            product-feedback, friction-log, feature-requests, devpost
       scripts/             demo runner, video capture and narration (reads env only)
-      .env.example  LICENSE (MIT, Copyright 2026 Zhenhua Liu)  README.md
+      .env.example  LICENSE (MIT, Copyright 2026 Psyche)  README.md
 
 | Env var | Default | Purpose |
 |---|---|---|

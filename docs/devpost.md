@@ -127,4 +127,4 @@ Clone the repository. `npm ci`. `npm run demo`. Open http://127.0.0.1:5173. Clic
 
 ## Mini challenges
 
-AWS Builder is not entered. The open-source mini challenge depends on a public GitHub repository. This clone has no remote yet. The license file is MIT, copyright 2026 Zhenhua Liu.
+AWS Builder is not entered. The open-source mini challenge depends on a public GitHub repository. This clone has no remote yet. The license file is MIT, copyright 2026 Psyche.

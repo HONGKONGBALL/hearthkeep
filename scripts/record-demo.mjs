@@ -260,7 +260,7 @@ async function main() {
         "Tests and license",
         `<p class="kicker">Open source</p>
          <h1>MIT</h1>
-         <p class="lead">Copyright 2026 Zhenhua Liu.</p>
+         <p class="lead">Copyright 2026 Psyche.</p>
          <p class="lead">Protocol checks: <code>npm test</code>. Chrome flows: <code>npm run test:e2e</code>.</p>
          <p class="fine">The trace on the previous shot is the raw tool result from this session. The purchase code is redacted there.</p>`,
       ),

@@ -138,4 +138,4 @@ See [docs/architecture.md](docs/architecture.md). Protocol check notes are in [d
 
 ## License
 
-MIT. Copyright (c) 2026 Zhenhua Liu. See [LICENSE](LICENSE).
+MIT. Copyright (c) 2026 Psyche. See [LICENSE](LICENSE).
