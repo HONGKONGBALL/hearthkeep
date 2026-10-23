@@ -1,73 +1,115 @@
-Hearthkeep — rc4 verification record (chunk r1, A2 only)
-Status: A2 is implemented on b75aadb and the listed checks passed. This file does not close the rest of the rc3 review. Tag rc4 is not created in this chunk.
+Hearthkeep — rc4 verification record
+Status: local checks below were run on the described commit. This file replaces the chunk r1 note, which covered A2 only. It does not mark the owner publish steps done. Tag rc4 is the commit that adds this file. Nothing was pushed.
 Household names, prices, and the purchase code in the product are fictional sample data. This file stores no secrets.
 
 Bind
-  Release tag name reserved for this round: rc4
+  Release tag: rc4, on the commit that adds this file. Not pushed.
   This file: BUILD-RC4.txt at the repo root
-  Screenshots (A2): docs/screens/rc4/
-  Raw outputs and reports: docs/evidence/rc4/ (list in docs/evidence/rc4/README.md)
-  Fill rule: the hash below is the parent of the commit that contains this file. That parent is the product commit this record describes. A commit cannot store its own hash.
-  Tag rc2 stays on f60bfaac63c97f692e92a21d848e39a05b116717. Tag rc3 stays on ff934b8. This chunk does not create, move, or delete a tag.
+  Screenshots: docs/screens/rc4/ (index in docs/screens/rc4/README.md)
+  v4 frames: docs/screens/v4/
+  Demo in this repo: docs/demo/hearthkeep-demo.mp4
+  Raw outputs: docs/evidence/rc4/ (index in docs/evidence/rc4/README.md)
+  Fill rule: the hash below is the parent of the commit that contains this file. A commit cannot store its own hash. After the tag exists, git rev-parse 'rc4^{commit}^' equals the value below.
+  Tag rc2 stays on f60bfaac63c97f692e92a21d848e39a05b116717. Tag rc3 stays on ff934b80a30fb6c370e54153b68e4ca8a6f88b82. This record does not move or delete those tags.
 
 Described commit
   command: git rev-parse HEAD
-  value: b75aadb3c8128c971f044f178721a5bb3af6ef5c
-  captured_at: 2026-10-23, after the A2 fix and its e2e, before this file
-  what it contains: aec9777 limits the hazard banner and card suppression to the latest turn; b75aadb adds tests/e2e/a2-hazard-next-turn.spec.ts. This file, docs/screens/rc4/, and docs/evidence/rc4/ are the next commit.
+  value: c44840c8109ac24fc1d726e3f22fddd3315a7b6e
+  captured_at: 2026-10-23, before this file
+  what it contains: the rc4 product fixes (A1, A2, A4, A5, A6), the re-recorded demo, the V1 paint checks, and the A7 archive fix. Playwright shots go to test-results/e2e-screens. docs/screens/rc2 matches tag rc2. The Devpost gallery points at docs/screens/v4 and docs/screens/rc4. This file and the new docs/evidence/rc4 logs are the next commit.
 
-Scope of this record
-  A2 only. Alert text and the hidden card stage apply to the turn that raised the alert. The next turn renders its card. Other rc3 findings (A1, A3–A7, V1, V2) are outside this chunk.
+rc2 archive
+  git diff rc2 -- docs/screens/rc2 docs/evidence/rc2/f4a-focus-contrast.txt
+  result on the described commit: empty.
+  The files had been overwritten after the tag. They were restored from tag rc2.
+  npm run test:e2e on this commit did not modify docs/screens or docs/evidence/rc2. git diff --stat of those paths after the run was empty.
 
 Commands and exit codes (this record)
   command: npm test -- --reporter=default --reporter=json --outputFile.json=docs/evidence/rc4/vitest-report.json
-  purpose: Vitest unit and protocol tests on the described commit
-  run_as: grok-build
+  purpose: Vitest on the described commit
   exit_code: 0
-  result: 19 files passed, 224 tests passed, start 14:49:46 Asia/Shanghai, duration 8.69s. numPassedTests 224, numFailedTests 0, success true in the JSON report.
+  result: 19 files passed, 231 tests passed, 0 failed. Start 17:03:33 Asia/Shanghai. Duration 9.38s. JSON success true, numPassedTests 231, numFailedTests 0, numTotalTests 231.
+  The log starts with git rev-parse HEAD and git status --short. HEAD is the described commit. The short status before the command listed only untracked docs/evidence/rc4/fresh-clone.log, docs/evidence/rc4/perf.txt, and hearthkeep-rc3.launch.pid.
   raw_output: docs/evidence/rc4/vitest.txt
+  sha256: c9ddc110789b212e37cc79c8d49f42b33100f0983c0e50adfa4a1f41ad458d42
   report: docs/evidence/rc4/vitest-report.json
-  sha256: da28947c3a75213a0601e94b816ba4431ccc87bc3c32ff36e74f3708bd1ecf36
+  sha256: 63b700833cfb9cd61288a03895e12589c0dca26bfcd7df6b66ce663a486f635a
+  Floor: 231 is above 224. No test file from the 224 was removed.
 
   command: PLAYWRIGHT_HTML_OPEN=never PLAYWRIGHT_HTML_OUTPUT_DIR=docs/evidence/rc4/playwright-report PLAYWRIGHT_JSON_OUTPUT_NAME=docs/evidence/rc4/playwright-report.json npm run test:e2e -- --reporter=list,html,json
-  purpose: Playwright end-to-end run in Chrome, including the new A2 spec and the existing suite
-  run_as: grok-build
+  purpose: Playwright in Chrome on the described commit
   exit_code: 0
-  result: 31 passed, 0 failed, duration 46.1s. JSON stats: expected 31, unexpected 0, skipped 0, flaky 0, start 2026-10-23T06:50:18.386Z. Includes the previous 30 cases plus "A2 the next turn after a gas alert shows the status card". Test 71 (gas smell hides the card on that turn) passed.
+  result: 41 passed. JSON stats expected 41, unexpected 0, skipped 0, flaky 0. startTime 2026-10-23T09:03:43.669Z. Duration about 1.2m. playwright.config.ts retries is 0. The command did not override it.
+  The log starts with the same HEAD. The short status before this command also showed the Vitest log and JSON as modified, because that command had already written them.
   raw_output: docs/evidence/rc4/playwright.txt
-  report: docs/evidence/rc4/playwright-report/
+  sha256: 22a8528f389f5d4237f26f0f18f2c1c3a19541cd6ee67f767af8f6bf25849178
   json_report: docs/evidence/rc4/playwright-report.json
-  sha256: 13db044619dbd0bec810102660aa5052164f3bd0bc4c5d1a8ca39ed7d4245cd3
+  sha256: 5d2152af8f8c5e82e1b82f2910a611c8cd3537022257b9280c61bb5788940d62
+  Floor: 41 is above 30. The run includes the previous cases plus A1, A2, A4, A5, A6, and the six V1 cases.
 
-  command: npx playwright test tests/e2e/a2-hazard-next-turn.spec.ts --reporter=list
-  purpose: first isolated check of the new spec, before the full suite
+  command: HK_P13_OUT=docs/evidence/rc4/perf.txt HK_P13_RELEASE=rc4 HK_MEASURE_HEAD=c44840c8109ac24fc1d726e3f22fddd3315a7b6e npx tsx scripts/measure-p13.ts
+  purpose: P-13 utterance-to-rendered-reply timing, three Chrome runs of cases 64, 65, 67, and 68
   exit_code: 0
-  result: 1 passed (3.6s). The retained log is the full-suite playwright.txt, which runs the same spec.
+  result: verdict PASS. n=30. reply_ms min 8.400, max 423.100, p95 62.700. settled_ms min 27.600, max 477.300, p95 96.500. Threshold 1500 ms. started_at 2026-10-23T08:58:45.684Z. finished_at 2026-10-23T08:58:59.719Z.
+  The 423.100 ms sample is case 64 run 1. Nearest-rank p95 is 62.700 ms.
+  raw_output: docs/evidence/rc4/perf.txt
+  sha256: 89b423aa63871f1b4ff36afffad95417f52d03602bd4192a6457f900dff32b05
+  This run is on the described commit. The rc2 file docs/evidence/rc2/perf.txt was not overwritten. The script's default output path is still that rc2 file.
 
-  command: NODE_PATH=/workspace/amazon-app/node_modules npx tsx /tmp/capture-a2-rc4.ts
-  purpose: frame screenshots of the hazard turn and the next briefing
-  exit_code: 0
-  result: four PNGs under docs/screens/rc4/. The temporary script was removed and is not in the tree.
-  earlier attempts: exit 1 resolving @playwright/test from /tmp (no PNG). exit 1 on a case-sensitive "Needs attention" check against CSS-uppercased innerText, after one viewport shot that was deleted and replaced by the successful frame shots.
+  command: git bundle of main, git clone into /tmp/hk-fresh, then the README commands in that directory
+  purpose: fresh tree of the described commit, with no copied node_modules and no .env
+  result: local command PASS, with the limits below. Log: docs/evidence/rc4/fresh-clone.log
+  sha256: c5aeea238d29ba453d6918af7f9f7d9a9969c1499db9f891c1f7c53d4b254c7f
+  pwd: /tmp/hk-fresh. HEAD: c44840c8109ac24fc1d726e3f22fddd3315a7b6e. env file absent. node_modules absent before npm ci.
+  npm ci exit 0. npm run demo became ready. curl healthz exit 0, body status ok, protocolVersion 2025-11-25, storage sqlite, payment mock, simMode true, simNow 2026-10-21T09:00:00-07:00. Simulator HTTP 200. Demo stopped with SIGINT, exit 130. Ports 8787 and 5173 closed.
+  npm test exit 0. Vitest printed RUN v4.1.12 /tmp/hk-fresh. 19 files, 231 tests.
+  npm run test:e2e exit 0. 41 passed. git status after that e2e was clean (## main...origin/main only).
+  Limits: same OS user (grok-build), Debian 13, not a separate Ubuntu account. sudo and docker were unavailable. The repository was not opened logged out. A direct git clone of /workspace/amazon-app exited 128 (dubious ownership) and is not this result.
 
-Screenshot list (A2)
-  1280×800 viewport, frame element 1048×624:
-    docs/screens/rc4/a2-1280-hazard-turn.png
-      sha256 f7152ba1a7c6852507a7301997691c7fc5a3904bdedf0c59c8f763bbf1353d46
-      Observed: gas reply in the transcript, berry banner "If you smell gas…", no status card.
-    docs/screens/rc4/a2-1280-next-turn.png
-      sha256 42cbce3537caa79c5564eb68b60a65d0ef99de8c2ef8fe7b90ddf0dee4bd8354
-      Observed: "What needs doing?" reply, status card with "NEEDS ATTENTION" and Handle it, berry banner absent. The earlier gas reply remains in the transcript.
-  390×844 viewport, frame element:
-    docs/screens/rc4/a2-390-hazard-turn.png  342×917
-      sha256 61556ab6475ed0b4deeed641fcd3011d29ecc56d1c4e3ce492c606ba643f32ee
-      Observed: berry banner at the top of the screen, no status card.
-    docs/screens/rc4/a2-390-next-turn.png  342×1277
-      sha256 9762ca6a575031e7bd430837d3099fb52a13909df7a86cf1c506d656102a9fcb
-      Observed: status card with "NEEDS ATTENTION", berry banner absent.
+Screenshots present under docs/screens/rc4/
+  F5 status card (C1): a1-1280-next-morning.png, a1-390-next-morning.png, a1-768-next-morning.png, plus viewport shots v1-390-f5.png and v1-768-f5.png.
+  C5 open and completed: a5-1280, a5-390, and a5-768, each with task-open and task-done.
+  Hazard turn and the next turn: a2 at 1280, 390, and 768.
+  390 and 768 widths for F1, F3, and F5: v1-390-f1.png, v1-390-f3.png, v1-390-f5.png, v1-768-f1.png, v1-768-f3.png, v1-768-f5.png.
+  The 768 hazard, next-turn, C5, and C1 card frames were captured for this record from a browser context created at 768×1024. The other files were already in the tree.
+  New file sha256:
+    a1-768-next-morning.png 32a6976d64a396150130d05b1ae669a90f8255f1a4219802ab32ac776770fd77
+    a2-768-hazard-turn.png 7f88219890a0b29e64598d0db5d52327082dd2f06e4f6a354efdefe950fc55c0
+    a2-768-next-turn.png 4237ac588db833a732ea38e1f7c5f3fbe1ad13fb85d14e8c5d9a1e43c19b95d3
+    a5-768-task-open.png 801d86ae67b2adece464e1f3c02cd8626523f461a4e2a305fdca5a909dddd8a9
+    a5-768-task-done.png 74b7b203ca23aa1f92a38ef513af04959d277844474a9d0399b9702fdb3db052
 
-Side effect restored
-  The full Playwright run rewrote 16 files under docs/screens/rc2/. Those bytes were restored with git checkout -- docs/screens/rc2 before this record. They are not part of the A2 commit.
+Demo file checked in this record
+  path: docs/demo/hearthkeep-demo.mp4
+  md5: 36b9800b34f6a407094dec9c339f6dbf
+  size_bytes: 4560744
+  ffprobe: h264 1920x1080, aac 48000 Hz stereo, duration 170.000000
+  volumedetect: mean_volume -31.9 dB, max_volume -8.7 dB
+  The md5 matches docs/evidence/rc4/a3-caption-contrast.txt. That file records 9 of 9 cues at or above 4.5:1. Lowest sample there is 15.69:1. This chunk did not recompute those pixels. It confirmed the file bytes are the ones that record measured.
+  /workspace/demo/amazon-demo.mp4 is a different, older file (4308129 bytes). It is not the candidate.
 
-Unverified in this chunk
-  Fresh clone, P-13 UI timing, demo video, and findings other than A2.
+Frame sample of that mp4
+  17 frames, one every 10 seconds, from the encoded file. Inspected in this chunk.
+  Every product frame in the sample shows the simulation ribbon and a black caption box with white type. Title, architecture, MIT, and close cards are not the product UI.
+  No browser chrome, OS chrome, Amazon smile logo, or Chrome logo was visible in the sample.
+  The words Alexa+ appear as disclosure text (title, ribbon, close card).
+  Brands readable in the sample: Rillstone, Ferngate, Bargo, Ventora.
+  This is not a review of every frame, and the track was not listened to.
+  scripts/assemble-demo.mjs maps picture video and the narration wav only. No music file is an input. That does not by itself prove the wav contains no music.
+
+QA rows (only what this record supports)
+  Automated tests that ran here passed. See vitest.txt and playwright.txt. Items 78–82 are not shipped: no LLM planner, no skill file, no progress sentence in the simulator, no bearer check, no P1 tools.
+  88 tool-call cases: tests/protocol/qa-i.test.ts passed in this Vitest run (8 tests). This file does not quote a separate millisecond figure for those calls. UI timing: perf.txt verdict PASS, p95 reply_ms 62.700, under 1500 ms.
+  89 not an overall PASS. Local file is 170.000 s, under 180 s, and the matching contrast record passes 9 of 9 cues. Public YouTube or Vimeo playback was not opened. The close card says the public GitHub URL is added at publish time. Public link: pending-owner.
+  90 not an overall PASS. docs/devpost.md has a Simulation disclosure section. The early architecture frame's burned caption contains "A real MCP server" and "simulated Alexa+ experience". Product frames in the 17-frame sample show the simulation ribbon. The narration audio was not listened to. The Devpost form was not submitted. Form submission: pending-owner.
+  91 not an overall PASS. The 17-frame sample showed no third-party logo and only the fictional brands named above. The assembler does not add a music file. The sample is not every frame, and the audio was not heard.
+  92 not an overall PASS. The gallery in docs/devpost.md now lists docs/screens/v4 and docs/screens/rc4. It no longer lists docs/screens/s0-welcome.png, s1-briefing.png, or s2-options.png. Tagline length is 142 characters. Name, track, built-with, description, testing instructions, product feedback, friction log, and feature requests are in the repo. The repository URL and the video URL are still placeholders. Devpost was not submitted. pending-owner for the live form.
+  93 not an overall PASS. The local fresh-clone commands above passed. It was not a separate Ubuntu account, and the repo was not viewed logged out. Public visibility: pending-owner.
+  94 pending-owner. No Devpost submission timestamp. Deadline remains 2026-10-24 03:00 Asia/Shanghai. This record does not submit.
+
+pending-owner
+  Nothing was pushed. The repository was not made public. Devpost was not opened.
+  - Publish the repository and show MIT in the GitHub About panel.
+  - Run CI on main and keep the Actions URL.
+  - Upload the demo to YouTube or Vimeo and put that URL on the close card and the Devpost form.
+  - Submit Devpost before the deadline.

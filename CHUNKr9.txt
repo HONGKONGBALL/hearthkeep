@@ -1,0 +1,25 @@
+Chunk r9 — A7 materials and the rc4 evidence package
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed. Tag rc4 is created on the commit that adds this note, only after e2e leaves tracked files unchanged. The tag is local.
+
+Started from 0d72126 (docs: record the readable demo captions for rc4).
+Commit before this note:
+  c44840c8109ac24fc1d726e3f22fddd3315a7b6e fix: keep e2e shots out of the rc2 screen archive
+This note, BUILD-RC4.txt, and the new docs/evidence/rc4 logs are the next commit. Parent of that commit: c44840c8109ac24fc1d726e3f22fddd3315a7b6e.
+
+What changed
+- tests/e2e: screenshots and the P-06 contrast log go to test-results/e2e-screens, which git ignores. They no longer write docs/screens/rc2, docs/screens/rc4, or docs/evidence/rc2.
+- docs/screens/rc2 and docs/evidence/rc2/f4a-focus-contrast.txt were restored from tag rc2. git diff rc2 -- those paths is empty.
+- docs/devpost.md gallery lists docs/screens/v4 and docs/screens/rc4. The video line points at docs/demo/hearthkeep-demo.mp4, not the older file outside the repo.
+- docs/screens/rc4 gained the 768-wide C1, C5 open, C5 done, hazard, and next-turn frames. Contexts were created at 768×1024.
+- scripts/measure-p13.ts still defaults to docs/evidence/rc2/perf.txt. HK_P13_OUT and HK_P13_RELEASE select the rc4 run.
+- BUILD-RC4.txt replaces the r1 A2-only note. It records local PASS, pending-owner, or not-an-overall-PASS. It does not mark QA 89, 90, or 91 as overall PASS.
+
+Checks on c44840c
+- npm test exit 0. 231 passed. Log docs/evidence/rc4/vitest.txt.
+- npm run test:e2e exit 0. 41 passed, unexpected 0, skipped 0, flaky 0, retries 0. Log docs/evidence/rc4/playwright.txt. docs/screens was not modified.
+- P-13 exit 0. n=30. p95 reply_ms 62.700. p95 settled_ms 96.500. Verdict PASS. docs/evidence/rc4/perf.txt.
+- Fresh clone in /tmp/hk-fresh from a bundle of that commit. npm ci exit 0, healthz ok, simulator HTTP 200, npm test 231, npm run test:e2e 41, git status clean afterward. Same OS user. Not a public repo check. Log docs/evidence/rc4/fresh-clone.log.
+- Demo md5 36b9800b34f6a407094dec9c339f6dbf, duration 170.000000. Contrast record still matches that md5.
+
+Acceptance
+Gallery uses the current frames. The rc2 screenshot tree matches the tag. E2e does not write that tree. BUILD-RC4.txt stays inside the evidence from this commit. The local tag is applied to the commit that contains this file.

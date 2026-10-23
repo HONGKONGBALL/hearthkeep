@@ -1,0 +1,162 @@
+fresh-clone walk-through
+started_at: 2026-10-23T09:01:41Z
+os: Debian GNU/Linux 13 (trixie)
+whoami: grok-build
+id: uid=1002(grok-build) gid=1003(grok-build) groups=1003(grok-build),1001(grokproj)
+home: /home/grok-build
+node: v20.19.2
+npm: 11.21.1
+chrome: Google Chrome 156.0.8078.47 
+sudo: unavailable
+docker: unavailable
+account_note: same OS user as the workspace. A separate Ubuntu account was not created. sudo and docker were not available.
+public_repo: not opened logged out. Nothing was pushed.
+method: git bundle of main, then git clone of that bundle into /tmp/hk-fresh. Ignored files such as node_modules and .env are not in the bundle.
+earlier_attempt: git clone of /workspace/amazon-app exited 128, dubious ownership. That attempt is not this log.
+bundle_head_expected: c44840c8109ac24fc1d726e3f22fddd3315a7b6e
+pwd: /tmp/hk-fresh
+HEAD: c44840c8109ac24fc1d726e3f22fddd3315a7b6e
+## main...origin/main
+env_file:absent
+package_lock:present
+node_modules:absent
++ npm ci
+npm warn deprecated prebuild-install@7.1.3: No longer maintained. Please contact the author of the relevant native addon; alternatives are available.
+
+added 229 packages, and audited 233 packages in 2s
+
+43 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm warn install-scripts 2 packages have install scripts not yet covered by allowScripts:
+npm warn install-scripts   better-sqlite3@12.9.0 (install: prebuild-install || node-gyp rebuild --release)
+npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+npm_ci_exit:0
++ npm run demo
+demo_pid:394107
+demo_ready:1
+----- demo.out -----
+
+> hearthkeep@0.1.0 demo
+> node scripts/demo.mjs
+
+Hearthkeep demo
+env file: .env.example
+MCP server  http://127.0.0.1:8787
+simulator   http://127.0.0.1:5173
+(node:394136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:394148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  VITE v7.3.7  ready in 278 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+(node:394149) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Hearthkeep MCP server listening on http://127.0.0.1:8787/mcp
+(node:394171) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+----- end demo.out -----
++ curl -sS http://127.0.0.1:8787/healthz
+{"status":"ok","protocolVersion":"2025-11-25","storage":"sqlite","payment":"mock","simMode":true,"simNow":"2026-10-21T09:00:00-07:00"}
+curl_health_exit:0
+sim_http:200
+demo_stop_exit:130
+port_8787:closed
+port_5173:closed
++ npm test
+
+> hearthkeep@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.12 /tmp/hk-fresh
+
+(node:394293) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ tests/planner.test.ts (18 tests) 61ms
+ ✓ tests/domain.test.ts (28 tests) 128ms
+ ✓ tests/protocol/tools.test.ts (10 tests) 281ms
+ ✓ tests/storage.test.ts (9 tests) 102ms
+ ✓ tests/sim.test.ts (6 tests) 264ms
+ ✓ tests/planner-install.test.ts (9 tests) 35ms
+ ✓ tests/planner-flows.test.ts (14 tests) 337ms
+ ✓ tests/protocol/qa-b.test.ts (34 tests) 298ms
+ ✓ tests/protocol/qa-d.test.ts (26 tests) 319ms
+ ✓ tests/protocol/qa-c.test.ts (30 tests) 207ms
+ ✓ tests/cards.test.ts (6 tests) 21ms
+ ✓ tests/protocol/transport.test.ts (3 tests) 103ms
+ ✓ tests/protocol/qa-i.test.ts (8 tests) 351ms
+ ✓ tests/planner-briefing-followup.test.ts (4 tests) 45ms
+ ✓ tests/protocol/qa-e.test.ts (12 tests) 333ms
+ ✓ tests/docs-video.test.ts (2 tests) 6ms
+ ✓ tests/healthz.test.ts (3 tests) 99ms
+ ✓ tests/turn-queue.test.ts (6 tests) 8ms
+ ✓ tests/simulator-chrome.test.ts (3 tests) 4ms
+
+ Test Files  19 passed (19)
+      Tests  231 passed (231)
+   Start at  17:01:47
+   Duration  9.13s (transform 651ms, setup 0ms, import 2.59s, tests 3.00s, environment 2ms)
+
+npm_test_exit:0
++ npm run test:e2e
+
+> hearthkeep@0.1.0 test:e2e
+> playwright test
+
+
+Running 41 tests using 1 worker
+
+  ✓   1 [chrome] › tests/e2e/a1-status-rows.spec.ts:16:1 › A1 next morning status rows use the wide text column (3.1s)
+  ✓   2 [chrome] › tests/e2e/a2-hazard-next-turn.spec.ts:7:1 › A2 the next turn after a gas alert shows the status card (952ms)
+  ✓   3 [chrome] › tests/e2e/a4-overcap-voice.spec.ts:7:1 › A4 Confirm by voice on the over-cap checkout asks for approve (1.1s)
+  ✓   4 [chrome] › tests/e2e/a5-task-skin.spec.ts:42:1 › A5 task card open and completed states use the v4 skin (4.6s)
+  ✓   5 [chrome] › tests/e2e/a6-mark-done.spec.ts:12:1 › A6 clicking the second open task closes that task (2.0s)
+  ✓   6 [chrome] › tests/e2e/briefing-yes.spec.ts:16:1 › Start then Yes gives the dryer vent next step with cards on and off (890ms)
+  ✓   7 [chrome] › tests/e2e/f3-copy.spec.ts:7:1 › P09 and P10 visible copy (2.2s)
+  ✓   8 [chrome] › tests/e2e/f4a-focus.spec.ts:240:1 › P-06 top bar focus rings are light and clear 3:1 (1.9s)
+  ✓   9 [chrome] › tests/e2e/f4a-focus.spec.ts:297:1 › P-06 Retry focus ring is light on the banner and clears 3:1 (1.9s)
+  ✓  10 [chrome] › tests/e2e/f4b-welcome.spec.ts:28:1 › P-07 Tab stays in the welcome dialog and the server clock stays put (1.3s)
+  ✓  11 [chrome] › tests/e2e/f4c-cards.spec.ts:52:1 › P08 status, options, checkout, receipt, and task cards fit (2.3s)
+  ✓  12 [chrome] › tests/e2e/f5-initialized.spec.ts:46:1 › P-12 session trace lists initialize 200 then initialized 202 (1.0s)
+  ✓  13 [chrome] › tests/e2e/f9-about-license.spec.ts:7:1 › About dialog shows License: MIT on its own line (640ms)
+  ✓  14 [chrome] › tests/e2e/p03-inventory.spec.ts:7:1 › P03 ordering a hallway battery uses the shelf (717ms)
+  ✓  15 [chrome] › tests/e2e/p04-install.spec.ts:12:1 › P04 fridge filter closes after two mornings (1.9s)
+  ✓  16 [chrome] › tests/e2e/p04-install.spec.ts:49:1 › P04 furnace filter closes on the same path (1.7s)
+  ✓  17 [chrome] › tests/e2e/p05-locked-quote.spec.ts:7:1 › P05 three wrong codes unlock a new fridge filter quote (1.7s)
+  ✓  18 [chrome] › tests/e2e/qa-f.spec.ts:6:1 › 58 status card is sandboxed and lists attention and upcoming (648ms)
+  ✓  19 [chrome] › tests/e2e/qa-f.spec.ts:30:1 › 59 and 60 carousel keys move focus and Choose prepares checkout (1.2s)
+  ✓  20 [chrome] › tests/e2e/qa-f.spec.ts:68:1 › 62 card frames do not request anything during F1 to F4 (1.9s)
+  ✓  21 [chrome] › tests/e2e/qa-f.spec.ts:80:1 › 63 text-only replies keep price, arrival, slot, and the limit (2.2s)
+  ✓  22 [chrome] › tests/e2e/qa-g.spec.ts:19:1 › 64 launch shows the simulation ribbon and the morning briefing (548ms)
+  ✓  23 [chrome] › tests/e2e/qa-g.spec.ts:38:1 › 65 exact-fit purchase shows options, checkout, and a mock receipt (1.3s)
+  ✓  24 [chrome] › tests/e2e/qa-g.spec.ts:78:1 › 66 a wrong code leaves two tries and no receipt (943ms)
+  ✓  25 [chrome] › tests/e2e/qa-g.spec.ts:90:1 › 67 a chirping hallway alarm uses the battery on the shelf (1.0s)
+  ✓  26 [chrome] › tests/e2e/qa-g.spec.ts:113:1 › 68 booking over the cap needs approve before it is saved (1.4s)
+  ✓  27 [chrome] › tests/e2e/qa-g.spec.ts:152:1 › 69 next morning ships the filter and keeps the Tuesday booking (1.8s)
+  ✓  28 [chrome] › tests/e2e/qa-g.spec.ts:180:1 › 70 a new water heater is remembered in the next session (1.3s)
+  ✓  29 [chrome] › tests/e2e/qa-g.spec.ts:194:1 › 71 gas smell stops before any tool call (683ms)
+  ✓  30 [chrome] › tests/e2e/qa-g.spec.ts:207:1 › 72 smoke alarms are clarified, and a continuous alarm is a hazard (1.7s)
+  ✓  31 [chrome] › tests/e2e/qa-g.spec.ts:234:1 › 73 weather is out of scope and cancel drops the quote (1.5s)
+  ✓  32 [chrome] › tests/e2e/qa-g.spec.ts:254:1 › 74 a stopped server shows Retry and the transcript survives (1.8s)
+  ✓  33 [chrome] › tests/e2e/qa-g.spec.ts:279:1 › 75 the trace redacts the purchase code (1.1s)
+  ✓  34 [chrome] › tests/e2e/qa-g.spec.ts:300:1 › 76 keyboard purchase and axe scans stay clean with reduced motion (7.8s)
+  ✓  35 [chrome] › tests/e2e/qa-g.spec.ts:339:1 › 83 voice speaks once when it is on (1.1s)
+  ✓  36 [chrome] › tests/e2e/v1-card-paint.spec.ts:221:7 › V1 fresh 390 context › V1 f1 card paints at 390 (691ms)
+  ✓  37 [chrome] › tests/e2e/v1-card-paint.spec.ts:221:7 › V1 fresh 390 context › V1 f3 card paints at 390 (823ms)
+  ✓  38 [chrome] › tests/e2e/v1-card-paint.spec.ts:221:7 › V1 fresh 390 context › V1 f5 card paints at 390 (1.8s)
+  ✓  39 [chrome] › tests/e2e/v1-card-paint.spec.ts:221:7 › V1 fresh 768 context › V1 f1 card paints at 768 (778ms)
+  ✓  40 [chrome] › tests/e2e/v1-card-paint.spec.ts:221:7 › V1 fresh 768 context › V1 f3 card paints at 768 (1.0s)
+  ✓  41 [chrome] › tests/e2e/v1-card-paint.spec.ts:221:7 › V1 fresh 768 context › V1 f5 card paints at 768 (1.9s)
+
+  41 passed (1.2m)
+npm_e2e_exit:0
+git_status_after_e2e:
+## main...origin/main
+finished_at: 2026-10-23T09:03:08Z
+clone_HEAD: c44840c8109ac24fc1d726e3f22fddd3315a7b6e
