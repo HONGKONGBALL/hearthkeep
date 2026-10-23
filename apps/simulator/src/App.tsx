@@ -498,6 +498,43 @@ export function App() {
             </div>
             {latestAlert ? <p className="alert" role="alert">{latestAlert}</p> : null}
           </div>
+          <div className="dock">
+            <div className="chips" role="group" aria-label="Quick replies in demo order">
+              <span className="eyebrow">Try</span>
+              <div className="chiprow">
+                {QUICK_CHIPS.map((chip, index) => (
+                  <button
+                    key={chip.label}
+                    type="button"
+                    className={visible.length === 0 && index === 0 ? "next" : undefined}
+                    disabled={busy}
+                    onClick={() => void onSend(chip.utterance)}
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                void onSend(draft);
+              }}
+            >
+              <label className="sr-only" htmlFor="say">{awaitingCode ? "Purchase code" : "Say something"}</label>
+              <div className={awaitingCode ? "composer is-locked" : "composer"}>
+                {awaitingCode ? <CodeLock /> : null}
+                <input
+                  id="say"
+                  value={draft}
+                  disabled={busy || connection === "down"}
+                  placeholder={awaitingCode ? "Say your purchase code" : "Type what you'd say..."}
+                  onChange={(event) => setDraft(event.target.value)}
+                />
+                <button type="submit" disabled={busy || connection === "down"}>Send</button>
+              </div>
+            </form>
+          </div>
           <div className="stage" aria-label="Card">
             {showCards && card && cardHtml ? (
               <CardHost html={cardHtml} payload={card} onIntent={(utterance) => void onSend(utterance)} />
@@ -508,43 +545,6 @@ export function App() {
         </div>
         </div>
       </section>
-      <div className="dock">
-        <div className="chips" role="group" aria-label="Quick replies in demo order">
-          <span className="eyebrow">Try</span>
-          <div className="chiprow">
-            {QUICK_CHIPS.map((chip, index) => (
-              <button
-                key={chip.label}
-                type="button"
-                className={visible.length === 0 && index === 0 ? "next" : undefined}
-                disabled={busy}
-                onClick={() => void onSend(chip.utterance)}
-              >
-                {chip.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            void onSend(draft);
-          }}
-        >
-          <label className="sr-only" htmlFor="say">{awaitingCode ? "Purchase code" : "Say something"}</label>
-          <div className={awaitingCode ? "composer is-locked" : "composer"}>
-            {awaitingCode ? <CodeLock /> : null}
-            <input
-              id="say"
-              value={draft}
-              disabled={busy || connection === "down"}
-              placeholder={awaitingCode ? "Say your purchase code" : "Type what you'd say..."}
-              onChange={(event) => setDraft(event.target.value)}
-            />
-            <button type="submit" disabled={busy || connection === "down"}>Send</button>
-          </div>
-        </form>
-      </div>
       </div>
 
       {showTrace || showData ? <div className="side">

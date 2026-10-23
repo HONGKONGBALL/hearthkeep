@@ -324,7 +324,7 @@ input:focus-visible {
   font: 600 11px/1 var(--font-body);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--faint);
+  color: var(--muted);
 }
 
 .spacer {
@@ -383,9 +383,9 @@ input:focus-visible {
 }
 
 .controls button[aria-pressed="true"] {
-  background: #7c2d12;
-  color: #fff;
-  border-color: #7c2d12;
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
 }
 
 .controls button[aria-pressed="true"] .sw {
@@ -459,10 +459,15 @@ input:focus-visible {
   align-items: flex-start;
 }
 
+
+
 .col {
-  width: min(1048px, 100%);
+  width: 100%;
+  max-width: 1048px;
   flex: 1 1 auto;
   min-width: 0;
+  position: relative;
+  padding-bottom: 124px;
 }
 
 .frame {
@@ -472,6 +477,7 @@ input:focus-visible {
   padding: 12px;
   border-radius: var(--r-xl);
   background: var(--bezel);
+  position: relative;
   box-shadow:
     var(--sh-3),
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
@@ -482,7 +488,7 @@ input:focus-visible {
   height: 100%;
   border-radius: var(--r-lg);
   background: var(--screen);
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
 }
@@ -684,7 +690,11 @@ input:focus-visible {
 }
 
 .dock {
-  margin-top: 12px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 12px);
+  z-index: 2;
 }
 
 .chips {
@@ -1051,6 +1061,7 @@ pre {
 .mfoot .when b {
   color: var(--ink);
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .welcome-sheet .ghost {
@@ -1209,8 +1220,38 @@ pre {
 }
 
 @media (max-width: 900px) {
+  .hdr-1 {
+    flex-wrap: wrap;
+  }
+
+  .simclock {
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .simclock b {
+    white-space: nowrap;
+  }
+
+  .frame-bar {
+    height: auto;
+    min-height: 64px;
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    row-gap: 8px;
+  }
+
+  .clockblock {
+    margin-left: 0;
+  }
+
   .main {
     flex-direction: column;
+  }
+
+  .col {
+    max-width: none;
   }
 
   .side {
@@ -1250,10 +1291,18 @@ pre {
 }
 
 @media (max-width: 800px) {
+  .welcome-overlay {
+    overflow: auto;
+    align-items: start;
+    justify-items: center;
+  }
+
   .welcome-sheet {
     grid-template-columns: 1fr;
     height: auto;
-    overflow: auto;
+    max-height: none;
+    overflow: visible;
+    margin: 8px 0;
   }
 
   .welcome-sheet h2 {
