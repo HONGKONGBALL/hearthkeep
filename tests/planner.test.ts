@@ -297,6 +297,66 @@ describe("planner guards and checkout branches", () => {
     expect(confirmed.card?.uri).toContain("receipt-card");
   });
 
+  it("asks for approve when Confirm by voice is tapped on an over-cap quote", async () => {
+    const over = emptyDialogue();
+    over.pendingQuote = {
+      quoteId: "q_0001",
+      kind: "service",
+      overCap: true,
+      totalUsd: "89.00",
+      capUsd: "60.00",
+      overByUsd: "29.00",
+      lines: [{ type: "service", slotId: "S-1027A" }],
+      item: "vent_cleaning",
+    };
+    const guided = await executeTurn({
+      utterance: "Confirm by voice",
+      state: over,
+      clock: CLOCK,
+      callTool: () => Promise.reject(new Error("Confirm by voice must not call a tool")),
+    });
+    expect(guided.reply).toBe("Say 'approve' and your code.");
+    expect(guided.reply.toLowerCase()).toContain("approve");
+    expect(guided.intent).toBe("confirm");
+    expect(guided.codeTurn).toBe(false);
+    expect(guided.displayUtterance).toBe("Confirm by voice");
+    expect(guided.steps).toHaveLength(0);
+    expect(guided.card).toBeNull();
+    expect(guided.state.awaitingCode).toBe(true);
+    expect(guided.state.pendingQuote?.quoteId).toBe("q_0001");
+    expect(guided.state.pendingQuote?.overCap).toBe(true);
+
+    const within = emptyDialogue();
+    within.pendingQuote = {
+      quoteId: "q_0002",
+      kind: "part",
+      overCap: false,
+      totalUsd: "24.99",
+      capUsd: "60.00",
+      lines: [],
+    };
+    const coded = await executeTurn({
+      utterance: "Confirm by voice",
+      state: within,
+      clock: CLOCK,
+      callTool: () => Promise.reject(new Error("Confirm by voice must not call a tool")),
+    });
+    expect(coded.reply).toBe("Say your purchase code to confirm.");
+    expect(coded.reply.toLowerCase()).not.toContain("approve");
+    expect(coded.steps).toHaveLength(0);
+    expect(coded.state.pendingQuote?.quoteId).toBe("q_0002");
+    expect(coded.state.awaitingCode).toBe(true);
+
+    const none = await executeTurn({
+      utterance: "Confirm by voice",
+      state: emptyDialogue(),
+      clock: CLOCK,
+      callTool: () => Promise.reject(new Error("Confirm by voice must not call a tool")),
+    });
+    expect(none.reply).toBe(NO_CODE_REPLY);
+    expect(none.state.pendingQuote).toBeNull();
+  });
+
   it("keeps the quote when the code is wrong or approval is missing", async () => {
     const state = emptyDialogue();
     state.pendingQuote = {
