@@ -232,12 +232,165 @@ window.dressOptions=function(data){
 })();
 </script>`;
 
+/** Checkout and receipt skins. The server document stays the source of the lines, totals, dates, and buttons. */
+const QUOTE_SKIN = `<style>
+body:has(main[data-card="checkout"]),body:has(main[data-card="receipt"]){background:transparent;color:#14301F;font-family:Figtree,Nunito,"Segoe UI",sans-serif;position:relative}
+body:has(main[data-card="checkout"])>.chip,body:has(main[data-card="receipt"])>.chip{position:absolute;top:16px;right:16px;z-index:1;margin:0;height:30px;display:inline-flex;align-items:center;padding:0 12px;border-radius:999px;background:#D5F3DF;color:#0B7039;font-size:13px;font-weight:600;letter-spacing:0}
+main[data-card="checkout"],main[data-card="receipt"]{padding:18px 20px 16px;overflow-wrap:anywhere}
+main[data-card="checkout"] .card-h,main[data-card="receipt"] .card-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;min-height:32px;padding-right:148px}
+main[data-card="checkout"] .eyebrow,main[data-card="receipt"] .eyebrow{font:600 12px/1 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#4F6353}
+main[data-card="checkout"] .meta,main[data-card="receipt"] .meta{font-size:14px;color:#4F6353;font-weight:500}
+main[data-card="checkout"] .i,main[data-card="receipt"] .i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+main[data-card="checkout"] .lines,main[data-card="receipt"] .lines{margin:12px 0 0;border-top:1px solid #D9E2CC;border-bottom:1px solid #D9E2CC;padding:12px 0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;align-items:baseline}
+main[data-card="checkout"] .nm,main[data-card="receipt"] .nm{font-size:22px;font-weight:600;min-width:0}
+main[data-card="checkout"] .qty,main[data-card="receipt"] .qty{color:#4F6353;font-weight:500}
+main[data-card="checkout"] .pr,main[data-card="receipt"] .pr{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+main[data-card="checkout"] .sb,main[data-card="receipt"] .sb{grid-column:1 / -1;font-size:20px;line-height:1.3;color:#4F6353;min-width:0}
+main[data-card="checkout"] .sum,main[data-card="receipt"] .sum{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:14px;align-items:end}
+main[data-card="checkout"] .sumline,main[data-card="receipt"] .sumline{display:flex;flex-direction:column;align-items:flex-start;margin:0;min-width:0}
+main[data-card="checkout"] .lab,main[data-card="receipt"] .lab{font-size:20px;color:#4F6353;font-weight:500}
+main[data-card="checkout"] .tot,main[data-card="receipt"] .tot{font:700 46px/1 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:-.025em;margin-top:4px;color:#14301F}
+main[data-card="checkout"] .when,main[data-card="receipt"] .when{display:flex;align-items:center;gap:12px;justify-self:end;text-align:right;font-size:22px;font-weight:600;min-width:0}
+main[data-card="checkout"] .when p,main[data-card="receipt"] .when p{margin:0;min-width:0}
+main[data-card="checkout"] .ic,main[data-card="receipt"] .ic{width:46px;height:46px;border-radius:14px;background:#EAF1DE;display:grid;place-items:center;flex:none}
+main[data-card="checkout"] .ic .i,main[data-card="receipt"] .ic .i{width:24px;height:24px}
+main[data-card="checkout"] .limit{margin-top:16px}
+main[data-card="checkout"] .lt{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;font-size:20px;font-weight:600}
+main[data-card="checkout"] .st{display:inline-flex;align-items:flex-start;gap:8px;min-width:0}
+main[data-card="checkout"] .st .i{width:22px;height:22px;stroke-width:2.2;margin-top:1px}
+main[data-card="checkout"] .limit.ok .st{color:#0B7039}
+main[data-card="checkout"] .limit.over .st{color:#B3172F}
+main[data-card="checkout"] .of{font-size:16px;color:#4F6353;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap;flex:none}
+main[data-card="checkout"] .bar{position:relative;height:12px;border-radius:999px;background:#EAF1DE;margin-top:10px}
+main[data-card="checkout"] .limit.over .bar{margin-bottom:22px}
+main[data-card="checkout"] .bar .f{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:#1FA85B}
+main[data-card="checkout"] .limit.over .bar .f{border-radius:999px 0 0 999px}
+main[data-card="checkout"] .bar .o{position:absolute;top:0;bottom:0;right:0;border-radius:0 999px 999px 0;background:repeating-linear-gradient(135deg,#EE4258 0 6px,#F26A7C 6px 12px)}
+main[data-card="checkout"] .bar .cap{position:absolute;top:-6px;bottom:-6px;width:3px;border-radius:2px;background:#14301F}
+main[data-card="checkout"] .bar .capl{position:absolute;top:16px;transform:translateX(-50%);font-size:13px;font-weight:600;color:#14301F;white-space:nowrap}
+main[data-card="checkout"] .saybar{margin-top:16px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:stretch}
+main[data-card="checkout"] .say{background:#FFF3BF;border-radius:20px;padding:14px 18px;box-shadow:inset 0 0 0 1.5px #F2B705;min-width:0}
+main[data-card="checkout"] .say .eyebrow{color:#6E5200;font-size:11px}
+main[data-card="checkout"] .q{display:block;margin:6px 0 0;font:700 26px/1.15 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:-.012em;color:#14301F}
+main[data-card="checkout"] .q::before{content:"“"}
+main[data-card="checkout"] .q::after{content:"”"}
+main[data-card="checkout"] .mock{display:flex;align-items:flex-start;gap:6px;margin:6px 0 0;font-size:16px;line-height:1.35;font-weight:500;color:#14301F}
+main[data-card="checkout"] .mock .i{width:15px;height:15px;margin-top:3px}
+main[data-card="checkout"] .acts{display:flex;flex-direction:column;gap:8px;justify-content:center;width:210px}
+main[data-card="checkout"] button{height:52px;min-height:44px;border-radius:999px;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid #14301F;background:#FFFEF8;color:#14301F;padding:0 14px;white-space:nowrap}
+main[data-card="checkout"] button.primary{background:#FF6A2B;border-color:#FF6A2B;color:#14301F}
+main[data-card="checkout"] button .i{width:20px;height:20px}
+main[data-card="checkout"] button:focus-visible{outline:none;box-shadow:0 0 0 3px #FFFEF8,0 0 0 5px #0B7039}
+main[data-card="checkout"] button:active{transform:scale(.97)}
+main[data-card="checkout"].svc .lines{margin-top:10px;padding:10px 0}
+main[data-card="checkout"].svc .sum{align-items:center;margin-top:8px}
+main[data-card="checkout"].svc .sumline{flex-direction:row;align-items:baseline;gap:10px}
+main[data-card="checkout"].svc .tot{font-size:40px;margin-top:0}
+main[data-card="checkout"].svc .limit{margin-top:8px}
+main[data-card="checkout"].svc .say{padding:12px 18px}
+main[data-card="checkout"].svc .q{font-size:22px}
+main[data-card="checkout"].svc .saybar{margin-top:8px}
+main[data-card="checkout"].svc button{height:46px}
+main[data-card="receipt"] .oid{margin:10px 0 0;font:700 28px/1.1 Figtree,Nunito,"Segoe UI",sans-serif;letter-spacing:-.02em}
+main[data-card="receipt"] .steps{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+main[data-card="receipt"] .step{display:inline-flex;align-items:center;min-height:36px;padding:4px 12px;border-radius:999px;background:#EAF1DE;color:#14301F;font-size:20px;font-weight:600}
+main[data-card="receipt"] .step.active{background:#D5F3DF;color:#0B7039;box-shadow:inset 0 0 0 1.5px #1FA85B}
+main[data-card="receipt"] .mock{display:flex;align-items:flex-start;gap:8px;margin:16px 0 0;padding:12px 16px;border-radius:20px;background:#FFF3BF;box-shadow:inset 0 0 0 1.5px #F2B705;font-size:20px;font-weight:600;line-height:1.35}
+main[data-card="receipt"] .mock .i{width:18px;height:18px;margin-top:3px}
+@media (max-width:560px){
+main[data-card="checkout"] .saybar,main[data-card="checkout"] .sum,main[data-card="receipt"] .sum{grid-template-columns:minmax(0,1fr)}
+main[data-card="checkout"] .acts{width:100%}
+main[data-card="checkout"] .when,main[data-card="receipt"] .when{justify-self:start;text-align:left}
+main[data-card="checkout"] .of{white-space:normal}
+}
+@media (prefers-reduced-motion:reduce){main[data-card="checkout"] button:active{transform:none}}
+</style>
+<script>
+(function(){
+var CHECK='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>';
+var INFO='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5.5M12 7.8v.2"></path></svg>';
+var TRUCK='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5h11v10H3z"></path><path d="M14 10h4l3 3.2v3.3h-7"></path><circle cx="7" cy="17.5" r="1.8"></circle><circle cx="17.5" cy="17.5" r="1.8"></circle></svg>';
+var CAL='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"></rect><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"></path><path d="M8 14h3"></path></svg>';
+var MIC='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11.5" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"></path></svg>';
+var XIC='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"></path></svg>';
+var MOCK='Mock order, no real purchase or payment';
+function esc(value){return String(value==null?'':value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function money(value,force){var n=Number(value);if(!isFinite(n))return '';if(!force&&Math.abs(n-Math.round(n))<0.001)return '$'+Math.round(n);return '$'+n.toFixed(2);}
+function usd(value){var n=Number(value);return isFinite(n)?'$'+n.toFixed(2):'';}
+function wholeCap(value){var text=usd(value);return text.slice(-3)==='.00'?text.slice(0,-3):text;}
+function phrase(item){var raw=String(item||'');var text=raw==='air_filter'?'filter':raw.split('_').join(' ');if(!text)return '';return text.charAt(0).toUpperCase()+text.slice(1);}
+function whoOf(context,id){var names=(context&&context.applianceNames)||{};return String((id&&names[id])||'');}
+function titled(who,item){var left=who?who.charAt(0).toUpperCase()+who.slice(1):'';var right=item?item.toLowerCase():'';if(left&&right)return left+' '+right;return left||right;}
+function held(iso){var text=String(iso||'');var hour=Number(text.slice(11,13));var minute=text.slice(14,16);if(!isFinite(hour)||minute.length!==2)return '';var ap=hour>=12?'PM':'AM';var h=hour%12;if(h===0)h=12;return '· price held until '+h+':'+minute+' '+ap;}
+function sumHtml(totalText){if(!totalText)return '';var space=totalText.indexOf(' ');if(space<0)return '<p class="sumline">'+esc(totalText)+'</p>';return '<p class="sumline"><span class="lab">'+esc(totalText.slice(0,space))+'</span> <span class="tot">'+esc(totalText.slice(space+1))+'</span></p>';}
+function linesHtml(lines,context,aside){var html='';var list=Array.isArray(lines)?lines:[];for(var i=0;i<list.length;i++){var line=list[i]||{};var service=line.type==='service'||(!line.name&&line.provider);var who=whoOf(context,line.forApplianceId||line.applianceId);var item=phrase(line.item);var name='';var detail='';var sub='';if(service){name=titled(who,item)||line.provider||line.name||'Line';if(line.provider&&String(name).indexOf(String(line.provider))<0)detail=' · '+line.provider;}else{name=line.name||line.provider||'Line';var qty=Number(line.qty);if(isFinite(qty)&&qty>0)detail=' × '+qty;if(item&&who)sub=item+' for your '+who;}if(!sub&&i===0&&aside){var shown=String(name)+detail;if(shown.indexOf(aside)<0)sub=aside;}var raw=line.lineTotalUsd||line.priceUsd;var price=raw==null||raw===''?'':money(raw,true);html+='<span class="nm">'+esc(name)+(detail?'<span class="qty">'+esc(detail)+'</span>':'')+'</span><span class="pr">'+esc(price)+'</span>';if(sub)html+='<span class="sb">'+esc(sub)+'</span>';}return html;}
+function barHtml(data){var total=Number(data.totalUsd);var cap=Number(data.capUsd);if(!(total>0)||!(cap>0))return '';if(data.overCap===true){var leaf=Math.max(0,Math.min(100,(cap/total)*100));var over=Math.max(0,100-leaf);var labelAt=Math.max(18,Math.min(82,leaf));var label=wholeCap(data.capUsd)+' limit';return '<div class="bar" aria-hidden="true"><span class="f" style="width:'+leaf.toFixed(1)+'%"></span><span class="o" style="width:'+over.toFixed(1)+'%"></span><span class="cap" style="left:calc('+leaf.toFixed(1)+'% - 1.5px)"></span><span class="capl" style="left:'+labelAt.toFixed(1)+'%">'+esc(label)+'</span></div>';}var width=Math.max(0,Math.min(100,(total/cap)*100));return '<div class="bar" aria-hidden="true"><span class="f" style="width:'+width.toFixed(1)+'%"></span></div>';}
+function meterOf(data){var left=usd(data.totalUsd);var right=usd(data.capUsd);if(!left||!right)return '';return data.overCap===true?left+' vs '+right:left+' of '+right;}
+function whenHtml(text,icon){if(!text)return '';return '<div class="when"><p>'+esc(text)+'</p><span class="ic">'+icon+'</span></div>';}
+window.dressCheckout=function(data,context){
+  var main=document.querySelector('main[data-card="checkout"]');
+  if(!main||main.querySelector('.saybar'))return;
+  var voice=main.querySelector('#voice');
+  var cancel=main.querySelector('#cancel');
+  if(!voice||!cancel)return;
+  var park=document.createElement('div');
+  park.appendChild(voice);
+  park.appendChild(cancel);
+  var paras=[].slice.call(main.querySelectorAll('p')).filter(function(p){return !p.querySelector('button');}).map(function(p){return p.textContent||'';});
+  var total='';var arrives='';var limit='';var say='';var rest=[];
+  for(var i=0;i<paras.length;i++){var text=paras[i];if(!total&&text.indexOf('Total ')===0)total=text;else if(!arrives&&text.indexOf('Arrives ')===0)arrives=text;else if(!limit&&(text.indexOf('Within your ')===0||text.indexOf('Over your ')===0))limit=text;else if(!say&&text.indexOf('Say ')===0)say=text;else rest.push(text);}
+  var when=arrives||(rest.length?rest.shift():'');
+  var aside=rest.join(' · ');
+  var service=data.kind==='service'||!!data.slot;
+  var over=data.overCap===true||limit.indexOf('Over your ')===0;
+  var lineHtml=linesHtml(data.lines,context,aside);
+  if(!lineHtml){var lis=[].slice.call(main.querySelectorAll('ul li')).map(function(li){return {name:li.textContent||''};});lineHtml=linesHtml(lis,context,'');}
+  var meta=held(data.expiresAt);
+  var eyebrow=service?'Booking · nothing booked yet':'Checkout · nothing bought yet';
+  var ofText=meterOf(data);
+  voice.classList.add('act','primary');
+  cancel.classList.add('act');
+  if(!voice.querySelector('svg'))voice.insertAdjacentHTML('afterbegin',MIC);
+  if(!cancel.querySelector('svg'))cancel.insertAdjacentHTML('afterbegin',XIC);
+  main.classList.toggle('svc',service);
+  main.innerHTML='<div class="card-h"><span class="eyebrow">'+esc(eyebrow)+'</span>'+(meta?'<span class="meta">'+esc(meta)+'</span>':'')+'</div>'+(lineHtml?'<div class="lines">'+lineHtml+'</div>':'')+'<div class="sum'+(service?' compact':'')+'">'+sumHtml(total)+whenHtml(when,arrives?TRUCK:CAL)+'</div>'+(limit?'<div class="limit '+(over?'over':'ok')+'"><div class="lt"><span class="st">'+(over?INFO:CHECK)+esc(limit)+'</span>'+(ofText?'<span class="of">'+esc(ofText)+'</span>':'')+'</div>'+barHtml(data)+'</div>':'')+(say?'<div class="saybar"><div class="say"><span class="eyebrow">What to say</span><p class="q">'+esc(say)+'</p><p class="mock">'+INFO+esc(MOCK)+'</p></div><div class="acts"></div></div>':'');
+  var acts=main.querySelector('.acts');
+  if(acts){acts.appendChild(voice);acts.appendChild(cancel);}else{main.appendChild(voice);main.appendChild(cancel);}
+};
+window.dressReceipt=function(data,context){
+  var main=document.querySelector('main[data-card="receipt"]');
+  if(!main||main.querySelector('.card-h'))return;
+  var steps=main.querySelector('.steps');
+  var park=document.createElement('div');
+  if(steps)park.appendChild(steps);
+  var paras=[].slice.call(main.querySelectorAll('p')).map(function(p){return p.textContent||'';});
+  var id=paras.length?paras[0]:'';
+  var total='';var mock='';var when='';
+  for(var i=1;i<paras.length;i++){var text=paras[i];if(text.indexOf('Total ')===0)total=text;else if(text.indexOf('Mock order')===0)mock=text;else if(!when)when=text;}
+  var lines=(context&&Array.isArray(context.lines)&&context.lines.length)?context.lines:(Array.isArray(data.lines)?data.lines:[]);
+  var lineHtml=linesHtml(lines,context,'');
+  if(!lineHtml){var lis=[].slice.call(main.querySelectorAll('ul li')).map(function(li){return {name:li.textContent||''};});lineHtml=linesHtml(lis,context,'');}
+  var service=data.kind==='booking'||!!data.slot||!!data.bookingId;
+  var eyebrow=service?'Booking':'Order';
+  main.innerHTML='<div class="card-h"><span class="eyebrow">'+esc(eyebrow)+'</span></div><p class="oid">'+esc(id)+'</p><div class="stepslot"></div>'+(lineHtml?'<div class="lines">'+lineHtml+'</div>':'')+'<div class="sum">'+sumHtml(total)+whenHtml(when,service?CAL:TRUCK)+'</div><p class="mock">'+INFO+esc(mock||MOCK)+'</p>';
+  var slot=main.querySelector('.stepslot');
+  if(steps&&slot)slot.replaceWith(steps);else if(slot)slot.remove();
+};
+window.addEventListener('message',function(event){
+  var data=event.data;
+  if(!data||data.source!=='hearthkeep-host'||data.type!=='tool-result')return;
+  window.dressCheckout(data.structuredContent||{},data.context||{});
+  window.dressReceipt(data.structuredContent||{},data.context||{});
+});
+})();
+</script>`;
+
 function hostDocument(html: string): string {
   const withPolicy = html.includes("Content-Security-Policy")
     ? html
     : html.replace("<head>", `<head><meta http-equiv="Content-Security-Policy" content="${CARD_CSP}">`);
   if (withPolicy.includes("hk-ring")) return withPolicy;
-  return withPolicy.replace("</body>", `${STATUS_SKIN}${OPTIONS_SKIN}</body>`);
+  return withPolicy.replace("</body>", `${STATUS_SKIN}${OPTIONS_SKIN}${QUOTE_SKIN}</body>`);
 }
 
 function cell(value: unknown): string {
@@ -391,6 +544,43 @@ function scheduleTone(nextDue: string, today: string): { label: string; tone: st
   if (delta === 0) return { label: "Due today", tone: "today" };
   if (delta <= 14) return { label: `In ${delta} d`, tone: "soon" };
   return { label: "Later", tone: "ok" };
+}
+
+/** Trace raw JSON stays at 34 characters per line so the 324px panel does not clip it. */
+function foldLine(line: string, width: number): string {
+  const parts: string[] = [];
+  let rest = line;
+  while (rest.length > width) {
+    let cut = -1;
+    const last = Math.min(width, rest.length);
+    for (let index = last; index >= 1; index -= 1) {
+      const ch = rest.charAt(index - 1);
+      if (" ,:{}[]\"".includes(ch)) {
+        cut = ch === " " ? index - 1 : index;
+        break;
+      }
+    }
+    if (cut <= 0) cut = width;
+    const piece = rest.slice(0, cut).replace(/[ \t]+$/u, "");
+    if (piece.length === 0) {
+      parts.push(rest.slice(0, width));
+      rest = rest.slice(width);
+      continue;
+    }
+    parts.push(piece);
+    rest = rest.slice(cut).replace(/^[ \t]+/u, "");
+  }
+  if (rest.length > 0) parts.push(rest);
+  return parts.join("\n");
+}
+
+function foldJson(value: unknown, width = 34): string {
+  const pretty = JSON.stringify(value, null, 2);
+  if (pretty === undefined) return "";
+  return pretty
+    .split("\n")
+    .map((line) => foldLine(line, width))
+    .join("\n");
 }
 
 export function App() {
@@ -868,7 +1058,7 @@ export function App() {
                         Raw JSON
                       </button>
                       {rawOpen[key] ? (
-                        <pre>{JSON.stringify({ request: step.rawRequest, response: step.rawResponse, args: step.args }, null, 2)}</pre>
+                        <pre className="trace-json">{foldJson({ request: step.rawRequest, response: step.rawResponse, args: step.args })}</pre>
                       ) : null}
                     </li>
                   );

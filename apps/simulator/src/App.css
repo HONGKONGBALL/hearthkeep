@@ -979,7 +979,9 @@ kbd {
   margin: 0;
   width: 100%;
   max-height: 740px;
-  overflow: auto;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: var(--surface);
   border-radius: var(--r-lg);
   box-shadow: var(--sh-2);
@@ -1203,21 +1205,45 @@ td {
   white-space: nowrap;
 }
 
-pre {
+pre,
+.trace-json {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 8px 0 0;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  word-break: break-word;
+  overflow-x: hidden;
   background: var(--code-bg);
   color: #dcebdf;
   padding: 10px 11px;
   border-radius: 12px;
-  font: 500 11.5px/1.5 var(--font-mono);
+  font: 500 10.8px/1.5 var(--font-mono);
 }
 
 .trace-turn {
+  min-width: 0;
+  max-width: 100%;
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 10px 12px;
   margin-bottom: 8px;
+}
+
+.trace-turn ul {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.trace-turn li {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .overlay {
