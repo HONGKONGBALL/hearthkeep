@@ -1,0 +1,36 @@
+0.00 2.30  Upcape you only notice when something beeps.
+5.72 7.62  A real NCP server.
+8.10 12.84  Spec the 25th on November 2025 over streamable HTTP,
+13.44 16.00  behind the simulated Alexa Plus experience.
+17.50 19.36  The simulator speaks first.
+20.06 22.62  Dryer vent cleaning is 21 days overdue
+22.62 24.46  and the fridge water filter is due today.
+27.70 32.04  Exact fit part, policy filter, code-gated mock purchase.
+32.04 36.16  This certified CX Sierra 28 is the cheapest filter.
+36.60 39.88  The rules allow and an uncertified one is filtered out.
+44.57 46.31  After a mass purchase code,
+46.65 49.39  a mock order is placed with no real payment.
+53.24 55.80  Get upkeep status, resolve appliance,
+56.38 58.18  and find parts all return 200.
+59.14 61.62  It uses what you already own.
+62.22 65.26  Two nine volt batteries are already on the grot shelf
+65.26 68.52  so nothing is bought in a swap task is added.
+69.30 72.14  After the swap, one nine volt is left
+72.14 75.14  and the next change is due October 2027.
+75.98 78.16  It places a mock booking with the pro,
+78.54 80.10  the limit is enforced by the server.
+80.46 84.44  The earliest opening is Tuesday 9 to 11 for $89.
+85.24 87.22  That is over the $60 limit
+87.22 90.60  so it needs approval and the purchase code.
+91.08 93.82  The mock booking for Tuesday morning is confirmed
+93.82 96.50  with no real purchase or payment.
+100.92 104.20  New sessions, same memory, safety beats shopping.
+104.76 107.10  The next morning, the filter has shipped
+107.10 109.76  and the vent cleaning is still booked for Tuesday.
+110.76 113.10  For a gas smell, it tells you to leave the home
+113.10 114.74  and call your local emergency number.
+116.97 120.37  Verifiable protocol behavior and open source.
+120.89 123.63  The trace shows the raw JSON for this session.
+123.76 127.65  It is MIT licensed with NPM test
+127.65 130.53  and NPM run test E2E.
+131.64 136.79  The Xinguo sample data simulated Alexa plus experience.

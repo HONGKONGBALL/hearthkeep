@@ -36,7 +36,7 @@ describe("demo video script", () => {
     const cues = loadCues();
     expect(cues.map((cue) => cue.id)).toEqual(["L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "L9"]);
     expect(cues[0].start).toBe(0);
-    expect(cues[cues.length - 1].end).toBe(128.5);
+    expect(cues[cues.length - 1].end).toBe(139.96);
     expect(cues[2].narration).toContain("The simulator speaks first");
     expect(cues[6].narration).toContain("Safety beats shopping");
     expect(cues[8].narration).toContain("Fictional sample data");
