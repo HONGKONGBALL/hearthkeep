@@ -1,0 +1,69 @@
+Chunk r6 — V1 390px blank cards
+Repo root /workspace/amazon-app. Fictional household data. No secrets. Nothing was pushed. Tag rc4 was not created.
+
+Started from 79df3df (docs: record the A5 task-card skin checks for rc4).
+No product source change. This note and the six viewport screenshots are the commit.
+
+Verdict: artifact. Cards render at 390 and 768. Not a real blank. No CSS or layout fix.
+
+What the old shots were
+docs/screens/rc2/f5-session-initialized-390.png and docs/screens/rc2/f3-task-card-390.png are full-page captures (390×1795 and 390×1545). tests/e2e/f5-initialized.spec.ts and tests/e2e/f3-copy.spec.ts take them after page.setViewportSize({ width: 390, height: 800 }) in the same page that started at 1280, with page.screenshot({ fullPage: true }). The card well in those files is one color, the iframe background --surface #fffef8. The 1280 counterparts from the same tests show the card.
+
+Historical interior variance (Pillow ImageStat, mean of the three channel variances). Crop is x from 22% to 78% of the width, so the phone bezel is left out.
+
+Command:
+  python3 -c '
+  from PIL import Image, ImageStat
+  def interior(path, y0, y1, inset=0.22):
+      im = Image.open(path).convert("RGB")
+      w, _ = im.size
+      crop = im.crop((int(w*inset), y0, int(w*(1-inset)), y1))
+      stat = ImageStat.Stat(crop)
+      print(path, round(sum(stat.var)/3, 2), [round(m,1) for m in stat.mean])
+  interior("docs/screens/rc2/f5-session-initialized-390.png", 860, 1240)
+  interior("docs/screens/rc2/f3-task-card-390.png", 980, 1340)
+  '
+Result:
+  f5-session-initialized-390.png  var 0.00  mean [255.0, 254.0, 248.0]  one color
+  f3-task-card-390.png            var 0.00  mean [255.0, 254.0, 248.0]  one color
+
+Fresh check (required method)
+Chrome via Playwright (channel chrome, --no-sandbox). For each width, a new browser context with that viewport and deviceScaleFactor 1. No page.setViewportSize on a live page. resetSim() before every flow. Viewport screenshot only (page.screenshot() with no fullPage), after scrolling iframe.card-frame into view. That scroll is not a resize.
+
+Contexts:
+  390×800
+  768×1024
+
+Flows, each in its own context:
+  F1  Start. Briefing mentions the dryer vent. Card is C1 (Needs attention, Coming up).
+  F3  Start, then "The hallway smoke alarm keeps chirping". Card is C5 (Due, Appliance, Supplies, Mark done).
+  F5  Start, "Order a new filter for the fridge", "Yes, the CX-28", "2468", "Book someone to clean the dryer vent next week", "Tuesday morning", "Approve 2468", then Next morning. Card is C1 (Shipped, Tue Oct 27, Install fridge water filter).
+
+Card-region variance on the new viewport PNGs: crop the iframe bounding box, then inset 18px on each side. Variance is the mean of the three channel variances. surface_frac is the share of pixels within 2 levels of #fffef8. A blank well, as in the rc2 files, is variance 0 and one color.
+
+  id       image      iframe box x,y,w,h              var      stdev   surface_frac  iframe text chars  elements
+  390-f1   390×800    52, 203.97, 286, 525            2824.69  53.15   0.8588        217                 55
+  390-f3   390×800    52, 117.34, 286, 566            2053.12  45.31   0.3985        171                 26
+  390-f5   390×800    52, 113.25, 286, 573            2801.90  52.93   0.8544        257                 68
+  768-f1   768×1024   52, 428.25, 664, 420            1541.09  39.26   0.9277        217                 55
+  768-f3   768×1024   52, 428.38, 664, 420            1476.56  38.43   0.4358        171                 26
+  768-f5   768×1024   52, 362.75, 664, 485            1414.53  37.61   0.9306        257                 68
+
+Iframe text matched the flow: F1 has "Dryer vent cleaning, 21 days overdue" and "Fridge water filter, due today". F3 has "Swap hallway smoke alarm battery", "Hallway smoke alarm", and "Mark done". F5 has "Rillstone CX-28 (Shipped)", "Dryer vent cleaning (Tue, Oct 27)", and "Install fridge water filter". scrollHeight equals clientHeight on all six, so the card document is not clipped inside the frame.
+
+Screenshots
+- docs/screens/rc4/v1-390-f1.png sha256 c40e7656b747f0970efe041c377f2f307db00de45a66ccc8491fade08ada2e9f
+- docs/screens/rc4/v1-390-f3.png sha256 db1121287bb18998771c825c159d285394239c922fb63f7a481063e054566ccd
+- docs/screens/rc4/v1-390-f5.png sha256 e9fc1ac10d7a7050eb4c22ba1247027cb381dd9e24ccba07cabc5768600d8bd2
+- docs/screens/rc4/v1-768-f1.png sha256 6e3420684c687402be555300e5884be1bf602954fbe479f613936b08a6f56c52
+- docs/screens/rc4/v1-768-f3.png sha256 4fd57e87e68696b2dd67c2df1a2b63d857f97a2e0d8c622ddbd652e0393c2ff8
+- docs/screens/rc4/v1-768-f5.png sha256 f71c88708ac4f194ba0425de7e10fc703e6383eeb9ad1773d9ed0a9cc4e1e5e8
+
+Commands and exit codes
+- Historical Pillow crop above, from /workspace/amazon-app: exit 0. Variances 0.00 and 0.00.
+- Fresh Playwright capture (npx tsx of a scratch script that launches the local MCP server on 127.0.0.1:8787 and Vite on 127.0.0.1:5173, then the six contexts): exit 0. Servers were stopped afterward. Ports 5173 and 8787 were closed.
+- Pillow crop of the six new PNGs using the iframe boxes above: exit 0. Variances 2824.69, 2053.12, 2801.90, 1541.09, 1476.56, 1414.53.
+- No npm test, typecheck, or Playwright spec was run. No test file or product source was edited. The existing f3 and f5 specs still write full-page shots under docs/screens/rc2/; this chunk did not run them, and that directory is unchanged.
+
+Why the rc2 pixels are empty
+Those files are full-page screenshots taken after a mid-run resize. The card iframe sits below the 800px viewport in the stacked layout, and the full-page capture records the iframe background (#fffef8) without the sandboxed document. The same tests still find the card text with toBeVisible, which does not prove paint. A viewport capture, from a context created at 390 or 768, shows the card. The painted region is not a flat #fffef8 well.
