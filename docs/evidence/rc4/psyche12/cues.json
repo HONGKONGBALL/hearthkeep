@@ -1,0 +1,134 @@
+[
+ [
+  "L1",
+  0,
+  2.96,
+  "Upkeep you only notice when something beeps."
+ ],
+ [
+  "L2",
+  5.7,
+  16.74,
+  "A real MCP server, spec 2025-11-25 over Streamable HTTP, behind a simulated Alexa+ experience."
+ ],
+ [
+  "L3",
+  17.7,
+  19.86,
+  "The simulator speaks first."
+ ],
+ [
+  "A1",
+  20.0,
+  25.12,
+  "Dryer vent cleaning is twenty-one days overdue, and the fridge water filter is due today."
+ ],
+ [
+  "L4",
+  27.7,
+  32.3,
+  "Exact-fit part, policy filter, code-gated mock purchase."
+ ],
+ [
+  "G1",
+  32.3,
+  40.54,
+  "The certified CX-28 is the cheapest filter the rules allow, and an uncertified one is filtered out."
+ ],
+ [
+  "G2",
+  44.64,
+  49.92,
+  "After a masked purchase code, a mock order is placed, with no real payment."
+ ],
+ [
+  "G3",
+  53.34,
+  58.78,
+  "Get upkeep status, resolve appliance, and find parts all returned two hundred."
+ ],
+ [
+  "L5",
+  59.34,
+  62.14,
+  "It uses what you already own."
+ ],
+ [
+  "B1",
+  62.14,
+  69.18,
+  "Two nine-volt batteries are already on the garage shelf, so nothing is bought, and a swap task is added."
+ ],
+ [
+  "B2",
+  69.34,
+  75.74,
+  "After the swap, one nine-volt is left, and the next change is due October 2027."
+ ],
+ [
+  "L6",
+  76.34,
+  80.1,
+  "It places a mock booking with the pro. The limit is enforced by the server."
+ ],
+ [
+  "C1",
+  80.34,
+  85.52,
+  "The earliest opening is Tuesday, nine to eleven, for eighty-nine dollars."
+ ],
+ [
+  "C2",
+  85.52,
+  91.12,
+  "That is over the sixty dollar limit, so it needs approval and the purchase code."
+ ],
+ [
+  "C3",
+  91.12,
+  97.28,
+  "The mock booking for Tuesday morning is confirmed, with no real purchase or payment."
+ ],
+ [
+  "L7",
+  100.92,
+  104.72,
+  "New session, same memory. Safety beats shopping."
+ ],
+ [
+  "D1",
+  104.72,
+  110.56,
+  "The next morning, the filter has shipped, and the vent cleaning is still booked for Tuesday."
+ ],
+ [
+  "D2",
+  110.76,
+  115.32,
+  "For a gas smell, it tells you to leave the home and call your local emergency number."
+ ],
+ [
+  "L8",
+  116.96,
+  120.96,
+  "Verifiable protocol behaviour, and open source."
+ ],
+ [
+  "E1",
+  120.96,
+  124.24,
+  "The trace shows the raw JSON for this session."
+ ],
+ [
+  "E2",
+  126.36,
+  133.24,
+  "It is MIT licensed, with npm test and npm run test e2e."
+ ],
+ [
+  "L9",
+  134.16,
+  139.84,
+  "Fictional sample data. Simulated Alexa+ experience."
+ ]
+]

@@ -2,7 +2,7 @@
 
 Narration is English, spoken by DashScope `qwen3-tts-flash` voice Cherry. `scripts/narrate-demo.mjs` reads `DASHSCOPE_API_KEY` from the environment first and falls back to a local secrets file only when the variable is unset. The key is not stored in this repository. There is no music. Assistant replies stay on screen as text. The page is recorded without browser or operating-system chrome.
 
-Times are seconds. The picture ends at 139.96 seconds.
+Times are seconds. The picture ends at 142.16 seconds.
 
 | Id | Start | End | Shot | Narration |
 |---|---|---|---|---|
@@ -13,10 +13,10 @@ Times are seconds. The picture ends at 139.96 seconds.
 | L5 | 59.34 | 76.34 | F3 chirping hallway alarm, then the battery already on the shelf | It uses what you already own. |
 | L6 | 76.34 | 100.92 | F4 dryer-vent booking, Tuesday morning, server cap | It places a mock booking with the pro. The limit is enforced by the server. |
 | L7 | 100.92 | 116.96 | F5 next morning, then F7 gas smell | New session, same memory. Safety beats shopping. |
-| L8 | 116.96 | 131.96 | Trace raw JSON, test commands, MIT license | Verifiable protocol behaviour, and open source. |
-| L9 | 131.96 | 139.96 | Close card with the repository URL and the simulation disclosure | Fictional sample data. Simulated Alexa+ experience. |
+| L8 | 116.96 | 134.16 | Trace raw JSON, test commands, MIT license | Verifiable protocol behaviour, and open source. |
+| L9 | 134.16 | 142.16 | Close card with the repository URL and the simulation disclosure | Fictional sample data. Simulated Alexa+ experience. |
 
-Cuts, holds and gap narration (rc4-psyche11). The finished file is 139.96 seconds. It is cut from the original 170-second page recording: kept 0-5.5, 11.8-33, 39-64, 80-96.5, 104.5-125 and 131.5-141, 145.5-170. Three still-frame holds keep the picture on what the extra line describes: the filter cards are held 7.64 s so G1 ends before the checkout appears and the receipt appears only after G2 starts; the three openings are held 4.08 s through C1; the new-session briefing is held 5.54 s through D1. 10 added lines, 13 total with retained G1-G3, fill the pauses so no pause is longer than 5 seconds. They are audio only: captions are burned into the picture and the picture was trimmed, not re-rendered from the page recording, so these lines have no on-screen caption (during a hold the burned-in caption is held too). They are not cues; `npm run demo:video` does not yet produce this cut.
+Cuts, holds and gap narration (rc4-psyche12). The finished file is 142.16 seconds. It is cut from the original 170-second page recording: kept 0-5.5, 11.8-33, 39-64, 80-96.5, 104.5-125 and 131.5-141, 145.5-170. Four still-frame holds keep the picture on what the extra line describes: the filter cards are held 7.64 s so G1 ends before the checkout appears and the receipt appears only after G2 starts; the three openings are held 4.08 s through C1; the new-session briefing is held 5.54 s through D1; the trace raw JSON is held 2.2 s so E1 ends before the MIT license card appears. 10 added lines, 13 total with retained G1-G3, fill the pauses so no pause is longer than 5 seconds. The picture is re-rendered from the uncaptioned page recording, and every one of the 22 spoken lines (L1-L9 and these 13) has its own burned-in caption, shown from the line's start until its audio ends plus 0.4 s (never past the next line's start), so no caption spans another line. The same 22 captions are in `docs/video/hearthkeep-demo.srt` for upload as closed captions. The 13 lines are not cues; `npm run demo:video` does not yet produce this cut (build steps: `docs/evidence/rc4/psyche12/build-psyche12.py`).
 
 | Id | Start | Shot | Narration |
 |---|---|---|---|
@@ -31,8 +31,8 @@ Cuts, holds and gap narration (rc4-psyche11). The finished file is 139.96 second
 | C3 | 91.12 | Booking bk_0001 | The mock booking for Tuesday morning is confirmed, with no real purchase or payment. |
 | D1 | 104.72 | New-session briefing (held on a still frame until the line ends) | The next morning, the filter has shipped, and the vent cleaning is still booked for Tuesday. |
 | D2 | 110.76 | Gas smell reply | For a gas smell, it tells you to leave the home and call your local emergency number. |
-| E1 | 120.96 | Trace raw JSON | The trace shows the raw JSON for this session. |
-| E2 | 124.16 | MIT license card | It is MIT licensed, with npm test and npm run test e2e. |
+| E1 | 120.96 | Trace raw JSON (held on a still frame until the line ends) | The trace shows the raw JSON for this session. |
+| E2 | 126.36 | MIT license card | It is MIT licensed, with npm test and npm run test e2e. |
 
 Household names, prices, and the demo purchase code are fictional sample data.
 

@@ -1,0 +1,15 @@
+{
+ "A1": "Dryer vent cleaning is twenty-one days overdue, and the fridge water filter is due today.",
+ "G1": "The certified CX-28 is the cheapest filter the rules allow, and an uncertified one is filtered out.",
+ "G2": "After a masked purchase code, a mock order is placed, with no real payment.",
+ "G3": "Get upkeep status, resolve appliance, and find parts all returned two hundred.",
+ "B1": "Two nine-volt batteries are already on the garage shelf, so nothing is bought, and a swap task is added.",
+ "B2": "After the swap, one nine-volt is left, and the next change is due October 2027.",
+ "C1": "The earliest opening is Tuesday, nine to eleven, for eighty-nine dollars.",
+ "C2": "That is over the sixty dollar limit, so it needs approval and the purchase code.",
+ "C3": "The mock booking for Tuesday morning is confirmed, with no real purchase or payment.",
+ "D1": "The next morning, the filter has shipped, and the vent cleaning is still booked for Tuesday.",
+ "D2": "For a gas smell, it tells you to leave the home and call your local emergency number.",
+ "E1": "The trace shows the raw JSON for this session.",
+ "E2": "It is MIT licensed, with npm test and npm run test e2e."
+}

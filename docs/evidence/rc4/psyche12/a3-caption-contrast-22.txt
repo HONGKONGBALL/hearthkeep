@@ -1,0 +1,222 @@
+L1 PASS
+  time_s: 1.48  frame: 44
+  box_bbox: x=484..1435 y=980..1043  glyph_pixels: 7880  box_pixels: 49598
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=1164 y=1015 rgb=244,244,244 / box x=1164 y=1005 rgb=38,38,38
+  worst_sample_contrast: 13.76:1
+  page_rgb(24,24): 229,221,208  glyph_vs_page: 1.35:1
+  frame_md5: dba5825a9ec36d514999c4701da4a132
+L2 PASS
+  time_s: 11.22  frame: 337
+  box_bbox: x=436..1483 y=940..1043  glyph_pixels: 15351  box_pixels: 80730
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=597 y=1009 rgb=250,250,250 / box x=597 y=998 rgb=38,38,38
+  worst_sample_contrast: 14.50:1
+  page_rgb(24,24): 229,221,208  glyph_vs_page: 1.35:1
+  frame_md5: d8fd5fbeb33924b06288817d989a2725
+L3 PASS
+  time_s: 18.78  frame: 563
+  box_bbox: x=688..1231 y=980..1043  glyph_pixels: 4228  box_pixels: 28528
+  glyph_median_rgb: 252,252,252
+  box_median_rgb: 17,17,17
+  median_contrast: 18.41:1
+  worst_sample: glyph x=1135 y=1008 rgb=248,248,248 / box x=1135 y=997 rgb=36,36,36
+  worst_sample_contrast: 14.62:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.08:1
+  frame_md5: 3c49696deb6bbe3c6db00a12fb5e3fdf
+A1 PASS
+  time_s: 22.56  frame: 677
+  box_bbox: x=84..1835 y=980..1043  glyph_pixels: 13858  box_pixels: 91760
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=1421 y=1019 rgb=245,245,245 / box x=1421 y=1011 rgb=37,37,37
+  worst_sample_contrast: 14.06:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: 5b55c49987ddb83aa13a3e19336e7876
+L4 PASS
+  time_s: 30.0  frame: 900
+  box_bbox: x=417..1502 y=980..1043  glyph_pixels: 8738  box_pixels: 56820
+  glyph_median_rgb: 255,255,253
+  box_median_rgb: 17,17,17
+  median_contrast: 18.86:1
+  worst_sample: glyph x=1414 y=1015 rgb=245,245,245 / box x=1414 y=1007 rgb=37,37,37
+  worst_sample_contrast: 14.06:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: aee8f804f07d5e16fb31430c69045e2b
+G1 PASS
+  time_s: 36.42  frame: 1093
+  box_bbox: x=466..1453 y=940..1043  glyph_pixels: 15073  box_pixels: 76965
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=765 y=970 rgb=248,248,248 / box x=765 y=957 rgb=36,36,36
+  worst_sample_contrast: 14.62:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: ad31ee443b4d76fe9ef58eb200e7a28a
+G2 PASS
+  time_s: 47.28  frame: 1418
+  box_bbox: x=196..1723 y=980..1043  glyph_pixels: 11978  box_pixels: 80312
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=618 y=1018 rgb=250,250,250 / box x=618 y=1004 rgb=36,36,36
+  worst_sample_contrast: 14.87:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: 22b5f84f66822f569d9dcceb2a32a403
+G3 PASS
+  time_s: 56.06  frame: 1682
+  box_bbox: x=181..1738 y=980..1043  glyph_pixels: 12577  box_pixels: 81317
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=542 y=1013 rgb=246,246,246 / box x=542 y=1004 rgb=37,37,37
+  worst_sample_contrast: 14.18:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: 314b7bcb90d15a5e090952ee2d642c14
+L5 PASS
+  time_s: 60.74  frame: 1822
+  box_bbox: x=657..1262 y=980..1043  glyph_pixels: 4574  box_pixels: 32129
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=1082 y=1017 rgb=251,251,251 / box x=1082 y=1009 rgb=36,36,36
+  worst_sample_contrast: 15.00:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: 0be706ab5e2e0690e9d5f9fc0605f832
+B1 PASS
+  time_s: 65.66  frame: 1970
+  box_bbox: x=424..1495 y=940..1043  glyph_pixels: 16460  box_pixels: 84260
+  glyph_median_rgb: 255,255,253
+  box_median_rgb: 17,17,17
+  median_contrast: 18.86:1
+  worst_sample: glyph x=1113 y=1014 rgb=246,246,246 / box x=1113 y=1004 rgb=36,36,36
+  worst_sample_contrast: 14.36:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: b037548e76982eebf32531a214f5ee43
+B2 PASS
+  time_s: 72.54  frame: 2176
+  box_bbox: x=184..1736 y=980..1043  glyph_pixels: 12084  box_pixels: 81654
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=847 y=1015 rgb=244,244,244 / box x=847 y=1005 rgb=38,38,38
+  worst_sample_contrast: 13.76:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: d1ff255ef6798d11185b6c1c7216ad69
+L6 PASS
+  time_s: 78.22  frame: 2347
+  box_bbox: x=229..1690 y=980..1043  glyph_pixels: 11389  box_pixels: 76825
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=325 y=1014 rgb=246,246,246 / box x=325 y=1004 rgb=38,38,38
+  worst_sample_contrast: 14.00:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: 760a3dfa3a9c126a89e976849059463b
+C1 PASS
+  time_s: 82.93  frame: 2488
+  box_bbox: x=253..1666 y=980..1043  glyph_pixels: 11215  box_pixels: 74024
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=1096 y=1018 rgb=246,246,246 / box x=1096 y=1005 rgb=36,36,36
+  worst_sample_contrast: 14.36:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: 536a85459187312a7eb61e84d3d3e4d2
+C2 PASS
+  time_s: 88.32  frame: 2650
+  box_bbox: x=188..1731 y=980..1043  glyph_pixels: 11998  box_pixels: 81103
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=1090 y=1015 rgb=250,250,250 / box x=1090 y=1004 rgb=38,38,38
+  worst_sample_contrast: 14.50:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: 81d47e00eaa4707bf014d312ee5d76a4
+C3 PASS
+  time_s: 94.2  frame: 2826
+  box_bbox: x=91..1828 y=980..1043  glyph_pixels: 14009  box_pixels: 91215
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=1228 y=1014 rgb=253,253,253 / box x=1228 y=1006 rgb=38,38,38
+  worst_sample_contrast: 14.88:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: 89b8f167d5d36587ac04b245e3fbe793
+L7 PASS
+  time_s: 102.82  frame: 3085
+  box_bbox: x=443..1476 y=980..1043  glyph_pixels: 8342  box_pixels: 53955
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=1198 y=1020 rgb=246,246,246 / box x=1198 y=1007 rgb=36,36,36
+  worst_sample_contrast: 14.36:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: 58c9a13d0e7a53652fb301cb36ac2852
+D1 PASS
+  time_s: 107.64  frame: 3229
+  box_bbox: x=507..1412 y=940..1043  glyph_pixels: 14287  box_pixels: 72959
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=1157 y=975 rgb=244,244,244 / box x=1157 y=964 rgb=37,37,37
+  worst_sample_contrast: 13.94:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: c7f9e09b3c739782f69c7a5d22507af4
+D2 PASS
+  time_s: 113.04  frame: 3391
+  box_bbox: x=121..1799 y=980..1043  glyph_pixels: 13013  box_pixels: 88555
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=673 y=1007 rgb=244,244,244 / box x=673 y=999 rgb=36,36,33
+  worst_sample_contrast: 14.15:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: 6f4363469a393c9a7d1d3a34122aa995
+L8 PASS
+  time_s: 118.96  frame: 3569
+  box_bbox: x=485..1434 y=980..1043  glyph_pixels: 7718  box_pixels: 49709
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=825 y=1017 rgb=251,251,251 / box x=825 y=1007 rgb=38,38,38
+  worst_sample_contrast: 14.62:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: b45c58769b50b2a9f1360c3fcc8ea272
+E1 PASS
+  time_s: 122.6  frame: 3678
+  box_bbox: x=496..1424 y=980..1043  glyph_pixels: 7112  box_pixels: 48805
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=779 y=1018 rgb=250,250,250 / box x=779 y=1008 rgb=36,36,36
+  worst_sample_contrast: 14.87:1
+  page_rgb(24,24): 243,244,234  glyph_vs_page: 1.11:1
+  frame_md5: 1de644abb1f4cbb21010e3259ad2c73e
+E2 PASS
+  time_s: 129.8  frame: 3894
+  box_bbox: x=416..1503 y=980..1043  glyph_pixels: 8338  box_pixels: 57424
+  glyph_median_rgb: 255,255,255
+  box_median_rgb: 17,17,17
+  median_contrast: 18.88:1
+  worst_sample: glyph x=1462 y=1015 rgb=253,253,253 / box x=1462 y=1005 rgb=38,38,38
+  worst_sample_contrast: 14.88:1
+  page_rgb(24,24): 229,221,208  glyph_vs_page: 1.35:1
+  frame_md5: 6221cc9cb00d123df416ab4444e1b9b4
+L9 PASS
+  time_s: 137.0  frame: 4110
+  box_bbox: x=436..1483 y=980..1043  glyph_pixels: 8445  box_pixels: 54671
+  glyph_median_rgb: 254,253,253
+  box_median_rgb: 18,17,17
+  median_contrast: 18.57:1
+  worst_sample: glyph x=466 y=1009 rgb=244,244,244 / box x=466 y=998 rgb=38,38,38
+  worst_sample_contrast: 13.76:1
+  page_rgb(24,24): 229,221,208  glyph_vs_page: 1.33:1
+  frame_md5: da28eb0a8cb36411da56a937c9f94b1d
+SUMMARY L1=18.88/13.76 L2=18.88/14.50 L3=18.41/14.62 A1=18.88/14.06 L4=18.86/14.06 G1=18.88/14.62 G2=18.88/14.87 G3=18.88/14.18 L5=18.88/15.00 B1=18.86/14.36 B2=18.88/13.76 L6=18.88/14.00 C1=18.88/14.36 C2=18.88/14.50 C3=18.88/14.88 L7=18.88/14.36 D1=18.88/13.94 D2=18.88/14.15 L8=18.88/14.62 E1=18.88/14.87 E2=18.88/14.88 L9=18.57/13.76
+ALL_PASS True

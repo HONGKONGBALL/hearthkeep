@@ -1,0 +1,88 @@
+1
+00:00:00,000 --> 00:00:02,960
+Upkeep you only notice when something beeps.
+
+2
+00:00:05,700 --> 00:00:16,740
+A real MCP server, spec 2025-11-25 over Streamable HTTP, behind a simulated Alexa+ experience.
+
+3
+00:00:17,700 --> 00:00:19,860
+The simulator speaks first.
+
+4
+00:00:20,000 --> 00:00:25,120
+Dryer vent cleaning is twenty-one days overdue, and the fridge water filter is due today.
+
+5
+00:00:27,700 --> 00:00:32,300
+Exact-fit part, policy filter, code-gated mock purchase.
+
+6
+00:00:32,300 --> 00:00:40,540
+The certified CX-28 is the cheapest filter the rules allow, and an uncertified one is filtered out.
+
+7
+00:00:44,640 --> 00:00:49,920
+After a masked purchase code, a mock order is placed, with no real payment.
+
+8
+00:00:53,340 --> 00:00:58,780
+Get upkeep status, resolve appliance, and find parts all returned two hundred.
+
+9
+00:00:59,340 --> 00:01:02,140
+It uses what you already own.
+
+10
+00:01:02,140 --> 00:01:09,180
+Two nine-volt batteries are already on the garage shelf, so nothing is bought, and a swap task is added.
+
+11
+00:01:09,340 --> 00:01:15,740
+After the swap, one nine-volt is left, and the next change is due October 2027.
+
+12
+00:01:16,340 --> 00:01:20,100
+It places a mock booking with the pro. The limit is enforced by the server.
+
+13
+00:01:20,340 --> 00:01:25,520
+The earliest opening is Tuesday, nine to eleven, for eighty-nine dollars.
+
+14
+00:01:25,520 --> 00:01:31,120
+That is over the sixty dollar limit, so it needs approval and the purchase code.
+
+15
+00:01:31,120 --> 00:01:37,280
+The mock booking for Tuesday morning is confirmed, with no real purchase or payment.
+
+16
+00:01:40,920 --> 00:01:44,720
+New session, same memory. Safety beats shopping.
+
+17
+00:01:44,720 --> 00:01:50,560
+The next morning, the filter has shipped, and the vent cleaning is still booked for Tuesday.
+
+18
+00:01:50,760 --> 00:01:55,320
+For a gas smell, it tells you to leave the home and call your local emergency number.
+
+19
+00:01:56,960 --> 00:02:00,960
+Verifiable protocol behaviour, and open source.
+
+20
+00:02:00,960 --> 00:02:04,240
+The trace shows the raw JSON for this session.
+
+21
+00:02:06,360 --> 00:02:13,240
+It is MIT licensed, with npm test and npm run test e2e.
+
+22
+00:02:14,160 --> 00:02:19,840
+Fictional sample data. Simulated Alexa+ experience.
+

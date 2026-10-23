@@ -36,14 +36,34 @@ describe("demo video script", () => {
     const cues = loadCues();
     expect(cues.map((cue) => cue.id)).toEqual(["L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "L9"]);
     expect(cues[0].start).toBe(0);
-    expect(cues[cues.length - 1].end).toBe(139.96);
+    expect(cues[cues.length - 1].end).toBe(142.16);
     expect(cues[2].narration).toContain("The simulator speaks first");
     expect(cues[6].narration).toContain("Safety beats shopping");
     expect(cues[8].narration).toContain("Fictional sample data");
     expect(cues[8].narration).toContain("Simulated Alexa+ experience");
     const script = readFileSync(resolve(root, "docs/video-script.md"), "utf8");
     for (const id of ["A1", "G1", "G2", "G3", "B1", "B2", "C1", "C2", "C3", "D1", "D2", "E1", "E2"]) expect(script).toContain(`| ${id} |`);
-    expect(script).toContain("no on-screen caption");
+    expect(script).not.toContain("no on-screen caption");
+    expect(script).toContain("every one of the 22 spoken lines");
+    const srt = readFileSync(resolve(root, "docs/video/hearthkeep-demo.srt"), "utf8");
+    const blocks = srt.trim().split(/\n\s*\n/);
+    expect(blocks).toHaveLength(22);
+    const toSeconds = (stamp: string) => {
+      const [h, m, rest] = stamp.split(":");
+      return Number(h) * 3600 + Number(m) * 60 + Number(rest.replace(",", "."));
+    };
+    let previousEnd = 0;
+    for (const block of blocks) {
+      const [, timing, ...text] = block.split("\n");
+      const [from, to] = timing.split(" --> ").map(toSeconds);
+      expect(from).toBeGreaterThanOrEqual(previousEnd);
+      expect(to).toBeGreaterThan(from);
+      expect(to).toBeLessThanOrEqual(142.16);
+      expect(text.join(" ").length).toBeGreaterThan(0);
+      previousEnd = to;
+    }
+    for (const cue of cues) expect(srt).toContain(cue.narration);
+    for (const line of script.matchAll(/^\| ([A-G][0-9]) \| [0-9.]+ \| [^|]+ \| (.+?) \|$/gm)) expect(srt).toContain(line[2]);
     const captions = captionsAss(cues);
     expect(captions).toContain("PlayResX: 1920");
     expect(captions).toContain("PlayResY: 1080");
