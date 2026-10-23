@@ -475,6 +475,21 @@ input:focus-visible {
   grid-row: 1;
 }
 
+@media (max-width: 900px) {
+  .screen.has-alert .frame-body {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .screen.has-alert .alert {
+    grid-row: 1;
+    margin: 4px 16px 8px;
+  }
+
+  .screen.has-alert .conversation {
+    grid-row: 2;
+  }
+}
+
 .main {
   display: flex;
   gap: 20px;
